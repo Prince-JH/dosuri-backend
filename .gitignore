@@ -1,0 +1,26 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# testing
+/coverage
+**/coverage
+
+# production
+build
+dist
+
+# misc
+.DS_Store
+
+__pycache__/
+*.egg-info/
+
+# venv
+venv
+
+**/coverage.json
+
+# idea
+/.idea/*
+
+# db
+db.sqlite3
