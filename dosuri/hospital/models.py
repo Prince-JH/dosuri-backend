@@ -15,9 +15,13 @@ class Address(models.Model):
     gu = models.CharField(max_length=32, default='', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        db_table = 'address'
+
 
 class Hospital(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='hospital')
     name = models.CharField(max_length=128)
     introduction = models.CharField(max_length=512, default='', blank=True)
     phone_no = models.CharField(max_length=32, default='', blank=True)
@@ -26,3 +30,15 @@ class Hospital(models.Model):
     is_partner = models.BooleanField(default=False)
     opened_at = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'hospital'
+
+
+class HospitalImage(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_image')
+    url = models.CharField(max_length=512)
+
+    class Meta:
+        db_table = 'hospital_image'
