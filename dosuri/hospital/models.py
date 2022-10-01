@@ -39,6 +39,23 @@ class HospitalImage(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_image')
     url = models.CharField(max_length=512)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'hospital_image'
+
+
+class HospitalCalendar(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_image')
+    monday = models.CharField(max_length=128, default='', blank=True)
+    tuesday = models.CharField(max_length=128, default='', blank=True)
+    wednesday = models.CharField(max_length=128, default='', blank=True)
+    thursday = models.CharField(max_length=128, default='', blank=True)
+    friday = models.CharField(max_length=128, default='', blank=True)
+    saturday = models.CharField(max_length=128, default='', blank=True)
+    sunday = models.CharField(max_length=128, default='', blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'hospital_calendar'
