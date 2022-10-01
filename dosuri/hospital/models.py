@@ -59,3 +59,13 @@ class HospitalCalendar(models.Model):
 
     class Meta:
         db_table = 'hospital_calendar'
+
+
+class HospitalKeyword(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    name = models.CharField(max_length=512)
+    is_custom = models.BooleanField(max_length=512)  # 사용자가 추가한 키워드 True, 관리자가 추가한 키워드 False
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'hospital_keyword'
