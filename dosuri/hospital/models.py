@@ -63,8 +63,8 @@ class HospitalCalendar(models.Model):
 
 class HospitalKeyword(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    name = models.CharField(max_length=512)
-    is_custom = models.BooleanField(max_length=512)  # 사용자가 추가한 키워드 True, 관리자가 추가한 키워드 False
+    name = models.CharField(max_length=64)
+    is_custom = models.BooleanField(default=False)  # 사용자가 추가한 키워드 True, 관리자가 추가한 키워드 False
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -79,3 +79,26 @@ class HospitalKeywordAssoc(models.Model):
 
     class Meta:
         db_table = 'hospital_keyword_assoc'
+
+
+class Doctor(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='doctor')
+    thumbnail_url = models.CharField(max_length=512)
+    name = models.CharField(max_length=64)
+    title = models.CharField(max_length=64)
+    position = models.CharField(max_length=64)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'doctor'
+
+
+class DoctorDetail(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='doctor_detail')
+    description = models.CharField(max_length=256)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'doctor_detail'
