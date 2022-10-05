@@ -1,8 +1,12 @@
 import pytest
 
+from dosuri.user.models import User
 
-@pytest.fixture(scope='session')
+
+@pytest.fixture
 def dummy_user():
-    return {
-        'task_always_eager': True
-    }
+    return User.objects.create_user(
+        username='dummy',
+        email='dummy@dummy.com',
+        password='123'
+    )
