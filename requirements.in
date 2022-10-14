@@ -2,7 +2,7 @@ django
 djangorestframework
 drf-spectacular
 coreapi
-psycopg2
+psycopg-binary
 djangorestframework-simplejwt
 pytest
 pytest-django
