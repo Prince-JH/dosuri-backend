@@ -17,7 +17,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-secret_file = os.path.join(f'{BASE_DIR}/config', 'secret.json')
+secret_file = os.path.join(f'{BASE_DIR}/.ebextensions', 'secret.json')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 with open(secret_file, encoding='utf-8') as fin:
@@ -27,7 +27,7 @@ with open(secret_file, encoding='utf-8') as fin:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['http://dosuri-env.eba-igc5wtjb.ap-northeast-2.elasticbeanstalk.com/']
 
 # Application definition
 
@@ -39,12 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'drf_spectacular',
-
     'dosuri.apps.DosuriConfig',
     # 'dosuri.user.apps.DosuriUserConfig',
     # 'dosuri.hospital.apps.DosuriHospitalConfig',
 ]
+if DEBUG:
+    INSTALLED_APPS.append('drf_spectacular')
 
 AUTH_USER_MODEL = 'dosuri.User'
 
