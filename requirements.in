@@ -3,3 +3,4 @@ djangorestframework
 drf-spectacular
 coreapi
 psycopg2
+djangorestframework-simplejwt

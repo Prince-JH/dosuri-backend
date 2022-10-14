@@ -20,11 +20,15 @@ django==4.1.2
     # via
     #   -r requirements.in
     #   djangorestframework
+    #   djangorestframework-simplejwt
     #   drf-spectacular
 djangorestframework==3.14.0
     # via
     #   -r requirements.in
+    #   djangorestframework-simplejwt
     #   drf-spectacular
+djangorestframework-simplejwt==5.2.1
+    # via -r requirements.in
 drf-spectacular==0.24.2
     # via -r requirements.in
 idna==3.4
@@ -41,6 +45,8 @@ markupsafe==2.1.1
     # via jinja2
 psycopg2==2.9.4
     # via -r requirements.in
+pyjwt==2.5.0
+    # via djangorestframework-simplejwt
 pyrsistent==0.18.1
     # via jsonschema
 pytz==2022.4
