@@ -1,0 +1,5 @@
+django
+djangorestframework
+drf-spectacular
+coreapi
+psycopg2
