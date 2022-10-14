@@ -5,3 +5,4 @@ coreapi
 psycopg2
 djangorestframework-simplejwt
 pytest
+pytest-django
