@@ -1,10 +1,4 @@
 import pytest
-import os
-import django
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings_test")
-django.setup()
-
 from dosuri.user.models import User
 
 
