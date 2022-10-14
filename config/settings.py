@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'dosuri.apps.DosuriConfig',
-    'drf_spectacular',
+    # 'drf_spectacular',
 ]
 # if DEBUG:
 #     INSTALLED_APPS.append('drf_spectacular')
