@@ -2,11 +2,6 @@ from uuid import uuid4
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-import os
-import django
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
-django.setup()
 
 
 def generate_uuid():
