@@ -17,7 +17,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-secret_file = os.path.join(f'{BASE_DIR}/.ebextensions', 'secret.json')
+secret_file = os.path.join(f'{BASE_DIR}/config', 'secret.json')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 with open(secret_file, encoding='utf-8') as fin:
