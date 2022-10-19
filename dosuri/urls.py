@@ -31,4 +31,5 @@ urlpatterns = [
 
     # user
     path('api/user/v1/', include('dosuri.user.urls')),
+    path('api/hospital/v1/', include('dosuri.hospital.urls')),
 ]
