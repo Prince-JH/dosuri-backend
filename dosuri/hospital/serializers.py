@@ -7,7 +7,7 @@ class Hospital(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     address: s.Field = s.SlugRelatedField(
         slug_field='uuid',
-        queryset=m.Hospital.objects.all()
+        queryset=m.Address.objects.all()
     )
     name: s.Field = s.CharField()
     introduction: s.Field = s.CharField(allow_blank=True)
@@ -21,3 +21,4 @@ class Hospital(s.ModelSerializer):
     class Meta:
         model = m.Hospital
         exclude = ('id',)
+
