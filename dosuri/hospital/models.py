@@ -9,10 +9,10 @@ def generate_uuid():
 
 class Address(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    do = models.CharField(max_length=32, default='', blank=True)
-    city = models.CharField(max_length=32, default='', blank=True)
-    gun = models.CharField(max_length=32, default='', blank=True)
-    gu = models.CharField(max_length=32, default='', blank=True)
+    do = models.CharField(max_length=32, null=True)
+    city = models.CharField(max_length=32, null=True)
+    gun = models.CharField(max_length=32, null=True)
+    gu = models.CharField(max_length=32, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -28,7 +28,7 @@ class Hospital(models.Model):
     up_count = models.IntegerField(default=0)
     view_count = models.IntegerField(default=0)
     is_partner = models.BooleanField(default=False)
-    opened_at = models.DateTimeField()
+    opened_at = models.DateTimeField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

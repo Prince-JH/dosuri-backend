@@ -15,7 +15,7 @@ class Hospital(s.ModelSerializer):
     up_count: s.Field = s.IntegerField(read_only=True)
     view_count: s.Field = s.IntegerField(read_only=True)
     is_partner: s.Field = s.BooleanField()
-    opened_at: s.Field = s.DateTimeField()
+    opened_at: s.Field = s.DateTimeField(allow_null=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
