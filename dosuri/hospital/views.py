@@ -6,7 +6,8 @@ from rest_framework import (
 
 from dosuri.hospital import (
     models as m,
-    serializers as s
+    serializers as s,
+    filters as hf
 )
 
 
@@ -16,6 +17,14 @@ class HospitalList(g.ListCreateAPIView):
 
     queryset = m.Hospital.objects.all()
     serializer_class = s.Hospital
-    filter_backends = [rf.OrderingFilter]
+    filter_backends = [rf.OrderingFilter, hf.ForeignUuidFilter]
     ordering_field = '__all__'
     ordering = ['view_count']
+    uuid_filter_params = ['address']
+
+
+class HospitalDetail(g.RetrieveUpdateDestroyAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = m.Hospital.objects.all()
+    serializer_class = s.Hospital
+    lookup_field = 'uuid'

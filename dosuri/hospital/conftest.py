@@ -1,11 +1,20 @@
 import pytest
 from dosuri.hospital import models as hm
 
+
 @pytest.fixture
 def address_서울시_강남구():
     return hm.Address.objects.create(
         do='서울시',
         gu='강남구'
+    )
+
+
+@pytest.fixture
+def address_수원시_팔달구():
+    return hm.Address.objects.create(
+        do='수원시',
+        gu='팔달구'
     )
 
 

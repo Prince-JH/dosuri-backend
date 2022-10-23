@@ -1,0 +1,55 @@
+from rest_framework import filters
+from dosuri.hospital import filter_schema as fsc
+
+
+# class AddressFilter(fsc.TimeRangeFilter, filters.BaseFilterBackend):
+#     def filter_queryset(self, request, queryset, view, now=None):
+#         address = view.address
+#
+#
+#         kwargs = self.get_param_kwargs(request, params)
+#         now = now or get_current_time_header(request) or None
+#         range_from, range_to = get_range_from_request(request, view)
+#
+#         if not (range_from or range_to):
+#             return queryset
+#
+#         return queryset.filter_by_time_range(range_from, range_to, now=now)
+
+
+class ForeignUuidFilter(fsc.ForeignUuidFilter, filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        params = view.uuid_filter_params
+
+        kwargs = self.get_param_kwargs(request, params)
+        if not kwargs:
+            return queryset
+
+        conds = self.get_filter_condition(queryset, kwargs)
+        return queryset.filter(**conds).distinct()
+
+    def get_param_kwargs(self, request, params):
+        return {param: request.GET.getlist(param)
+                for param in params if request.GET.getlist(param)}
+
+    def get_filter_condition(self, queryset, kwargs):
+        meta = queryset.model._meta
+        conds = {}
+
+        for model_abs_name, uuid_list in kwargs.items():
+            chunk = model_abs_name.split('__')
+
+            if len(chunk) > 1:
+                conds[f'{model_abs_name}__uuid__in'] = uuid_list
+                continue
+
+            model_name = chunk[0]
+
+            field = meta.get_field(model_name)
+            obj_ids = self.get_rel_obj_ids(field.related_model, uuid_list)
+            conds[f'{model_abs_name}_id__in'] = obj_ids
+
+        return conds
+
+    def get_rel_obj_ids(self, model, uuid_list):
+        return list(model.objects.only('id').filter(uuid__in=uuid_list).values_list('id', flat=True))
