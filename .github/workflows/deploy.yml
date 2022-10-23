@@ -30,9 +30,6 @@ jobs:
       - name: Run Tests
         run: make test
 
-      - name: Execute Migration
-        run: python3 manage.py migrate
-
       - name: Execute Collect Staticfiles
         run: python3 manage.py collectstatic
 
