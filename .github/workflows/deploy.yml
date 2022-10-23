@@ -33,6 +33,9 @@ jobs:
       - name: Execute Migration
         run: python3 manage.py migrate
 
+      - name: Execute Collect Staticfiles
+          run: python3 manage.py collectstatic
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
