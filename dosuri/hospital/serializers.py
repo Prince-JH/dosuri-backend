@@ -22,3 +22,22 @@ class Hospital(s.ModelSerializer):
         model = m.Hospital
         exclude = ('id',)
 
+
+class HospitalCalendar(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    hospital: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=m.Hospital.objects.all()
+    )
+    monday: s.Field = s.CharField()
+    tuesday: s.Field = s.CharField(allow_blank=True)
+    wednesday: s.Field = s.CharField(allow_blank=True)
+    thursday: s.Field = s.CharField(allow_blank=True)
+    friday: s.Field = s.CharField(allow_blank=True)
+    saturday: s.Field = s.CharField(allow_blank=True)
+    sunday: s.Field = s.CharField(allow_blank=True)
+    created_at: s.Field = s.DateTimeField(read_only=True)
+
+    class Meta:
+        model = m.Hospital
+        exclude = ('id',)
