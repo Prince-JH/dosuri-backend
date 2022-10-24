@@ -10,7 +10,7 @@ class TestToken:
             "username": dummy_user.username,
             "password": '123'
         }
-        response = client.post('/api/user/v1/token/', data)
+        response = client.post('/user/v1/token/', data)
         content = json.loads(response.content)
         assert response.status_code == 200
         assert content['access']
@@ -22,7 +22,7 @@ class TestToken:
             "username": dummy_user.username,
             "password": 'wrong password'
         }
-        response = client.post('/api/user/v1/token/', data)
+        response = client.post('/user/v1/token/', data)
         json.loads(response.content)
         assert response.status_code == 401
 
@@ -32,16 +32,16 @@ class TestToken:
             "username": dummy_user.username,
             "password": '123'
         }
-        response = client.post('/api/user/v1/token/', data)
+        response = client.post('/user/v1/token/', data)
         content = json.loads(response.content)
         assert response.status_code == 200
 
-        response = client.post('/api/user/v1/token/verify/', {'token': content['access']})
+        response = client.post('/user/v1/token/verify/', {'token': content['access']})
         assert response.status_code == 200
 
     @pytest.mark.django_db
     def test_verify_invalid_token(self, client):
-        response = client.post('/api/user/v1/token/verify/', {'token': 'invalid_token'})
+        response = client.post('/user/v1/token/verify/', {'token': 'invalid_token'})
         assert response.status_code == 401
 
     @pytest.mark.django_db
@@ -50,16 +50,16 @@ class TestToken:
             "username": dummy_user.username,
             "password": '123'
         }
-        response = client.post('/api/user/v1/token/', data)
+        response = client.post('/user/v1/token/', data)
         content = json.loads(response.content)
         assert response.status_code == 200
 
-        response = client.post('/api/user/v1/token/refresh/', {'refresh': content['refresh']})
+        response = client.post('/user/v1/token/refresh/', {'refresh': content['refresh']})
         assert response.status_code == 200
         content = json.loads(response.content)
         assert content['access']
 
     @pytest.mark.django_db
     def test_refresh_with_invalid_token(self, client):
-        response = client.post('/api/user/v1/token/refresh/', {'refresh': 'invalid_token'})
+        response = client.post('/user/v1/token/refresh/', {'refresh': 'invalid_token'})
         assert response.status_code == 401
