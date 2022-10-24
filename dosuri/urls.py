@@ -30,6 +30,6 @@ urlpatterns = [
     path('redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
     # user
-    path('api/user/v1/', include('dosuri.user.urls')),
-    path('api/hospital/v1/', include('dosuri.hospital.urls')),
+    path('user/', include('dosuri.user.urls')),
+    path('hospital/', include('dosuri.hospital.urls')),
 ]
