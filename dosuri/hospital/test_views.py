@@ -63,3 +63,12 @@ class TestHospitalCalendar:
 
         assert response.status_code == 200
         assert len(content['results']) == 1
+
+    @pytest.mark.django_db
+    def test_get_calendars_at_once_by_hospitals(self, client, hospital_test_A, hospital_test_B,
+                                                hospital_calendar_test_A, hospital_calendar_test_B):
+        response = client.get(f'/hospital/v1/hospitals-calendar/?hospital={hospital_test_A.uuid}&hospital={hospital_test_B.uuid}')
+        content = json.loads(response.content)
+
+        assert response.status_code == 200
+        assert len(content['results']) == 2
