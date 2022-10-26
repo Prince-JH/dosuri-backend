@@ -23,6 +23,20 @@ class Hospital(s.ModelSerializer):
         exclude = ('id',)
 
 
+class HospitalImage(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    hospital: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=m.Hospital.objects.all()
+    )
+    url: s.Field = s.CharField()
+    created_at: s.Field = s.DateTimeField(read_only=True)
+
+    class Meta:
+        model = m.HospitalImage
+        exclude = ('id',)
+
+
 class HospitalCalendar(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     hospital: s.Field = s.SlugRelatedField(

@@ -42,3 +42,18 @@ class HospitalCalendarDetail(g.RetrieveUpdateDestroyAPIView):
     queryset = m.HospitalCalendar.objects.all()
     serializer_class = s.HospitalCalendar
     lookup_field = 'uuid'
+
+
+class HospitalImageList(g.ListCreateAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = m.HospitalImage.objects.all()
+    serializer_class = s.HospitalImage
+    filter_backends = [f.ForeignUuidFilter]
+    uuid_filter_params = ['hospital']
+
+
+class HospitalImageDetail(g.RetrieveUpdateDestroyAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = m.HospitalImage.objects.all()
+    serializer_class = s.HospitalImage
+    lookup_field = 'uuid'

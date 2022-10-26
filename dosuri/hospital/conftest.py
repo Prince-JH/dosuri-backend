@@ -57,3 +57,31 @@ def hospital_calendar_test_B(hospital_test_B):
         saturday='10:00 ~ 20:00',
         sunday='',
     )
+
+@pytest.fixture
+def hospital_url_1_test_A(hospital_test_A):
+    return hm.HospitalImage.objects.create(
+        hospital=hospital_test_A,
+        url='url_1'
+    )
+
+@pytest.fixture
+def hospital_url_2_test_A(hospital_test_A):
+    return hm.HospitalImage.objects.create(
+        hospital=hospital_test_A,
+        url='url_2'
+    )
+
+@pytest.fixture
+def hospital_url_3_test_B(hospital_test_B):
+    return hm.HospitalImage.objects.create(
+        hospital=hospital_test_B,
+        url='url_3'
+    )
+
+@pytest.fixture
+def hospital_url_4_test_B(hospital_test_B):
+    return hm.HospitalImage.objects.create(
+        hospital=hospital_test_B,
+        url='url_4'
+    )

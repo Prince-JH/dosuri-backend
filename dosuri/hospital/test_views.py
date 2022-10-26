@@ -58,7 +58,7 @@ class TestHospitalDetail:
 class TestHospitalCalendar:
     @pytest.mark.django_db
     def test_get_calendar_by_hospital(self, client, hospital_test_A, hospital_calendar_test_A):
-        response = client.get(f'/hospital/v1/hospitals-calendar/?hospital={hospital_test_A.uuid}')
+        response = client.get(f'/hospital/v1/hospital-calendars/?hospital={hospital_test_A.uuid}')
         content = json.loads(response.content)
 
         assert response.status_code == 200
@@ -67,8 +67,33 @@ class TestHospitalCalendar:
     @pytest.mark.django_db
     def test_get_calendars_at_once_by_hospitals(self, client, hospital_test_A, hospital_test_B,
                                                 hospital_calendar_test_A, hospital_calendar_test_B):
-        response = client.get(f'/hospital/v1/hospitals-calendar/?hospital={hospital_test_A.uuid}&hospital={hospital_test_B.uuid}')
+        response = client.get(
+            f'/hospital/v1/hospital-calendars/?hospital={hospital_test_A.uuid}&hospital={hospital_test_B.uuid}')
         content = json.loads(response.content)
 
         assert response.status_code == 200
         assert len(content['results']) == 2
+
+
+class TestHospitalImage:
+    @pytest.mark.django_db
+    def test_get_images_by_hospital_should_return_all_two_images(self, client, hospital_test_A, hospital_url_1_test_A,
+                                                                 hospital_url_2_test_A):
+        response = client.get(f'/hospital/v1/hospital-images/?hospital={hospital_test_A.uuid}')
+        content = json.loads(response.content)
+
+        assert response.status_code == 200
+        assert len(content['results']) == 2
+
+    @pytest.mark.django_db
+    def test_get_images_at_once_by_hospitals_should_return_all_four_images(self, client, hospital_test_A,
+                                                                           hospital_test_B,
+                                                                           hospital_url_1_test_A, hospital_url_2_test_A,
+                                                                           hospital_url_3_test_B,
+                                                                           hospital_url_4_test_B):
+        response = client.get(
+            f'/hospital/v1/hospital-images/?hospital={hospital_test_A.uuid}&hospital={hospital_test_B.uuid}')
+        content = json.loads(response.content)
+
+        assert response.status_code == 200
+        assert len(content['results']) == 4
