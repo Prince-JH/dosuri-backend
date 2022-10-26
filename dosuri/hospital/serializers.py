@@ -29,7 +29,7 @@ class HospitalCalendar(s.ModelSerializer):
         slug_field='uuid',
         queryset=m.Hospital.objects.all()
     )
-    monday: s.Field = s.CharField()
+    monday: s.Field = s.CharField(allow_blank=True)
     tuesday: s.Field = s.CharField(allow_blank=True)
     wednesday: s.Field = s.CharField(allow_blank=True)
     thursday: s.Field = s.CharField(allow_blank=True)
@@ -39,5 +39,5 @@ class HospitalCalendar(s.ModelSerializer):
     created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
-        model = m.Hospital
+        model = m.HospitalCalendar
         exclude = ('id',)

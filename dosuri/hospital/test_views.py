@@ -46,10 +46,20 @@ class TestHospitalList:
         assert hm.Hospital.objects.all().count() == 1
 
 
-class TestHospitalView:
+class TestHospitalDetail:
     @pytest.mark.django_db
     def test_get_hospital_by_uuid(self, client, hospital_test_A):
         response = client.get(f'/hospital/v1/hospitals/{hospital_test_A.uuid}/')
         content = json.loads(response.content)
         assert response.status_code == 200
         assert content['name'] == hospital_test_A.name
+
+
+class TestHospitalCalendar:
+    @pytest.mark.django_db
+    def test_get_calendar_by_hospital(self, client, hospital_test_A, hospital_calendar_test_A):
+        response = client.get(f'/hospital/v1/hospitals-calendar/?hospital={hospital_test_A.uuid}')
+        content = json.loads(response.content)
+
+        assert response.status_code == 200
+        assert len(content['results']) == 1

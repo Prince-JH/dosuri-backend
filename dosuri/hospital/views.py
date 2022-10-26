@@ -14,7 +14,6 @@ from dosuri.hospital import (
 # Todo verification 로직 타기
 class HospitalList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-
     queryset = m.Hospital.objects.all()
     serializer_class = s.Hospital
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
