@@ -31,12 +31,28 @@ class TestHospitalList:
         assert len(content['results']) == 1
 
     @pytest.mark.django_db
+    def test_list_hospital_search_by_exist_name_should_return_one(self, client, hospital_test_A):
+        response = client.get(f'/hospital/v1/hospitals/?search=test_A')
+        content = json.loads(response.content)
+
+        assert response.status_code == 200
+        assert len(content['results']) == 1
+
+    @pytest.mark.django_db
+    def test_list_hospital_search_by_not_exist_name_should_return_zero(self, client, hospital_test_A):
+        response = client.get(f'/hospital/v1/hospitals/?search=test_B')
+        content = json.loads(response.content)
+
+        assert response.status_code == 200
+        assert len(content['results']) == 0
+
+    @pytest.mark.django_db
     def test_create_hospital(self, client, address_서울시_강남구):
         data = {
             'address': address_서울시_강남구.uuid,
             'name': 'test hospital',
-            'introduction': '',
-            'phone_no': '',
+            'introduction': None,
+            'phone_no': None,
             'is_partner': False,
             'opened_at': None
         }
