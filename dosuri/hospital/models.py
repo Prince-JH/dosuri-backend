@@ -23,8 +23,8 @@ class Hospital(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='hospital')
     name = models.CharField(max_length=128)
-    introduction = models.CharField(max_length=512, default='', blank=True)
-    phone_no = models.CharField(max_length=32, default='', blank=True)
+    introduction = models.CharField(max_length=512, null=True)
+    phone_no = models.CharField(max_length=32, null=True)
     up_count = models.IntegerField(default=0)
     view_count = models.IntegerField(default=0)
     is_partner = models.BooleanField(default=False)
@@ -48,13 +48,13 @@ class HospitalImage(models.Model):
 class HospitalCalendar(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_calendar')
-    monday = models.CharField(max_length=128, default='', blank=True)
-    tuesday = models.CharField(max_length=128, default='', blank=True)
-    wednesday = models.CharField(max_length=128, default='', blank=True)
-    thursday = models.CharField(max_length=128, default='', blank=True)
-    friday = models.CharField(max_length=128, default='', blank=True)
-    saturday = models.CharField(max_length=128, default='', blank=True)
-    sunday = models.CharField(max_length=128, default='', blank=True)
+    monday = models.CharField(max_length=128, null=True)
+    tuesday = models.CharField(max_length=128, null=True)
+    wednesday = models.CharField(max_length=128, null=True)
+    thursday = models.CharField(max_length=128, null=True)
+    friday = models.CharField(max_length=128, null=True)
+    saturday = models.CharField(max_length=128, null=True)
+    sunday = models.CharField(max_length=128, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -85,7 +85,7 @@ class HospitalKeywordAssoc(models.Model):
 class Doctor(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='doctor')
-    thumbnail_url = models.CharField(max_length=512)
+    thumbnail_url = models.CharField(max_length=512, null=True)
     name = models.CharField(max_length=64)
     title = models.CharField(max_length=64)
     position = models.CharField(max_length=64)
@@ -95,7 +95,7 @@ class Doctor(models.Model):
         db_table = 'doctor'
 
 
-class DoctorDetail(models.Model):
+class DoctorDescription(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='doctor_detail')
     description = models.CharField(max_length=256)
