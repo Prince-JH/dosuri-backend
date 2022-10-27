@@ -26,7 +26,7 @@ venv
 /.idea/*
 
 # db
-#db.sqlite3
+db.sqlite3
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
