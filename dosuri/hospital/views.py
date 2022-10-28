@@ -112,7 +112,7 @@ class HospitalKeywordAssocList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.HospitalKeywordAssoc.objects.all()
     serializer_class = s.HospitalKeywordAssoc
-    filter_backends = [rf.OrderingFilte, f.ForeignUuidFilter]
+    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
     ordering_field = '__all__'
     uuid_filter_params = ['hospital', 'keyword']
 
@@ -128,7 +128,7 @@ class DoctorKeywordAssocList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.DoctorKeywordAssoc.objects.all()
     serializer_class = s.DoctorKeywordAssoc
-    filter_backends = [rf.OrderingFilte, f.ForeignUuidFilter]
+    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
     ordering_field = '__all__'
     uuid_filter_params = ['doctor', 'keyword']
 

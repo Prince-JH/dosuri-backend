@@ -117,7 +117,7 @@ class HospitalKeywordAssoc(s.ModelSerializer):
         exclude = ('id',)
 
 
-class HospitalKeywordAssoc(s.ModelSerializer):
+class DoctorKeywordAssoc(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     doctor: s.Field = s.SlugRelatedField(
         slug_field='uuid',
