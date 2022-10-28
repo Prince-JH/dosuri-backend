@@ -85,3 +85,18 @@ def hospital_url_4_test_B(hospital_test_B):
         hospital=hospital_test_B,
         url='url_4'
     )
+
+@pytest.fixture
+def doctor_A_test_A(hospital_test_A):
+    return hm.Doctor.objects.create(
+        hospital=hospital_test_A,
+        name='test_A',
+    )
+
+
+@pytest.fixture
+def description_A_doctor_A_test_A(doctor_A_test_A):
+    return hm.DoctorDescription.objects.create(
+        doctor=doctor_A_test_A,
+        description='test_A',
+    )

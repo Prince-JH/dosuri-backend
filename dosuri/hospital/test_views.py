@@ -113,3 +113,64 @@ class TestHospitalImage:
 
         assert response.status_code == 200
         assert len(content['results']) == 4
+
+
+class TestDoctor:
+    @pytest.mark.django_db
+    def test_list_doctor_should_return_zero(self, client):
+        response = client.get(f'/hospital/v1/doctors/')
+        content = json.loads(response.content)
+
+        assert response.status_code == 200
+        assert len(content['results']) == 0
+
+    @pytest.mark.django_db
+    def test_list_doctor_should_return_one(self, client, doctor_A_test_A):
+        response = client.get(f'/hospital/v1/doctors/')
+        content = json.loads(response.content)
+
+        assert response.status_code == 200
+        assert len(content['results']) == 1
+
+    @pytest.mark.django_db
+    def test_create_doctor(self, client, hospital_test_A):
+        data = {
+            'hospital': hospital_test_A.uuid,
+            'name': 'test doctor',
+            'thumbnail_url': None,
+            'title': 'chief',
+            'position': 'therapist',
+        }
+        response = client.post('/hospital/v1/doctors/', data=data, content_type='application/json')
+
+        assert response.status_code == 201
+        assert hm.Hospital.objects.all().count() == 1
+
+
+class TestDoctorDescription:
+    @pytest.mark.django_db
+    def test_list_doctor_description_should_return_zero(self, client):
+        response = client.get(f'/hospital/v1/doctor-descriptions/')
+        content = json.loads(response.content)
+
+        assert response.status_code == 200
+        assert len(content['results']) == 0
+
+    @pytest.mark.django_db
+    def test_list_doctor_description_should_return_one(self, client, description_A_doctor_A_test_A):
+        response = client.get(f'/hospital/v1/doctor-descriptions/')
+        content = json.loads(response.content)
+
+        assert response.status_code == 200
+        assert len(content['results']) == 1
+
+    @pytest.mark.django_db
+    def test_create_doctor(self, client, doctor_A_test_A):
+        data = {
+            'doctor': doctor_A_test_A.uuid,
+            'description': 'test description',
+        }
+        response = client.post('/hospital/v1/doctor-descriptions/', data=data, content_type='application/json')
+
+        assert response.status_code == 201
+        assert hm.Hospital.objects.all().count() == 1
