@@ -17,6 +17,7 @@ class Address(models.Model):
 
     class Meta:
         db_table = 'address'
+        ordering = ['-id']
 
 
 class Hospital(models.Model):
@@ -33,6 +34,7 @@ class Hospital(models.Model):
 
     class Meta:
         db_table = 'hospital'
+        ordering = ['-id']
 
 
 class HospitalImage(models.Model):
@@ -43,6 +45,7 @@ class HospitalImage(models.Model):
 
     class Meta:
         db_table = 'hospital_image'
+        ordering = ['-id']
 
 
 class HospitalCalendar(models.Model):
@@ -59,6 +62,7 @@ class HospitalCalendar(models.Model):
 
     class Meta:
         db_table = 'hospital_calendar'
+        ordering = ['-id']
 
 
 class Keyword(models.Model):
@@ -70,6 +74,7 @@ class Keyword(models.Model):
 
     class Meta:
         db_table = 'hospital_keyword'
+        ordering = ['-id']
 
 
 class HospitalKeywordAssoc(models.Model):
@@ -80,6 +85,7 @@ class HospitalKeywordAssoc(models.Model):
 
     class Meta:
         db_table = 'hospital_keyword_assoc'
+        ordering = ['-id']
 
 
 class Doctor(models.Model):
@@ -93,6 +99,7 @@ class Doctor(models.Model):
 
     class Meta:
         db_table = 'doctor'
+        ordering = ['-id']
 
 
 class DoctorDescription(models.Model):
@@ -103,6 +110,7 @@ class DoctorDescription(models.Model):
 
     class Meta:
         db_table = 'doctor_detail'
+        ordering = ['-id']
 
 
 class DoctorKeywordAssoc(models.Model):
@@ -113,6 +121,7 @@ class DoctorKeywordAssoc(models.Model):
 
     class Meta:
         db_table = 'doctor_keyword_assoc'
+        ordering = ['-id']
 
 
 class InsuranceLog(models.Model):
@@ -122,6 +131,7 @@ class InsuranceLog(models.Model):
 
     class Meta:
         db_table = 'insurance_log'
+        ordering = ['-id']
 
 # class Review(models.Model):
 #     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
