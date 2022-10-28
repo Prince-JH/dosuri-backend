@@ -86,3 +86,49 @@ class DoctorDescription(s.ModelSerializer):
     class Meta:
         model = m.DoctorDescription
         exclude = ('id',)
+
+
+class Keyword(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    name: s.Field = s.CharField()
+    is_custom: s.Field = s.BooleanField()
+    domain: s.Field = s.CharField()
+    created_at: s.Field = s.DateTimeField(read_only=True)
+
+    class Meta:
+        model = m.Keyword
+        exclude = ('id',)
+
+
+class HospitalKeywordAssoc(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    hospital: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=m.Hospital.objects.all()
+    )
+    keyword: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=m.Keyword.objects.all()
+    )
+    created_at: s.Field = s.DateTimeField(read_only=True)
+
+    class Meta:
+        model = m.HospitalKeywordAssoc
+        exclude = ('id',)
+
+
+class HospitalKeywordAssoc(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    doctor: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=m.Doctor.objects.all()
+    )
+    keyword: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=m.Keyword.objects.all()
+    )
+    created_at: s.Field = s.DateTimeField(read_only=True)
+
+    class Meta:
+        model = m.DoctorKeywordAssoc
+        exclude = ('id',)
