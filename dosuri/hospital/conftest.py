@@ -1,5 +1,8 @@
 import pytest
-from dosuri.hospital import models as hm
+from dosuri.hospital import (
+    models as hm,
+    constants as hc
+)
 
 
 @pytest.fixture
@@ -87,7 +90,7 @@ def hospital_url_4_test_B(hospital_test_B):
     )
 
 @pytest.fixture
-def doctor_A_test_A(hospital_test_A):
+def doctor_A_hospital_A(hospital_test_A):
     return hm.Doctor.objects.create(
         hospital=hospital_test_A,
         name='test_A',
@@ -95,8 +98,38 @@ def doctor_A_test_A(hospital_test_A):
 
 
 @pytest.fixture
-def description_A_doctor_A_test_A(doctor_A_test_A):
+def description_A_doctor_A_test_A(doctor_A_hospital_A):
     return hm.DoctorDescription.objects.create(
-        doctor=doctor_A_test_A,
+        doctor=doctor_A_hospital_A,
         description='test_A',
+    )
+
+@pytest.fixture
+def hospital_keyword_A():
+    return hm.Keyword.objects.create(
+        name='test_A',
+        is_custom=False,
+        domain=hc.KEYWORD_HOSPITAL
+    )
+
+@pytest.fixture
+def hospital_A_keyword_A_assoc(hospital_test_A, hospital_keyword_A):
+    return hm.HospitalKeywordAssoc.objects.create(
+        hospital=hospital_test_A,
+        keyword=hospital_keyword_A
+    )
+
+@pytest.fixture
+def doctor_keyword_A():
+    return hm.Keyword.objects.create(
+        name='test_A',
+        is_custom=False,
+        domain=hc.KEYWORD_DOCTOR
+    )
+
+@pytest.fixture
+def doctor_A_keyword_A_assoc(doctor_A_hospital_A, doctor_keyword_A):
+    return hm.DoctorKeywordAssoc.objects.create(
+        doctor=doctor_A_hospital_A,
+        keyword=doctor_keyword_A
     )
