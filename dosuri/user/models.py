@@ -21,3 +21,12 @@ class User(AbstractUser):
         db_table = 'user'
         app_label = 'dosuri'
 
+
+class InsuranceLog(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    user_id = models.CharField(max_length=16)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'insurance_log'
+        ordering = ['-id']

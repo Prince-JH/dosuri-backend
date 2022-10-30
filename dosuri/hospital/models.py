@@ -124,13 +124,16 @@ class DoctorKeywordAssoc(models.Model):
         ordering = ['-id']
 
 
-class InsuranceLog(models.Model):
+class HospitalTreatment(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    user_id = models.CharField(max_length=16)
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_treatment')
+    price = models.IntegerField()
+    duration = models.IntegerField()
+    description = models.CharField(max_length=512, default='')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'insurance_log'
+        db_table = 'hospital_treatment'
         ordering = ['-id']
 
 # class Review(models.Model):
