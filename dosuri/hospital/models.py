@@ -129,7 +129,7 @@ class HospitalTreatment(models.Model):
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_treatment')
     price = models.IntegerField()
     duration = models.IntegerField()
-    description = models.CharField(max_length=512, default='')
+    description = models.CharField(max_length=512, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
