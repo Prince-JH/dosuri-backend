@@ -132,3 +132,19 @@ class DoctorKeywordAssoc(s.ModelSerializer):
     class Meta:
         model = m.DoctorKeywordAssoc
         exclude = ('id',)
+
+
+class HospitalTreatment(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    hospital: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=m.Hospital.objects.all()
+    )
+    price: s.Field = s.IntegerField()
+    duration: s.Field = s.IntegerField()
+    description: s.Field = s.CharField(allow_null=True)
+    created_at: s.Field = s.DateTimeField(read_only=True)
+
+    class Meta:
+        model = m.HospitalTreatment
+        exclude = ('id',)

@@ -18,7 +18,10 @@ urlpatterns = [
     path('v1/keywords/', v.KeywordList.as_view(), name='keyword'),
     path('v1/keywords/<uuid>/', v.KeywordDetail.as_view(), name='keyword-detail'),
     path('v1/hospital-keyword-assocs/', v.HospitalKeywordAssocList.as_view(), name='hospital-keyword-assoc'),
-    path('v1/hospital-keyword-assocs/<uuid>/', v.HospitalKeywordAssocList.as_view(), name='hospital-keyword-assoc-detail'),
+    path('v1/hospital-keyword-assocs/<uuid>/', v.HospitalKeywordAssocList.as_view(),
+         name='hospital-keyword-assoc-detail'),
     path('v1/doctor-keyword-assocs/', v.DoctorKeywordAssocList.as_view(), name='doctor-keyword-assoc'),
     path('v1/doctor-keyword-assocs/<uuid>/', v.DoctorKeywordAssocDetail.as_view(), name='doctor-keyword-assoc-detail'),
+    path('v1/hospital-treatments/', v.HospitalTreatmentList.as_view(), name='hospital-treatments'),
+    path('v1/hospital-treatments/<uuid>/', v.HospitalTreatmentDetail.as_view(), name='hospital-treatments'),
 ]

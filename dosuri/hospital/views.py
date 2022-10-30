@@ -138,3 +138,19 @@ class DoctorKeywordAssocDetail(g.RetrieveUpdateDestroyAPIView):
     queryset = m.DoctorKeywordAssoc.objects.all()
     serializer_class = s.DoctorKeywordAssoc
     lookup_field = 'uuid'
+
+
+class HospitalTreatmentList(g.ListCreateAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = m.HospitalTreatment.objects.all()
+    serializer_class = s.HospitalTreatment
+    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
+    ordering_field = '__all__'
+    uuid_filter_params = ['hospital']
+
+
+class HospitalTreatmentDetail(g.RetrieveUpdateDestroyAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = m.HospitalTreatment.objects.all()
+    serializer_class = s.HospitalTreatment
+    lookup_field = 'uuid'

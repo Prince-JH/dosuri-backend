@@ -238,7 +238,6 @@ class TestHospitalKeywordAssoc:
         assert hm.HospitalKeywordAssoc.objects.all().count() == 1
 
 
-
 class TestDoctorKeywordAssoc:
     @pytest.mark.django_db
     def test_list_doctor_keyword_assoc_should_return_zero(self, client):
@@ -266,3 +265,34 @@ class TestDoctorKeywordAssoc:
 
         assert response.status_code == 201
         assert hm.DoctorKeywordAssoc.objects.all().count() == 1
+
+
+class TestHospitalTreatment:
+    @pytest.mark.django_db
+    def test_list_hospital_treatment_should_return_zero(self, client):
+        response = client.get(f'/hospital/v1/hospital-treatments/')
+        content = json.loads(response.content)
+
+        assert response.status_code == 200
+        assert len(content['results']) == 0
+
+    @pytest.mark.django_db
+    def test_list_hospital_treatment_should_return_one(self, client, hospital_treatments_test_A):
+        response = client.get(f'/hospital/v1/hospital-treatments/')
+        content = json.loads(response.content)
+
+        assert response.status_code == 200
+        assert len(content['results']) == 1
+
+    @pytest.mark.django_db
+    def test_create_hospital_treatment(self, client, hospital_test_A):
+        data = {
+            'hospital': hospital_test_A.uuid,
+            'price': 80000,
+            'duration': 30,
+            'description': '원장이 직접 실시'
+        }
+        response = client.post('/hospital/v1/hospital-treatments/', data=data, content_type='application/json')
+
+        assert response.status_code == 201
+        assert hm.HospitalTreatment.objects.all().count() == 1
