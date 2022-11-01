@@ -126,10 +126,11 @@ class DoctorKeywordAssoc(models.Model):
 
 class HospitalTreatment(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    name = models.CharField(max_length=128, null=True)
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_treatment')
     price = models.IntegerField()
     duration = models.IntegerField()
-    description = models.CharField(max_length=512, null=True)
+    description = models.CharField(max_length=128, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

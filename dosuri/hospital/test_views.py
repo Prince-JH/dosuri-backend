@@ -287,6 +287,7 @@ class TestHospitalTreatment:
     @pytest.mark.django_db
     def test_create_hospital_treatment(self, client, hospital_test_A):
         data = {
+            'name': '도수치료A',
             'hospital': hospital_test_A.uuid,
             'price': 80000,
             'duration': 30,

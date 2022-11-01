@@ -136,6 +136,7 @@ class DoctorKeywordAssoc(s.ModelSerializer):
 
 class HospitalTreatment(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
+    name: s.Field = s.CharField()
     hospital: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=m.Hospital.objects.all()

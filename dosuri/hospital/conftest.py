@@ -137,6 +137,7 @@ def doctor_A_keyword_A_assoc(doctor_A_hospital_A, doctor_keyword_A):
 @pytest.fixture
 def hospital_treatments_test_A(hospital_test_A):
     return hm.HospitalTreatment.objects.create(
+        name='treatment_A',
         hospital=hospital_test_A,
         price=80000,
         duration=30,
