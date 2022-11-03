@@ -6,15 +6,15 @@ from rest_framework import (
 
 from dosuri.hospital import (
     models as m,
-    serializers as s,
-    filters as f
+    serializers as s
 )
+from dosuri.common import filters as f
 
 
 # Todo verification 로직 타기
 class HospitalList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all()
+    queryset = m.Hospital.objects.select_related('address').all()
     serializer_class = s.Hospital
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, rf.SearchFilter]
     ordering_field = '__all__'
@@ -32,7 +32,7 @@ class HospitalDetail(g.RetrieveUpdateDestroyAPIView):
 
 class HospitalCalendarList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.HospitalCalendar.objects.all()
+    queryset = m.HospitalCalendar.objects.select_related('hospital').all()
     serializer_class = s.HospitalCalendar
     filter_backends = [f.ForeignUuidFilter]
     uuid_filter_params = ['hospital']
@@ -47,7 +47,7 @@ class HospitalCalendarDetail(g.RetrieveUpdateDestroyAPIView):
 
 class HospitalImageList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.HospitalImage.objects.all()
+    queryset = m.HospitalImage.objects.select_related('hospital').all()
     serializer_class = s.HospitalImage
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
     ordering_field = '__all__'
@@ -63,7 +63,7 @@ class HospitalImageDetail(g.RetrieveUpdateDestroyAPIView):
 
 class DoctorList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Doctor.objects.all()
+    queryset = m.Doctor.objects.select_related('hospital').all()
     serializer_class = s.Doctor
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
     ordering_field = '__all__'
@@ -79,7 +79,7 @@ class DoctorDetail(g.RetrieveUpdateDestroyAPIView):
 
 class DoctorDescriptionList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.DoctorDescription.objects.all()
+    queryset = m.DoctorDescription.objects.select_related('doctor').all()
     serializer_class = s.DoctorDescription
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
     ordering_field = '__all__'
@@ -110,7 +110,7 @@ class KeywordDetail(g.RetrieveUpdateDestroyAPIView):
 
 class HospitalKeywordAssocList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.HospitalKeywordAssoc.objects.all()
+    queryset = m.HospitalKeywordAssoc.objects.select_related('hospital', 'keyword').all()
     serializer_class = s.HospitalKeywordAssoc
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
     ordering_field = '__all__'
@@ -126,7 +126,7 @@ class HospitalKeywordAssocDetail(g.RetrieveUpdateDestroyAPIView):
 
 class DoctorKeywordAssocList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.DoctorKeywordAssoc.objects.all()
+    queryset = m.DoctorKeywordAssoc.objects.select_related('doctor', 'keyword').all()
     serializer_class = s.DoctorKeywordAssoc
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
     ordering_field = '__all__'
@@ -142,7 +142,7 @@ class DoctorKeywordAssocDetail(g.RetrieveUpdateDestroyAPIView):
 
 class HospitalTreatmentList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.HospitalTreatment.objects.all()
+    queryset = m.HospitalTreatment.objects.select_related('hospital').all()
     serializer_class = s.HospitalTreatment
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
     ordering_field = '__all__'
