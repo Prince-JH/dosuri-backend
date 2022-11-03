@@ -1,5 +1,5 @@
 from rest_framework import filters
-from dosuri.hospital import filter_schema as fsc
+from dosuri.common import filter_schema as fsc
 
 
 # class AddressFilter(fsc.TimeRangeFilter, filters.BaseFilterBackend):
