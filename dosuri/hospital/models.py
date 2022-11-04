@@ -13,6 +13,8 @@ class Address(models.Model):
     city = models.CharField(max_length=32, null=True)
     gun = models.CharField(max_length=32, null=True)
     gu = models.CharField(max_length=32, null=True)
+    gu = models.CharField(max_length=32, null=True)
+    street = models.CharField(max_length=64, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
