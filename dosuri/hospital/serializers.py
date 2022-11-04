@@ -3,6 +3,19 @@ from rest_framework import serializers as s
 from dosuri.hospital import models as m
 
 
+class Address(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    do: s.Field = s.CharField(allow_null=True)
+    city: s.Field = s.CharField(allow_null=True)
+    gun: s.Field = s.IntegerField(allow_null=True)
+    gu: s.Field = s.IntegerField(allow_null=True)
+    created_at: s.Field = s.DateTimeField(read_only=True)
+
+    class Meta:
+        model = m.Address
+        exclude = ('id',)
+
+
 class Hospital(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     address: s.Field = s.SlugRelatedField(
