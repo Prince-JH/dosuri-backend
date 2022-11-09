@@ -158,10 +158,10 @@ USE_TZ = True
 
 STATIC_ROOT = 'static'
 STATIC_URL = '/static/'
-SITE_URL = os.environ['SITE_URL']
+SITE_URL = os.environ.get('SITE_URL')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-KAKAO_REST_API_KEY = os.environ['KAKAO_REST_API_KEY']
+KAKAO_REST_API_KEY = os.environ.get('KAKAO_REST_API_KEY')
