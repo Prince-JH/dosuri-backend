@@ -10,7 +10,7 @@ def generate_uuid():
 
 class User(AbstractUser):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    email = models.EmailField()
+    nickname = models.CharField(max_length=32, unique=True, null=True)
     address_id = models.CharField(max_length=16, default='', blank=True)
     birthday = models.DateTimeField(null=True)
     sex = models.CharField(max_length=16, default='', blank=True)
