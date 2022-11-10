@@ -6,6 +6,5 @@ from dosuri.user.models import User
 def dummy_user():
     return User.objects.create_user(
         username='dummy',
-        email='dummy@dummy.com',
-        password='123'
+        email='dummy@dummy.com'
     )

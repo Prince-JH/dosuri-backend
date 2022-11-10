@@ -6,9 +6,13 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView,
 )
 
+from dosuri.user import views as v
+
 urlpatterns = [
 
-    path('v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('v1/token/', v.TokenObtainPairWithoutPasswordView.as_view(), name='token_obtain_pair'),
     path('v1/token/verify/', TokenVerifyView.as_view(), name='token_obtain_pair'),
     path('v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    path('v1/kakao/auth', v.KakaoAuth.as_view(), name='kakao-auth')
 ]

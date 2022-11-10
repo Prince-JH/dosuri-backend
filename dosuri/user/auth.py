@@ -6,6 +6,27 @@ from urllib import parse
 from rest_framework import exceptions as exc
 from django.conf import settings
 
+from django.contrib.auth.backends import BaseBackend
+
+from dosuri.user import models as um
+
+
+class AuthenticationWithoutPassword(BaseBackend):
+
+    def authenticate(self, request, username=None, password=None, **kwargs):
+        if username is None:
+            username = request.data.get('username', '')
+        try:
+            return um.User.objects.get(username=username)
+        except um.User.DoesNotExist:
+            return um.User.objects.create_user(username=username)
+
+    def get_user(self, user_id):
+        try:
+            return um.User.objects.get(pk=user_id)
+        except um.User.DoesNotExist:
+            return None
+
 
 class SocialAuth:
     def set_api_header(self, **kwargs):
@@ -45,3 +66,4 @@ class KaKaoAuth(SocialAuth):
             'redirect_uri': parse.urlparse(f'{settings.SITE_URL}:3000/oauth/callback/kakao')
         }
         return self.post(url, self.set_api_header(header), data)
+

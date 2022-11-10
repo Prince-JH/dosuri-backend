@@ -71,6 +71,11 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
+AUTHENTICATION_BACKENDS = (
+    'dosuri.user.auth.AuthenticationWithoutPassword',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=15),
