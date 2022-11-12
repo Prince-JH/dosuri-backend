@@ -4,35 +4,16 @@ import pytest
 
 from dosuri.user import (
     models as um,
-    constants as uc
+    constants as uc,
+    auth as a
 )
-
-
-class TestUserList:
-    @pytest.mark.django_db
-    def test_list_user_should_return_zero(self, client):
-        response = client.get('/user/v1/users/')
-        content = json.loads(response.content)
-
-        assert response.status_code == 200
-        assert len(content['results']) == 0
-
-    @pytest.mark.django_db
-    def test_list_user_should_return_one_result(self, client, user_A):
-        response = client.get('/user/v1/users/')
-        content = json.loads(response.content)
-
-        assert response.status_code == 200
-        assert len(content['results']) == 1
 
 
 class TestUserDetail:
     @pytest.mark.django_db
-    def test_get_user_by_uuid(self, client, user_A):
-        response = client.get(f'/user/v1/users/{user_A.uuid}/')
-        content = json.loads(response.content)
-        assert response.status_code == 200
-        assert content['username'] == user_A.username
+    def test_get_user_without_jwt(self, client):
+        response = client.get(f'/user/v1/users/')
+        assert response.status_code == 401
 
 
 class TestKaKaoAuth:
