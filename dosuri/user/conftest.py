@@ -3,8 +3,7 @@ from dosuri.user.models import User
 
 
 @pytest.fixture
-def dummy_user():
+def user_A():
     return User.objects.create_user(
-        username='dummy',
-        email='dummy@dummy.com'
+        username='A@A.com'
     )
