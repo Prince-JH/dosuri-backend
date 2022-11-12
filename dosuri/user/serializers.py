@@ -11,17 +11,6 @@ from dosuri.user import (
 from dosuri.common import models as cm
 import requests
 
-from rest_framework_simplejwt.tokens import RefreshToken
-
-
-def get_tokens_for_user(user):
-    refresh = RefreshToken.for_user(user)
-
-    return {
-        'refresh': str(refresh),
-        'access': str(refresh.access_token),
-    }
-
 
 class Auth(s.Serializer):
     user_uuid: s.Field = s.CharField(read_only=True)
@@ -44,7 +33,7 @@ class Auth(s.Serializer):
 
         user, is_new = um.User.objects.get_or_create_user(username)
 
-        tokens = get_tokens_for_user(user)
+        tokens = a.get_tokens_for_user(user)
         validated_data['access_token'] = tokens['access']
         validated_data['refresh_token'] = tokens['refresh']
         validated_data['is_new'] = is_new
