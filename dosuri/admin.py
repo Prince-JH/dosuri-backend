@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-import dosuri.common.models
-from dosuri.user.models import User
+from dosuri.common import models as cm
+from dosuri.user import models as um
 from dosuri.hospital import models as hm
 
 
@@ -10,7 +10,7 @@ class AddressAdmin(admin.ModelAdmin):
     readonly_fields = ('uuid', 'created_at')
 
 
-admin.site.register(dosuri.common.models.Address, AddressAdmin)
+admin.site.register(cm.Address, AddressAdmin)
 admin.site.register(hm.Hospital)
 admin.site.register(hm.HospitalImage)
 admin.site.register(hm.HospitalTreatment)
@@ -21,4 +21,4 @@ admin.site.register(hm.Doctor)
 admin.site.register(hm.DoctorDescription)
 admin.site.register(hm.DoctorKeywordAssoc)
 
-admin.site.register(User)
+admin.site.register(um.User)
