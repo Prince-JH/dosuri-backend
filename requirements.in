@@ -6,3 +6,4 @@ psycopg2-binary
 djangorestframework-simplejwt
 pytest
 pytest-django
+drf-social-oauth2
