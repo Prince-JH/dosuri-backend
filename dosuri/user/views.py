@@ -3,7 +3,7 @@ from rest_framework import (
     filters as rf,
     permissions as p
 )
-from rest_framework_simplejwt.views import TokenViewBase
+from rest_framework.response import Response
 
 from dosuri.user import (
     models as um,
@@ -26,7 +26,11 @@ class UserList(g.ListAPIView):
 
 
 class UserDetail(g.RetrieveUpdateDestroyAPIView):
-    permission_classes = [p.AllowAny]
+    permission_classes = [p.IsAuthenticated]
     queryset = um.User.objects.all()
     serializer_class = s.User
-    lookup_field = 'uuid'
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = request.user
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)

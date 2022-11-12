@@ -77,7 +77,6 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=15),
     'SIGNING_KEY': SECRET_KEY,
     'ALGORITHM': 'HS256',
-    'AUTH_HEADER_TYPES': ('JWT',),
 }
 
 ROOT_URLCONF = 'dosuri.urls'

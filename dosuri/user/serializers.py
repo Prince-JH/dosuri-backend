@@ -8,6 +8,7 @@ from dosuri.user import (
     models as um,
     constants as c
 )
+from dosuri.common import models as cm
 import requests
 
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -51,15 +52,14 @@ class Auth(s.Serializer):
         return validated_data
 
 
-class User(s.ModelSerializer):
+class User(s.Serializer):
+    username: s.Field = s.CharField(read_only=True)
     nickname: s.Field = s.CharField(read_only=True)
-    address_uuid: s.Field = s.CharField(read_only=True)
+    address_uuid: s.Field = s.SerializerMethodField('get_address_uuid')
     birthday: s.Field = s.DateTimeField(read_only=True)
     sex: s.Field = s.CharField(read_only=True)
     is_real: s.Field = s.BooleanField(read_only=True)
-    is_new: s.Field = s.BooleanField(read_only=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
 
-    class Meta:
-        model = um.User
-        exclude = ('id',)
+    def get_address_uuid(self, obj):
+        return cm.Address.objects.get_uuid_by_id(obj.address_id)
