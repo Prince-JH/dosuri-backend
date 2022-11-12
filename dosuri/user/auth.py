@@ -8,27 +8,16 @@ from django.conf import settings
 
 from django.contrib.auth.backends import BaseBackend
 
-from dosuri.user import models as um
-
-
-class AuthenticationWithoutPassword(BaseBackend):
-
-    def authenticate(self, request, username=None, password=None, **kwargs):
-        if username is None:
-            username = request.data.get('username', '')
-        try:
-            return um.User.objects.get(username=username)
-        except um.User.DoesNotExist:
-            return um.User.objects.create_user(username=username)
-
-    def get_user(self, user_id):
-        try:
-            return um.User.objects.get(pk=user_id)
-        except um.User.DoesNotExist:
-            return None
+from dosuri.user import (
+    models as um,
+    constants as c
+)
 
 
 class SocialAuth:
+    def __init__(self, auth_domain):
+        self.auth_domain = auth_domain
+
     def set_api_header(self, **kwargs):
         if not kwargs:
             return {
@@ -49,9 +38,19 @@ class SocialAuth:
             raise exc.APIException()
         return response.json()
 
+    def authenticate(self, token):
+        if self.auth_domain == c.SOCIAL_KAKO:
+            pass
+
+    def kakao_authenticate(self):
+        pass
+
+    def google_authenticate(self):
+        pass
+
 
 class KaKaoAuth(SocialAuth):
-    def __int__(self, token):
+    def __init__(self, token):
         self.token = token
 
     def authenticate(self):
@@ -66,4 +65,3 @@ class KaKaoAuth(SocialAuth):
             'redirect_uri': parse.urlparse(f'{settings.SITE_URL}:3000/oauth/callback/kakao')
         }
         return self.post(url, self.set_api_header(header), data)
-
