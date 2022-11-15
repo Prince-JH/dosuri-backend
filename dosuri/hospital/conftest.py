@@ -1,6 +1,6 @@
 import pytest
 
-import dosuri.common.models
+from dosuri.common import models as cm
 from dosuri.hospital import (
     models as hm,
     constants as hc
@@ -9,7 +9,7 @@ from dosuri.hospital import (
 
 @pytest.fixture
 def address_서울시_강남구():
-    return dosuri.common.models.Address.objects.create(
+    return cm.Address.objects.create(
         do='서울시',
         gu='강남구'
     )
@@ -17,7 +17,7 @@ def address_서울시_강남구():
 
 @pytest.fixture
 def address_수원시_팔달구():
-    return dosuri.common.models.Address.objects.create(
+    return cm.Address.objects.create(
         do='수원시',
         gu='팔달구'
     )
