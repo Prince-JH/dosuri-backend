@@ -12,7 +12,7 @@ from dosuri.user import (
 class TestUserDetail:
     @pytest.mark.django_db
     def test_get_user_without_jwt(self, client):
-        response = client.get(f'/user/v1/users/')
+        response = client.get(f'/user/v1/users/me')
         assert response.status_code == 401
 
 
