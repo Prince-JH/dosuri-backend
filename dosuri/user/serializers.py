@@ -26,7 +26,7 @@ class Auth(s.Serializer):
         if auth_domain == c.SOCIAL_KAKAO:
             auth_factory = a.KaKaoAuth(token)
         user_info = auth_factory.authenticate()
-        username = user_info['email']
+        username = user_info['kakao_account']['email']
 
         user, is_new = um.User.objects.get_or_create_user(username)
 
