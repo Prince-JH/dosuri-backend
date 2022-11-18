@@ -50,8 +50,8 @@ class SocialAuth:
 
 
 class KaKaoAuth(SocialAuth):
-    def __init__(self, token):
-        self.token = token
+    def __init__(self, code):
+        self.code = code
 
     def authenticate(self):
         access_token = self.get_access_token()
@@ -67,7 +67,7 @@ class KaKaoAuth(SocialAuth):
             'grant_type': 'authorization_code',
             'client_id': settings.KAKAO_REST_API_KEY,
             'redirect_uri': f'{settings.SITE_URL}/oauth/callback/kakao',
-            'code': self.token
+            'code': self.code
         }
         res = self.post(url, self.set_api_header(**header), body)
         return res['access_token']
