@@ -14,7 +14,6 @@ import requests
 
 class Auth(s.Serializer):
     user_uuid: s.Field = s.CharField(read_only=True)
-    username: s.Field = s.CharField()
     token: s.Field = s.CharField(write_only=True)
     type: s.Field = s.CharField(write_only=True)
     access_token: s.Field = s.CharField(read_only=True)
@@ -23,13 +22,11 @@ class Auth(s.Serializer):
 
     def create(self, validated_data):
         token = validated_data['token']
-        username = validated_data['username']
         auth_domain = validated_data['type']
-        auth_factory = a.SocialAuth(auth_domain)
-        # if auth_domain == c.SOCIAL_KAKAKO:
-        #     auth_factory.authenticate()
-        # auth_factory = a.KaKaoAuth(kakao_token)
-        # auth_factory.authenticate()
+        if auth_domain == c.SOCIAL_KAKAO:
+            auth_factory = a.KaKaoAuth(token)
+        user_info = auth_factory.authenticate()
+        username = user_info['email']
 
         user, is_new = um.User.objects.get_or_create_user(username)
 
