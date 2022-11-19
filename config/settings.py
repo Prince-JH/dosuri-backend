@@ -25,7 +25,7 @@ with open(secret_file, encoding='utf-8') as fin:
     SECRET_KEY = secrets.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 # ALLOWED_HOSTS = ['dosuri-env.eba-igc5wtjb.ap-northeast-2.elasticbeanstalk.com', '127.0.0.1']
