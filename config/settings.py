@@ -30,6 +30,8 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 # ALLOWED_HOSTS = ['dosuri-env.eba-igc5wtjb.ap-northeast-2.elasticbeanstalk.com', '127.0.0.1']
 
+CORS_ORIGIN_ALLOW_ALL = True
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -42,6 +44,7 @@ INSTALLED_APPS = [
 
     'dosuri.apps.DosuriConfig',
     'drf_spectacular',
+    'corsheaders',
 ]
 # if DEBUG:
 #     INSTALLED_APPS.append('drf_spectacular')
@@ -49,6 +52,7 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'dosuri.User'
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

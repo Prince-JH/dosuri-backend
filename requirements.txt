@@ -34,10 +34,13 @@ deprecated==1.2.13
 django==4.1.2
     # via
     #   -r requirements.in
+    #   django-cors-headers
     #   django-oauth-toolkit
     #   djangorestframework
     #   djangorestframework-simplejwt
     #   drf-spectacular
+django-cors-headers==3.13.0
+    # via -r requirements.in
 django-oauth-toolkit==2.2.0
     # via drf-social-oauth2
 djangorestframework==3.14.0

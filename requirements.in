@@ -8,3 +8,4 @@ pytest
 pytest-django
 drf-social-oauth2
 requests-mock
+django-cors-headers
