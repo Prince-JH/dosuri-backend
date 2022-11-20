@@ -16,4 +16,3 @@ urlpatterns = [
     path('v1/auth/', v.Auth.as_view(), name='kakao-auth'),
     path('v1/users/me/', v.UserDetail.as_view(), name='user-detail'),
 ]
-
