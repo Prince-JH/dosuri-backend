@@ -12,13 +12,6 @@ from dosuri.hospital import (
 from dosuri.common import filters as f
 
 
-class AddressDetail(g.RetrieveUpdateDestroyAPIView):
-    permission_classes = [p.AllowAny]
-    queryset = cm.Address.objects.all()
-    serializer_class = s.Address
-    lookup_field = 'uuid'
-
-
 # Todo verification 로직 타기
 class HospitalList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
