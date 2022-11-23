@@ -5,7 +5,6 @@ from dosuri.hospital import views as v
 
 urlpatterns = [
 
-    path('v1/addresses/<uuid>', v.AddressDetail.as_view(), name='address-detail'),
     path('v1/hospitals/', v.HospitalList.as_view(), name='hospital'),
     path('v1/hospitals/<uuid>/', v.HospitalDetail.as_view(), name='hospital-detail'),
     path('v1/hospital-calendars/', v.HospitalCalendarList.as_view(), name='hospital-calendar'),

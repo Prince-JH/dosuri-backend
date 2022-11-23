@@ -25,9 +25,12 @@ with open(secret_file, encoding='utf-8') as fin:
     SECRET_KEY = secrets.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['dosuri-env.eba-igc5wtjb.ap-northeast-2.elasticbeanstalk.com', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ['dosuri-env.eba-igc5wtjb.ap-northeast-2.elasticbeanstalk.com', '127.0.0.1']
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
 
@@ -41,6 +44,7 @@ INSTALLED_APPS = [
 
     'dosuri.apps.DosuriConfig',
     'drf_spectacular',
+    'corsheaders',
 ]
 # if DEBUG:
 #     INSTALLED_APPS.append('drf_spectacular')
@@ -48,6 +52,7 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'dosuri.User'
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -76,7 +81,6 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=15),
     'SIGNING_KEY': SECRET_KEY,
     'ALGORITHM': 'HS256',
-    'AUTH_HEADER_TYPES': ('JWT',),
 }
 
 ROOT_URLCONF = 'dosuri.urls'

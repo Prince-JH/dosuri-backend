@@ -6,8 +6,28 @@ from urllib import parse
 from rest_framework import exceptions as exc
 from django.conf import settings
 
+from django.contrib.auth.backends import BaseBackend
+
+from dosuri.user import (
+    models as um,
+    constants as c
+)
+from rest_framework_simplejwt.tokens import RefreshToken
+
+
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
+
 
 class SocialAuth:
+    def __init__(self, auth_domain):
+        self.auth_domain = auth_domain
+
     def set_api_header(self, **kwargs):
         if not kwargs:
             return {
@@ -23,25 +43,41 @@ class SocialAuth:
         return response.json()
 
     def post(self, url, headers, data):
-        response = requests.post(url, headers=headers, data=json.dumps(data))
+        response = requests.post(url, data=data, headers=headers)
         if response.status_code not in (200, 201):
             raise exc.APIException()
         return response.json()
 
 
 class KaKaoAuth(SocialAuth):
-    def __int__(self, token):
-        self.token = token
+    def __init__(self, code, redirect_uri):
+        self.code = code
+        self.redirect_uri = redirect_uri
 
     def authenticate(self):
+        access_token = self.get_access_token()
+        user_info = self.get_user_info(access_token)
+        return user_info
+
+    def get_access_token(self):
         url = 'https://kauth.kakao.com/oauth/token'
         header = {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
         }
-        data = {
-            'code': self.token,
+        body = {
             'grant_type': 'authorization_code',
             'client_id': settings.KAKAO_REST_API_KEY,
-            'redirect_uri': parse.urlparse(f'{settings.SITE_URL}:3000/oauth/callback/kakao')
+            'redirect_uri': self.redirect_uri,
+            # 'redirect_uri': f'{settings.SITE_URL}/oauth/callback/kakao',
+            'code': self.code
         }
-        return self.post(url, self.set_api_header(header), data)
+        res = self.post(url, self.set_api_header(**header), body)
+        return res['access_token']
+
+    def get_user_info(self, access_token):
+        url = 'https://kapi.kakao.com/v2/user/me'
+        header = {
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        return self.get(url, self.set_api_header(**header))

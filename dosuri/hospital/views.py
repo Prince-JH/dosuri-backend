@@ -4,6 +4,7 @@ from rest_framework import (
     permissions as p
 )
 
+from dosuri.common import models as cm
 from dosuri.hospital import (
     models as m,
     serializers as s
@@ -13,7 +14,7 @@ from dosuri.common import filters as f
 
 class AddressDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Address.objects.all()
+    queryset = cm.Address.objects.all()
     serializer_class = s.Address
     lookup_field = 'uuid'
 
