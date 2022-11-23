@@ -1,6 +1,8 @@
 from uuid import uuid4
 
 from django.db import models
+from dosuri.user.models import User
+from dosuri.hospital.models import Hospital, Doctor
 
 
 def generate_uuid():
@@ -8,15 +10,15 @@ def generate_uuid():
 
 class Article(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user')
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='article')
     up_count = models.IntegerField(default=0)
     view_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
 class ArticleMeta(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    article_id = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article')
-    hospital_id = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital')
+    article_id = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_meta')
+    hospital_id = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='article_meta')
     cost = models.IntegerField(default=None, null=True)
     treat_count = models.IntegerField(default=None, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -27,7 +29,7 @@ class ArticleMeta(models.Model):
 
 class ArticleDetail(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    article_id = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article')
+    article_id = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_detail')
     treatment_effect = models.IntegerField(default=None, null=True)
     doctor_kindness = models.IntegerField(default=None, null=True)
     therapist_kindness = models.IntegerField(default=None, null=True)
@@ -41,7 +43,7 @@ class ArticleDetail(models.Model):
 
 class ArticleAuth(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    article_id = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article')
+    article_id = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_auth')
     sensitive_agreement = models.BooleanField(default=False)
     personal_agreement = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -52,7 +54,7 @@ class ArticleAuth(models.Model):
 
 class AuthAttach(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    article_auth_id = models.ForeignKey(ArticleAuth, on_delete=models.CASCADE, related_name='article_auth')
+    article_auth_id = models.ForeignKey(ArticleAuth, on_delete=models.CASCADE, related_name='auth_article')
     path = models.CharField(max_length=2000)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -62,7 +64,7 @@ class AuthAttach(models.Model):
 
 class ArticleAttach(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article')
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_attach')
     path = models.CharField(max_length=2000)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -72,8 +74,8 @@ class ArticleAttach(models.Model):
 
 class DoctorAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    article_meta_id = models.ForeignKey(ArticleMeta, on_delete=models.CASCADE, related_name='article_meta')
-    doctor_id = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='doctor')
+    article_meta_id = models.ForeignKey(ArticleMeta, on_delete=models.CASCADE, related_name='doctor_assoc')
+    doctor_id = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='doctor_assoc')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -82,8 +84,8 @@ class DoctorAssoc(models.Model):
 
 class HospitalAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    article_meta_id = models.ForeignKey(ArticleMeta, on_delete=models.CASCADE, related_name='article_meta')
-    hospital_id = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital')
+    article_meta_id = models.ForeignKey(ArticleMeta, on_delete=models.CASCADE, related_name='hospital_assoc')
+    hospital_id = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_assoc')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -92,8 +94,8 @@ class HospitalAssoc(models.Model):
 
 class ArticleComment(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user')
-    article_id = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article')
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='article_comment')
+    article_id = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_comment')
     up_count = models.IntegerField(default=0)
     view_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -105,8 +107,8 @@ class ArticleComment(models.Model):
 
 class ArticleThread(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user')
-    article_comment_id = models.ForeignKey(ArticleComment, on_delete=models.CASCADE, related_name='article_comment')
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='article_thread')
+    article_comment_id = models.ForeignKey(ArticleComment, on_delete=models.CASCADE, related_name='article_thread')
     up_count = models.IntegerField(default=0)
     view_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)

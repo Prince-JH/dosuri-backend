@@ -32,4 +32,5 @@ urlpatterns = [
     path('common/', include('dosuri.common.urls')),
     path('user/', include('dosuri.user.urls')),
     path('hospital/', include('dosuri.hospital.urls')),
+    path('community/', include('dosuri.community.urls'))
 ]
