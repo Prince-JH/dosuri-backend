@@ -24,7 +24,7 @@ class ForeignUuidFilter(fsc.ForeignUuidFilter, filters.BaseFilterBackend):
         kwargs = self.get_param_kwargs(request, params)
         if not kwargs:
             return queryset
-
+        print(kwargs)
         conds = self.get_filter_condition(queryset, kwargs)
         return queryset.filter(**conds).distinct()
 

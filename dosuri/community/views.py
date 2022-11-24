@@ -14,11 +14,19 @@ from dosuri.common import filters as f
 
 
 
-# Todo verification 로직 타기
-class ReviewList(g.ListCreateAPIView):
+class ArticleList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.Article.objects.all()
     serializer_class = s.Article
-    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, rf.SearchFilter]
+    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
+    uuid_filter_params = ['hospital']
+    ordering_field = '__all__'
+
+class ArticleAttachList(g.ListCreateAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = m.ArticleAttach.objects.all()
+    serializer_class = s.ArticleAttach
+    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
+    uuid_filter_params = ['hospital']
     ordering_field = '__all__'
 

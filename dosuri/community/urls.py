@@ -5,6 +5,7 @@ from dosuri.community import views as v
 
 urlpatterns = [
 
-    path('v1/community/reviews', v.ReviewList.as_view(), name='review'),
+    path('v1/community/articles', v.ArticleList.as_view(), name='article'),
+    path('v1/community/article-attaches', v.ArticleAttachList.as_view(), name='attach'),
 
 ]
