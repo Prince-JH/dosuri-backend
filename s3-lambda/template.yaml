@@ -24,8 +24,8 @@ Resources:
     Type: AWS::Serverless::Function 
     Properties:
       CodeUri: src/
-      Handler: app.handler
-      Runtime: nodejs12.x
+      Handler: app.lambda_handler
+      Runtime: python3.9
       MemorySize: 2048
       Layers:
         - !Sub 'arn:aws:lambda:${AWS::Region}:175033217214:layer:graphicsmagick:2'
