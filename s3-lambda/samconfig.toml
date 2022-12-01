@@ -9,6 +9,6 @@ region = "ap-northeast-2"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
 disable_rollback = true
-parameter_overrides = "SourceBucketName=\"dosuri-image\" DestinationBucketName=\"dosuri-image-resized\""
+parameter_overrides = "DosuriUrl=\"https://server.dosuri.site\" SourceBucketName=\"dosuri-image\" DestinationBucketName=\"dosuri-image-resized\""
 image_repositories = []
 profile = "dosuri"

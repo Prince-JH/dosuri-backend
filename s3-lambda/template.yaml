@@ -3,6 +3,8 @@ Transform: AWS::Serverless-2016-10-31
 Description: Image resizing service
 
 Parameters:
+  DosuriUrl:
+    Type: String
   SourceBucketName:
     Type: String
   DestinationBucketName:
@@ -36,7 +38,8 @@ Resources:
             BucketName: !Ref DestinationBucketName
       Environment:
         Variables:
-          DESTINATION_BUCKET_NAME: !Ref DestinationBucketName
+          SOURCE_BUCKET_NAME: !Ref SourceBucketName
+          DOSURI_URL: !Ref DosuriUrl
       Events:
         FileUpload:
           Type: S3
