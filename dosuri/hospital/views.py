@@ -15,13 +15,13 @@ from dosuri.common import filters as f
 # Todo verification 로직 타기
 class HospitalList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.select_related('address').all()
+    queryset = m.Hospital.objects.all()
     serializer_class = s.Hospital
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, rf.SearchFilter]
     ordering_field = '__all__'
     ordering = ['view_count']
     search_fields = ['name']
-    uuid_filter_params = ['address']
+    uuid_filter_params = ['hospital_address_assoc__address']
 
 
 class HospitalDetail(g.RetrieveUpdateDestroyAPIView):
@@ -59,6 +59,22 @@ class HospitalImageDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.HospitalImage.objects.all()
     serializer_class = s.HospitalImage
+    lookup_field = 'uuid'
+
+
+class HospitalAddressAssocList(g.ListCreateAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = m.HospitalAddressAssoc.objects.select_related('hospital', 'address').all()
+    serializer_class = s.HospitalAddressAssoc
+    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
+    ordering_field = '__all__'
+    uuid_filter_params = ['hospital', 'address']
+
+
+class HospitalAddressAssocDetail(g.RetrieveUpdateDestroyAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = m.HospitalAddressAssoc.objects.all()
+    serializer_class = s.HospitalAddressAssoc
     lookup_field = 'uuid'
 
 

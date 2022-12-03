@@ -58,6 +58,23 @@ class HospitalCalendar(s.ModelSerializer):
         exclude = ('id',)
 
 
+class HospitalAddressAssoc(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    hospital: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=hm.Hospital.objects.all()
+    )
+    address: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=cm.Address.objects.all()
+    )
+    created_at: s.Field = s.DateTimeField(read_only=True)
+
+    class Meta:
+        model = hm.HospitalAddressAssoc
+        exclude = ('id',)
+
+
 class Doctor(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     hospital: s.Field = s.SlugRelatedField(

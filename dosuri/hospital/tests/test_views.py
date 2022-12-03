@@ -27,7 +27,7 @@ class TestHospitalList:
 
     @pytest.mark.django_db
     def test_list_hospital_filter_with_address(self, client, hospital_test_A, address_서울시_강남구, address_수원시_팔달구):
-        response = client.get(f'/hospital/v1/hospitals/?address={address_서울시_강남구.uuid}')
+        response = client.get(f'/hospital/v1/hospitals/?hospital_address_assoc_address={address_서울시_강남구.uuid}')
         content = json.loads(response.content)
 
         assert response.status_code == 200
@@ -116,6 +116,24 @@ class TestHospitalImage:
 
         assert response.status_code == 200
         assert len(content['results']) == 4
+
+
+class TestHospitalAddressAssoc:
+    @pytest.mark.django_db
+    def test_list_hospital_should_return_zero(self, client):
+        response = client.get('/hospital/v1/hospital-address-assocs/')
+        content = json.loads(response.content)
+
+        assert response.status_code == 200
+        assert len(content['results']) == 0
+
+    @pytest.mark.django_db
+    def test_list_hospital_should_return_one_result(self, client, assoc_hospital_A_address_강남):
+        response = client.get('/hospital/v1/hospital-address-assocs/')
+        content = json.loads(response.content)
+
+        assert response.status_code == 200
+        assert len(content['results']) == 1
 
 
 class TestDoctor:
