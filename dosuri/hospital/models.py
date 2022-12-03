@@ -2,7 +2,7 @@ from uuid import uuid4
 
 from django.db import models
 
-from dosuri.common.models import Address
+from dosuri.common import models as cm
 
 
 def generate_uuid():
@@ -52,6 +52,17 @@ class HospitalCalendar(models.Model):
 
     class Meta:
         db_table = 'hospital_calendar'
+        ordering = ['-id']
+
+
+class HospitalAddressAssoc(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_address_assoc')
+    address = models.ForeignKey(cm.Address, on_delete=models.CASCADE, related_name='hospital_address_assoc')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'hospital_address_assoc'
         ordering = ['-id']
 
 
