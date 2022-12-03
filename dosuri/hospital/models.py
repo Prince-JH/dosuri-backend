@@ -11,7 +11,8 @@ def generate_uuid():
 
 class Hospital(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name='hospital')
+    code = models.CharField(max_length=128, null=True)
+    address = models.CharField(max_length=128, null=True)
     name = models.CharField(max_length=128)
     introduction = models.CharField(max_length=512, null=True)
     phone_no = models.CharField(max_length=32, null=True)
