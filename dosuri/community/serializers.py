@@ -31,6 +31,7 @@ class ArticleAttach(s.ModelSerializer):
         model = dosuri.community.models.ArticleAttach
         exclude = ('id',)
 
+
 class DoctorAssoc(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     article: s.Field = s.SlugRelatedField(
@@ -46,6 +47,7 @@ class DoctorAssoc(s.ModelSerializer):
     class Meta:
         model = dosuri.community.models.DoctorAssoc
         exclude = ('id',)
+
 
 class HospitalTreatmentAssoc(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
@@ -63,6 +65,7 @@ class HospitalTreatmentAssoc(s.ModelSerializer):
         model = dosuri.community.models.HospitalTreatment
         exclude = ('id',)
 
+
 class ArticleDetail(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     article: s.Field = s.SlugRelatedField(
@@ -75,9 +78,11 @@ class ArticleDetail(s.ModelSerializer):
     clean_score: s.Field = s.IntegerField(default=0)
     content: s.Field = s.CharField(read_only=False)
     created_at: s.Field = s.DateTimeField(read_only=True)
+
     class Meta:
         model = dosuri.community.models.ArticleDetail
         exclude = ('id',)
+
 
 class ArticleAuth(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
@@ -89,9 +94,11 @@ class ArticleAuth(s.ModelSerializer):
     personal_agreement: s.Field = s.BooleanField()
     status: s.Field = s.CharField(read_only=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
+
     class Meta:
         model = dosuri.community.models.ArticleAuth
         exclude = ('id',)
+
 
 class AuthAttach(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
@@ -105,6 +112,7 @@ class AuthAttach(s.ModelSerializer):
     class Meta:
         model = dosuri.community.models.AuthAttach
         exclude = ('id',)
+
 
 class ArticleUpdate(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
