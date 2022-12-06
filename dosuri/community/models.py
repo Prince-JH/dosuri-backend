@@ -2,7 +2,7 @@ from uuid import uuid4
 
 from django.db import models
 from dosuri.user.models import User
-from dosuri.hospital.models import Hospital, Doctor
+from dosuri.hospital.models import Hospital, Doctor, HospitalTreatment
 
 
 def generate_uuid():
@@ -11,6 +11,7 @@ def generate_uuid():
 class Article(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='article')
+    status = models.CharField(max_length=15, default="InComplete")
     article_type = models.CharField(default=None, null=True, max_length=20)
     up_count = models.IntegerField(default=0)
     view_count = models.IntegerField(default=0)
@@ -53,6 +54,7 @@ class ArticleAuth(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_auth')
     sensitive_agreement = models.BooleanField(default=False)
     personal_agreement = models.BooleanField(default=False)
+    status = models.CharField(max_length=15, default="Pending")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -89,14 +91,24 @@ class DoctorAssoc(models.Model):
         db_table = 'doctor_assoc'
         ordering = ['-id']
 
-class HospitalAssoc(models.Model):
+# class HospitalAssoc(models.Model):
+#     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+#     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='hospital_assoc')
+#     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_assoc')
+#     created_at = models.DateTimeField(auto_now_add=True)
+
+#     class Meta:
+#         db_table = 'hospital_assoc'
+#         ordering = ['-id']
+
+class HospitalTreatmentAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='hospital_assoc')
-    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_assoc')
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='hospital_treatment_assoc')
+    hospital_treatment = models.ForeignKey(HospitalTreatment, on_delete=models.CASCADE, related_name='hospital_treatment_assoc')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'hospital_assoc'
+        db_table = 'hospital_treatment_assoc'
         ordering = ['-id']
 
 class ArticleComment(models.Model):
