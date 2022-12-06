@@ -20,6 +20,8 @@ class Hospital(models.Model):
     view_count = models.IntegerField(default=0)
     is_partner = models.BooleanField(default=False)
     opened_at = models.DateTimeField(null=True)
+    latitude = models.FloatField(default=0)
+    longitude = models.FloatField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
