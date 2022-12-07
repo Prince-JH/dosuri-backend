@@ -14,11 +14,16 @@ class Command(BaseCommand):
     help = 'Insert Hospital Data'
 
     def add_arguments(self, parser):
-        parser.add_argument('file_loc')
+        parser.add_argument('file-loc')
+        parser.add_argument('data-type')
 
     def handle(self, *args, **options):
-        file_loc = options['file_loc']
-        read_hospital_data(file_loc)
+        file_loc = options['file-loc']
+        data_type = options['data-type']
+        if data_type == 'hospital':
+            read_hospital_data(file_loc)
+        elif data_type == 'hospital_treatment':
+            read_hospital_treatment_data(file_loc)
 
 
 def read_hospital_data(file_loc):
@@ -68,3 +73,40 @@ def read_hospital_data(file_loc):
             address=address_obj
         )
         print(do, city, gun, gu, phone_no, opened_at, latitude, longitude)
+
+
+def read_hospital_treatment_data(file_loc):
+    loc = file_loc
+    file = open(loc)
+    reader = csv.reader(file)
+
+    no_data_list = []
+    for line in reader:
+        code = line[1]
+        name = line[5]
+        price = line[6].replace(',', '')
+        description = line[7]
+        price_per_hour = line[8].replace(',', '') or None
+        print(code, name, description, price, price_per_hour)
+
+        try:
+            hospital = hm.Hospital.objects.get(code=code)
+            if not hm.HospitalTreatment.objects.filter(
+                hospital=hospital,
+                name=name,
+                price=price,
+                price_per_hour=price_per_hour,
+                description=description
+            ).exists():
+                hm.HospitalTreatment.objects.create(
+                    hospital=hospital,
+                    name=name,
+                    price=price,
+                    price_per_hour=price_per_hour,
+                    description=description
+                )
+        except hm.Hospital.DoesNotExist:
+            no_data_list.append(code)
+    with open('new file', 'w') as f:
+        for data in no_data_list:
+            f.write(data + '\n')
