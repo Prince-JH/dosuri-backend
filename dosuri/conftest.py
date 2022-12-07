@@ -5,6 +5,14 @@ from dosuri.hospital import (
     models as hm,
     constants as hc
 )
+from dosuri.user.models import User
+
+
+@pytest.fixture
+def user_dummy():
+    return User.objects.create_user(
+        username='dummy@dummy.com'
+    )
 
 
 @pytest.fixture
@@ -66,7 +74,7 @@ def hospital_calendar_test_B(hospital_test_B):
 
 
 @pytest.fixture
-def hospital_url_1_test_A(hospital_test_A):
+def hospital_image_1_test_A(hospital_test_A):
     return hm.HospitalImage.objects.create(
         hospital=hospital_test_A,
         url='url_1'
@@ -74,7 +82,7 @@ def hospital_url_1_test_A(hospital_test_A):
 
 
 @pytest.fixture
-def hospital_url_2_test_A(hospital_test_A):
+def hospital_image_2_test_A(hospital_test_A):
     return hm.HospitalImage.objects.create(
         hospital=hospital_test_A,
         url='url_2'
@@ -82,10 +90,18 @@ def hospital_url_2_test_A(hospital_test_A):
 
 
 @pytest.fixture
-def hospital_url_3_test_B(hospital_test_B):
+def hospital_image_3_test_B(hospital_test_B):
     return hm.HospitalImage.objects.create(
         hospital=hospital_test_B,
         url='url_3'
+    )
+
+
+@pytest.fixture
+def hospital_image_4_test_B(hospital_test_B):
+    return hm.HospitalImage.objects.create(
+        hospital=hospital_test_B,
+        url='url_4'
     )
 
 
@@ -98,10 +114,10 @@ def assoc_hospital_A_address_강남(hospital_test_A, address_서울시_강남구
 
 
 @pytest.fixture
-def hospital_url_4_test_B(hospital_test_B):
-    return hm.HospitalImage.objects.create(
+def assoc_hospital_B_address_수원(hospital_test_B, address_수원시_팔달구):
+    return hm.HospitalAddressAssoc.objects.create(
         hospital=hospital_test_B,
-        url='url_4'
+        address=address_수원시_팔달구
     )
 
 
@@ -161,6 +177,6 @@ def hospital_treatments_test_A(hospital_test_A):
         name='treatment_A',
         hospital=hospital_test_A,
         price=80000,
-        duration=30,
+        price_per_hour=160000,
         description=None
     )

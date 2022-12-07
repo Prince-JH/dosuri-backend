@@ -48,3 +48,29 @@ class ForeignUuidFilter:
             for param
             in view.uuid_filter_params
         ]
+
+
+class UuidSetFilter:
+    def get_schema_fields(self, view):
+        return [
+            coreapi.Field(
+                name='uuid_set', location='query', required=False,
+                schema=coreschema.String(title=f'uuid set',
+                                         description='uuid set to query at once.<br>' \
+                                                     '<code>/?uuid_set=<uuid_1>&uuid_set=<uuid_2>&uuid_set=<uuid_3></code> would return resource 1,2,3 altogether.')
+            )
+        ]
+
+    def get_schema_operation_parameters(self, view):
+        return [
+            {
+                'name': 'uuid_set',
+                'in': 'query',
+                'required': False,
+                'description': 'uuid set to query at once.<br>' \
+                               '<code>/?uuid_set=<uuid_1>&uuid_set=<uuid_2>&uuid_set=<uuid_3></code> would return resource 1,2,3 altogether.',
+                'schema': {
+                    'type': 'string',
+                }
+            }
+        ]

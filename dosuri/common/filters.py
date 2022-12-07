@@ -24,8 +24,9 @@ class ForeignUuidFilter(fsc.ForeignUuidFilter, filters.BaseFilterBackend):
         kwargs = self.get_param_kwargs(request, params)
         if not kwargs:
             return queryset
-        print(kwargs)
         conds = self.get_filter_condition(queryset, kwargs)
+        print(conds)
+        print('qs', queryset.filter(**conds).distinct())
         return queryset.filter(**conds).distinct()
 
     def get_param_kwargs(self, request, params):
@@ -38,9 +39,9 @@ class ForeignUuidFilter(fsc.ForeignUuidFilter, filters.BaseFilterBackend):
 
         for model_abs_name, uuid_list in kwargs.items():
             chunk = model_abs_name.split('__')
-
             if len(chunk) > 1:
                 conds[f'{model_abs_name}__uuid__in'] = uuid_list
+                print(conds)
                 continue
 
             model_name = chunk[0]
@@ -53,3 +54,17 @@ class ForeignUuidFilter(fsc.ForeignUuidFilter, filters.BaseFilterBackend):
 
     def get_rel_obj_ids(self, model, uuid_list):
         return list(model.objects.only('id').filter(uuid__in=uuid_list).values_list('id', flat=True))
+
+
+class UuidSetFilter(fsc.UuidSetFilter, filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        # Used Django's GET variable to utilize multiple value feature which DRF doesn't provide.
+        # note: https://docs.djangoproject.com/en/4.0/ref/request-response/#querydict-objects
+        uuid_list = request.GET.getlist('uuid_set')
+
+        if not uuid_list:
+            return queryset
+
+        uuid_list = uuid_list if isinstance(uuid_list, (tuple, list)) else [uuid_list]
+
+        return queryset.filter(uuid__in=uuid_list)

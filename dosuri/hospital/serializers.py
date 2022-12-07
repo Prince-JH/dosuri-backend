@@ -157,10 +157,26 @@ class HospitalTreatment(s.ModelSerializer):
         queryset=hm.Hospital.objects.all()
     )
     price: s.Field = s.IntegerField()
-    duration: s.Field = s.IntegerField()
+    price_per_hour: s.Field = s.IntegerField()
     description: s.Field = s.CharField(allow_null=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
         model = hm.HospitalTreatment
+        exclude = ('id',)
+
+class TopHospital(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    address: s.Field = s.CharField()
+    name: s.Field = s.CharField()
+    introduction: s.Field = s.CharField(allow_null=True)
+    phone_no: s.Field = s.CharField(allow_null=True)
+    up_count: s.Field = s.IntegerField(read_only=True)
+    view_count: s.Field = s.IntegerField(read_only=True)
+    is_partner: s.Field = s.BooleanField()
+    opened_at: s.Field = s.DateTimeField(allow_null=True)
+    created_at: s.Field = s.DateTimeField(read_only=True)
+
+    class Meta:
+        model = hm.Hospital
         exclude = ('id',)

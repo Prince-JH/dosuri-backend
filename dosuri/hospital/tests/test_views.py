@@ -96,8 +96,8 @@ class TestHospitalCalendar:
 
 class TestHospitalImage:
     @pytest.mark.django_db
-    def test_get_images_by_hospital_should_return_all_two_images(self, client, hospital_test_A, hospital_url_1_test_A,
-                                                                 hospital_url_2_test_A):
+    def test_get_images_by_hospital_should_return_all_two_images(self, client, hospital_test_A, hospital_image_1_test_A,
+                                                                 hospital_image_2_test_A):
         response = client.get(f'/hospital/v1/hospital-images/?hospital={hospital_test_A.uuid}')
         content = json.loads(response.content)
 
@@ -107,9 +107,10 @@ class TestHospitalImage:
     @pytest.mark.django_db
     def test_get_images_at_once_by_hospitals_should_return_all_four_images(self, client, hospital_test_A,
                                                                            hospital_test_B,
-                                                                           hospital_url_1_test_A, hospital_url_2_test_A,
-                                                                           hospital_url_3_test_B,
-                                                                           hospital_url_4_test_B):
+                                                                           hospital_image_1_test_A,
+                                                                           hospital_image_2_test_A,
+                                                                           hospital_image_3_test_B,
+                                                                           hospital_image_4_test_B):
         response = client.get(
             f'/hospital/v1/hospital-images/?hospital={hospital_test_A.uuid}&hospital={hospital_test_B.uuid}')
         content = json.loads(response.content)
@@ -308,7 +309,7 @@ class TestHospitalTreatment:
             'name': '도수치료A',
             'hospital': hospital_test_A.uuid,
             'price': 80000,
-            'duration': 30,
+            'price_per_hour': 160000,
             'description': '원장이 직접 실시'
         }
         response = client.post('/hospital/v1/hospital-treatments/', data=data, content_type='application/json')
