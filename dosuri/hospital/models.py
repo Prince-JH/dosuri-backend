@@ -132,7 +132,7 @@ class HospitalTreatment(models.Model):
     name = models.CharField(max_length=128, null=True)
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_treatment')
     price = models.IntegerField()
-    duration = models.IntegerField()
+    price_per_hour = models.IntegerField(null=True)
     description = models.CharField(max_length=128, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
