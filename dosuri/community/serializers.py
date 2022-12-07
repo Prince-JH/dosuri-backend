@@ -12,8 +12,8 @@ class Article(s.ModelSerializer):
         slug_field='uuid',
         queryset=um.User.objects.all()
     )
-    up_count: s.Field = s.IntegerField(default=0)
-    view_count: s.Field = s.IntegerField(default=0)
+    up_count: s.Field = s.IntegerField(default=0, read_only=True)
+    view_count: s.Field = s.IntegerField(default=0, read_only=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
@@ -23,7 +23,7 @@ class Article(s.ModelSerializer):
 
 class ArticleAttach(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    article: s.Field = s.SlugRelatedField(
+    article_uuid: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=comm.Article.objects.all()
     )
@@ -37,11 +37,11 @@ class ArticleAttach(s.ModelSerializer):
 
 class DoctorAssoc(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    article: s.Field = s.SlugRelatedField(
+    article_uuid: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=comm.Article.objects.all()
     )
-    doctor: s.Field = s.SlugRelatedField(
+    doctor_uuid: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=comm.Doctor.objects.all()
     )
@@ -54,11 +54,11 @@ class DoctorAssoc(s.ModelSerializer):
 
 class HospitalTreatmentAssoc(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    article: s.Field = s.SlugRelatedField(
+    article_uuid: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=comm.Article.objects.all()
     )
-    hospital_treatement: s.Field = s.SlugRelatedField(
+    hospital_treatement_uuid: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=comm.HospitalTreatment.objects.all()
     )
@@ -71,7 +71,7 @@ class HospitalTreatmentAssoc(s.ModelSerializer):
 
 class ArticleDetail(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    article: s.Field = s.SlugRelatedField(
+    article_uuid: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=comm.Article.objects.all()
     )
@@ -89,13 +89,13 @@ class ArticleDetail(s.ModelSerializer):
 
 class ArticleAuth(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    article: s.Field = s.SlugRelatedField(
+    article_uuid: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=comm.Article.objects.all()
     )
     sensitive_agreement: s.Field = s.BooleanField()
     personal_agreement: s.Field = s.BooleanField()
-    status: s.Field = s.CharField(read_only=True)
+    status: s.Field = s.CharField()
     created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
@@ -105,7 +105,7 @@ class ArticleAuth(s.ModelSerializer):
 
 class AuthAttach(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    article_auth: s.Field = s.SlugRelatedField(
+    article_auth_uuid: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=comm.ArticleAuth.objects.all()
     )
