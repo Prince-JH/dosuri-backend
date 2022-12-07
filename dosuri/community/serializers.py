@@ -8,22 +8,28 @@ from dosuri.user import models as um
 
 class Article(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    user_uuid: s.Field = s.SlugRelatedField(
+    user: s.Field = s.SlugRelatedField(
+        read_only=True,
         slug_field='uuid',
-        queryset=um.User.objects.all()
+        # queryset=um.User.objects.all()
     )
     up_count: s.Field = s.IntegerField(default=0, read_only=True)
     view_count: s.Field = s.IntegerField(default=0, read_only=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
+    hospital: s.Field = s.SlugRelatedField(
+        write_only=True,
+        slug_field='uuid',
+        queryset=hm.Hospital.objects.all()
+    )
 
     class Meta:
         model = dosuri.community.models.Article
-        exclude = ('id',)
+        exclude = ('id', 'status')
 
 
 class ArticleAttach(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    article_uuid: s.Field = s.SlugRelatedField(
+    article: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=comm.Article.objects.all()
     )
@@ -37,11 +43,11 @@ class ArticleAttach(s.ModelSerializer):
 
 class DoctorAssoc(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    article_uuid: s.Field = s.SlugRelatedField(
+    article: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=comm.Article.objects.all()
     )
-    doctor_uuid: s.Field = s.SlugRelatedField(
+    doctor: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=comm.Doctor.objects.all()
     )
@@ -52,26 +58,26 @@ class DoctorAssoc(s.ModelSerializer):
         exclude = ('id',)
 
 
-class HospitalTreatmentAssoc(s.ModelSerializer):
+class ArticleKeywordAssoc(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    article_uuid: s.Field = s.SlugRelatedField(
+    article: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=comm.Article.objects.all()
     )
-    hospital_treatement_uuid: s.Field = s.SlugRelatedField(
+    article_keyword: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=comm.HospitalTreatment.objects.all()
     )
     created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
-        model = dosuri.community.models.HospitalTreatment
+        model = dosuri.community.models.ArticleKeywordAssoc
         exclude = ('id',)
 
 
 class ArticleDetail(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    article_uuid: s.Field = s.SlugRelatedField(
+    article: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=comm.Article.objects.all()
     )
@@ -89,7 +95,7 @@ class ArticleDetail(s.ModelSerializer):
 
 class ArticleAuth(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    article_uuid: s.Field = s.SlugRelatedField(
+    article: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=comm.Article.objects.all()
     )
@@ -105,7 +111,7 @@ class ArticleAuth(s.ModelSerializer):
 
 class AuthAttach(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    article_auth_uuid: s.Field = s.SlugRelatedField(
+    article_auth: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=comm.ArticleAuth.objects.all()
     )
@@ -124,4 +130,4 @@ class ArticleUpdate(s.ModelSerializer):
 
     class Meta:
         model = dosuri.community.models.Article
-        exclude = ('id',)
+        exclude = ('id', 'article_type', 'cost', 'treat_count', 'user', 'hospital')

@@ -21,6 +21,8 @@ class ArticleList(g.ListCreateAPIView):
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
     uuid_filter_params = ['hospital']
     ordering_field = '__all__'
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 class ArticleAttachList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
@@ -38,10 +40,10 @@ class DoctorAssocList(g.ListCreateAPIView):
     uuid_filter_params = ['hospital']
     ordering_field = '__all__'
 
-class HospitalTreatmentAssocList(g.ListCreateAPIView):
+class ArticleKeywordAssocList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.HospitalTreatmentAssoc.objects.all()
-    serializer_class = s.HospitalTreatmentAssoc
+    queryset = m.ArticleKeywordAssoc.objects.all()
+    serializer_class = s.ArticleKeywordAssoc
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
     uuid_filter_params = ['hospital']
     ordering_field = '__all__'
