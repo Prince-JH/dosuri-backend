@@ -8,6 +8,13 @@ from dosuri.hospital.models import Hospital, Doctor, HospitalTreatment
 def generate_uuid():
     return uuid4().hex
 
+class ArticleKeyword(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    keyword = models.CharField(max_length=15, null=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        db_table = 'article_keyword'
+        ordering = ['-id']
 
 class Article(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
@@ -109,15 +116,15 @@ class DoctorAssoc(models.Model):
 #         db_table = 'hospital_assoc'
 #         ordering = ['-id']
 
-class HospitalTreatmentAssoc(models.Model):
+class ArticleKeywordAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='hospital_treatment_assoc')
-    hospital_treatment = models.ForeignKey(HospitalTreatment, on_delete=models.CASCADE,
+    article_keyword = models.ForeignKey(ArticleKeyword, on_delete=models.CASCADE,
                                            related_name='hospital_treatment_assoc')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'hospital_treatment_assoc'
+        db_table = 'article_keyword_assoc'
         ordering = ['-id']
 
 

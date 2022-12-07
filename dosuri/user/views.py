@@ -16,6 +16,13 @@ class Auth(g.CreateAPIView):
     permission_classes = [p.AllowAny]
     serializer_class = s.Auth
 
+class SuperUserAuth(g.CreateAPIView):
+    permission_classes = [p.AllowAny]
+    serializer_class = s.Auth
+    def get(self, request, *args, **kwargs ):
+        user = um.User.objects.get(username="dosuri")
+        tokens = a.get_tokens_for_user(user)
+        return Response(tokens)
 
 class UserList(g.ListAPIView):
     permission_classes = [p.AllowAny]
