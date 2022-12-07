@@ -6,10 +6,7 @@ from dosuri.common import models as cm
 
 class Hospital(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    address: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=cm.Address.objects.all()
-    )
+    address: s.Field = s.CharField()
     name: s.Field = s.CharField()
     introduction: s.Field = s.CharField(allow_null=True)
     phone_no: s.Field = s.CharField(allow_null=True)

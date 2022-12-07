@@ -8,6 +8,7 @@ from dosuri.hospital.models import Hospital, Doctor, HospitalTreatment
 def generate_uuid():
     return uuid4().hex
 
+
 class Article(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='article')
@@ -19,9 +20,11 @@ class Article(models.Model):
     cost = models.IntegerField(default=None, null=True)
     treat_count = models.IntegerField(default=None, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
     class Meta:
         db_table = 'article'
         ordering = ['-id']
+
 
 # class ArticleMeta(models.Model):
 #     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
@@ -42,12 +45,13 @@ class ArticleDetail(models.Model):
     doctor_kindness = models.IntegerField(default=None, null=True)
     therapist_kindness = models.IntegerField(default=None, null=True)
     clean_score = models.IntegerField(default=None, null=True)
-    content = models.CharField(max_length=1200) ## 후기 최대글자 한글은 3 bytes (최대 400글자)
+    content = models.CharField(max_length=1200)  ## 후기 최대글자 한글은 3 bytes (최대 400글자)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'article_detail'
         ordering = ['-id']
+
 
 class ArticleAuth(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
@@ -61,6 +65,7 @@ class ArticleAuth(models.Model):
         db_table = 'article_auth'
         ordering = ['-id']
 
+
 class AuthAttach(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     article_auth = models.ForeignKey(ArticleAuth, on_delete=models.CASCADE, related_name='auth_article')
@@ -70,6 +75,7 @@ class AuthAttach(models.Model):
     class Meta:
         db_table = 'auth_attach'
         ordering = ['-id']
+
 
 class ArticleAttach(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
@@ -81,6 +87,7 @@ class ArticleAttach(models.Model):
         db_table = 'article_attach'
         ordering = ['-id']
 
+
 class DoctorAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='doctor_assoc')
@@ -90,6 +97,7 @@ class DoctorAssoc(models.Model):
     class Meta:
         db_table = 'doctor_assoc'
         ordering = ['-id']
+
 
 # class HospitalAssoc(models.Model):
 #     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
@@ -104,12 +112,14 @@ class DoctorAssoc(models.Model):
 class HospitalTreatmentAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='hospital_treatment_assoc')
-    hospital_treatment = models.ForeignKey(HospitalTreatment, on_delete=models.CASCADE, related_name='hospital_treatment_assoc')
+    hospital_treatment = models.ForeignKey(HospitalTreatment, on_delete=models.CASCADE,
+                                           related_name='hospital_treatment_assoc')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'hospital_treatment_assoc'
         ordering = ['-id']
+
 
 class ArticleComment(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
@@ -118,11 +128,12 @@ class ArticleComment(models.Model):
     up_count = models.IntegerField(default=0)
     view_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
-    content = models.CharField(max_length=1200) ## 댓글 최대글자 한글은 3 bytes (최대 400글자)
+    content = models.CharField(max_length=1200)  ## 댓글 최대글자 한글은 3 bytes (최대 400글자)
 
     class Meta:
         db_table = 'article_comment'
         ordering = ['-id']
+
 
 class ArticleThread(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
@@ -131,7 +142,7 @@ class ArticleThread(models.Model):
     up_count = models.IntegerField(default=0)
     view_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
-    content = models.CharField(max_length=1200) ## 댓글 최대글자 한글은 3 bytes (최대 400글자)
+    content = models.CharField(max_length=1200)  ## 댓글 최대글자 한글은 3 bytes (최대 400글자)
 
     class Meta:
         db_table = 'article_thread'
