@@ -68,3 +68,17 @@ class UuidSetFilter(fsc.UuidSetFilter, filters.BaseFilterBackend):
         uuid_list = uuid_list if isinstance(uuid_list, (tuple, list)) else [uuid_list]
 
         return queryset.filter(uuid__in=uuid_list)
+
+class CompleteStatusFilter(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        # Used Django's GET variable to utilize multiple value feature which DRF doesn't provide.
+        # note: https://docs.djangoproject.com/en/4.0/ref/request-response/#querydict-objects
+        
+        return queryset.filter(status="Complete")
+
+class InCompleteStatusFilter(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        # Used Django's GET variable to utilize multiple value feature which DRF doesn't provide.
+        # note: https://docs.djangoproject.com/en/4.0/ref/request-response/#querydict-objects
+        
+        return queryset.filter(status="InComplete")

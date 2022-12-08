@@ -47,7 +47,7 @@ class Article(models.Model):
 
 class ArticleDetail(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_detail')
+    article = models.OneToOneField(Article, on_delete=models.CASCADE, related_name='article_detail')
     treatment_effect = models.IntegerField(default=None, null=True)
     doctor_kindness = models.IntegerField(default=None, null=True)
     therapist_kindness = models.IntegerField(default=None, null=True)
@@ -62,7 +62,7 @@ class ArticleDetail(models.Model):
 
 class ArticleAuth(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_auth')
+    article = models.OneToOneField(Article, on_delete=models.CASCADE, related_name='article_auth')
     sensitive_agreement = models.BooleanField(default=False)
     personal_agreement = models.BooleanField(default=False)
     status = models.CharField(max_length=15, default="Pending")
@@ -75,7 +75,7 @@ class ArticleAuth(models.Model):
 
 class AuthAttach(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    article_auth = models.ForeignKey(ArticleAuth, on_delete=models.CASCADE, related_name='auth_article')
+    article_auth = models.ForeignKey(ArticleAuth, on_delete=models.CASCADE, related_name='auth_attach')
     path = models.CharField(max_length=2000)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -118,9 +118,9 @@ class DoctorAssoc(models.Model):
 
 class ArticleKeywordAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='hospital_treatment_assoc')
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_keyword_assoc')
     article_keyword = models.ForeignKey(ArticleKeyword, on_delete=models.CASCADE,
-                                           related_name='hospital_treatment_assoc')
+                                           related_name='article_keyword_assoc')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

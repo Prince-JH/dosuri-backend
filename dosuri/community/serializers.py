@@ -5,6 +5,79 @@ from dosuri.community import models as comm
 from dosuri.common import models as cm
 from dosuri.hospital import models as hm
 from dosuri.user import models as um
+from django.db import transaction
+
+class AuthAttach(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    path: s.Field = s.CharField()
+    created_at: s.Field = s.DateTimeField(read_only=True)
+
+    class Meta:
+        model = dosuri.community.models.AuthAttach
+        exclude = ('id', 'article_auth')
+
+class ArticleAuth(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    sensitive_agreement: s.Field = s.BooleanField()
+    personal_agreement: s.Field = s.BooleanField()
+    status: s.Field = s.CharField(read_only=True)
+    auth_attach: s.Field = AuthAttach(many=True)
+    created_at: s.Field = s.DateTimeField(read_only=True)
+
+    class Meta:
+        model = dosuri.community.models.ArticleAuth
+        exclude = ('id', 'article')
+
+class ArticleAttach(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    path: s.Field = s.CharField()
+    created_at: s.Field = s.DateTimeField(read_only=True)
+
+    class Meta:
+        model = dosuri.community.models.ArticleAttach
+        exclude = ('id', 'article')
+
+class ArticleKeywordAssoc(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    keyword: s.Field = s.CharField(
+        source='article_keyword.keyword',
+        read_only=True
+    )
+    article_keyword: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        write_only=True,
+        queryset=comm.ArticleKeyword.objects.all()
+    )
+    created_at: s.Field = s.DateTimeField(read_only=True)
+
+    class Meta:
+        model = dosuri.community.models.ArticleKeywordAssoc
+        exclude = ('id', 'article')
+
+class ArticleDetail(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    treatment_effect: s.Field = s.IntegerField(default=0)
+    doctor_kindness: s.Field = s.IntegerField(default=0)
+    therapist_kindness: s.Field = s.IntegerField(default=0)
+    clean_score: s.Field = s.IntegerField(default=0)
+    content: s.Field = s.CharField(read_only=False)
+    created_at: s.Field = s.DateTimeField(read_only=True)
+
+    class Meta:
+        model = dosuri.community.models.ArticleDetail
+        exclude = ('id', 'article')
+
+class DoctorAssoc(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    doctor: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=comm.Doctor.objects.all()
+    )
+    created_at: s.Field = s.DateTimeField(read_only=True)
+
+    class Meta:
+        model = dosuri.community.models.DoctorAssoc
+        exclude = ('id', 'article')
 
 class Article(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
@@ -21,106 +94,45 @@ class Article(s.ModelSerializer):
         slug_field='uuid',
         queryset=hm.Hospital.objects.all()
     )
+    article_attach = ArticleAttach(many=True)
+    article_keyword_assoc = ArticleKeywordAssoc(many=True)
+    article_detail = ArticleDetail(many=False)
+    article_auth = ArticleAuth(many=False)
+    doctor_assoc = DoctorAssoc(many=True)
 
     class Meta:
         model = dosuri.community.models.Article
         exclude = ('id', 'status')
 
+    def create(self, validated_data):
+        article_attach_list = validated_data.pop('article_attach')
+        article_keyword_assoc_list = validated_data.pop('article_keyword_assoc')
+        article_detail_data = validated_data.pop('article_detail')
+        article_auth_data = validated_data.pop('article_auth')
+        auth_attach_list = article_auth_data.pop('auth_attach')
+        doctor_assoc_list = validated_data.pop('doctor_assoc')
 
-class ArticleAttach(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
-    article: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=comm.Article.objects.all()
-    )
-    path: s.Field = s.CharField()
-    created_at: s.Field = s.DateTimeField(read_only=True)
+        with transaction.atomic():
+            article = comm.Article.objects.create(**validated_data)
+            article_keyword_assoc_data = [comm.ArticleKeywordAssoc(**item, article=article) for item in article_keyword_assoc_list]
+            comm.ArticleKeywordAssoc.objects.bulk_create(article_keyword_assoc_data)
 
-    class Meta:
-        model = dosuri.community.models.ArticleAttach
-        exclude = ('id',)
+            comm.ArticleDetail.objects.create(**article_detail_data, article=article)
 
+            article_attach_data = [comm.ArticleAttach(**item, article=article) for item in article_attach_list]
+            comm.ArticleAttach.objects.bulk_create(article_attach_data)
 
-class DoctorAssoc(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
-    article: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=comm.Article.objects.all()
-    )
-    doctor: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=comm.Doctor.objects.all()
-    )
-    created_at: s.Field = s.DateTimeField(read_only=True)
+            article_auth = comm.ArticleAuth.objects.create(**article_auth_data, article=article)
 
-    class Meta:
-        model = dosuri.community.models.DoctorAssoc
-        exclude = ('id',)
+            auth_attach_data = [comm.AuthAttach(**item, article_auth=article_auth) for item in auth_attach_list]
+            comm.AuthAttach.objects.bulk_create(auth_attach_data)
+
+            doctor_assoc_data = [comm.DoctorAssoc(**item, article=article) for item in doctor_assoc_list]
+            comm.DoctorAssoc.objects.bulk_create(doctor_assoc_data)
+        return article
 
 
-class ArticleKeywordAssoc(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
-    article: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=comm.Article.objects.all()
-    )
-    article_keyword: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=comm.HospitalTreatment.objects.all()
-    )
-    created_at: s.Field = s.DateTimeField(read_only=True)
 
-    class Meta:
-        model = dosuri.community.models.ArticleKeywordAssoc
-        exclude = ('id',)
-
-
-class ArticleDetail(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
-    article: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=comm.Article.objects.all()
-    )
-    treatment_effect: s.Field = s.IntegerField(default=0)
-    doctor_kindness: s.Field = s.IntegerField(default=0)
-    therapist_kindness: s.Field = s.IntegerField(default=0)
-    clean_score: s.Field = s.IntegerField(default=0)
-    content: s.Field = s.CharField(read_only=False)
-    created_at: s.Field = s.DateTimeField(read_only=True)
-
-    class Meta:
-        model = dosuri.community.models.ArticleDetail
-        exclude = ('id',)
-
-
-class ArticleAuth(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
-    article: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=comm.Article.objects.all()
-    )
-    sensitive_agreement: s.Field = s.BooleanField()
-    personal_agreement: s.Field = s.BooleanField()
-    status: s.Field = s.CharField()
-    created_at: s.Field = s.DateTimeField(read_only=True)
-
-    class Meta:
-        model = dosuri.community.models.ArticleAuth
-        exclude = ('id',)
-
-
-class AuthAttach(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
-    article_auth: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=comm.ArticleAuth.objects.all()
-    )
-    path: s.Field = s.CharField()
-    created_at: s.Field = s.DateTimeField(read_only=True)
-
-    class Meta:
-        model = dosuri.community.models.AuthAttach
-        exclude = ('id',)
 
 
 class ArticleUpdate(s.ModelSerializer):

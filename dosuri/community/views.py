@@ -18,11 +18,12 @@ class ArticleList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.Article.objects.all()
     serializer_class = s.Article
-    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
+    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, f.CompleteStatusFilter]
     uuid_filter_params = ['hospital']
     ordering_field = '__all__'
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
 
 class ArticleAttachList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
