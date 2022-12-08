@@ -13,6 +13,8 @@ class Hospital(s.ModelSerializer):
     phone_no: s.Field = s.CharField(allow_null=True)
     up_count: s.Field = s.IntegerField(read_only=True)
     view_count: s.Field = s.IntegerField(read_only=True)
+    article_count: s.Field = s.IntegerField(read_only=True)
+    latest_article: s.Field = s.CharField(read_only=True)
     is_partner: s.Field = s.BooleanField()
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
