@@ -7,6 +7,17 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'ebdb',
+#         'USER': 'postgres',
+#         'PASSWORD': 'dosuri-back',
+#         'HOST': 'localhost',
+#         'PORT': '5434',
+#     }
+# }
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
