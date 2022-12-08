@@ -27,7 +27,7 @@ class TestHospitalList:
 
     @pytest.mark.django_db
     def test_list_hospital_filter_with_address(self, client, hospital_test_A, address_서울시_강남구, address_수원시_팔달구):
-        response = client.get(f'/hospital/v1/hospitals/?hospital_address_assoc_address={address_서울시_강남구.uuid}')
+        response = client.get(f'/hospital/v1/hospitals?hospital_address_assoc_address={address_서울시_강남구.uuid}')
         content = json.loads(response.content)
 
         assert response.status_code == 200
@@ -35,7 +35,7 @@ class TestHospitalList:
 
     @pytest.mark.django_db
     def test_list_hospital_search_by_exist_name_should_return_one(self, client, hospital_test_A):
-        response = client.get(f'/hospital/v1/hospitals/?search=test_A')
+        response = client.get(f'/hospital/v1/hospitals?search=test_A')
         content = json.loads(response.content)
 
         assert response.status_code == 200
@@ -43,7 +43,7 @@ class TestHospitalList:
 
     @pytest.mark.django_db
     def test_list_hospital_search_by_not_exist_name_should_return_zero(self, client, hospital_test_A):
-        response = client.get(f'/hospital/v1/hospitals/?search=test_B')
+        response = client.get(f'/hospital/v1/hospitals?search=test_B')
         content = json.loads(response.content)
 
         assert response.status_code == 200
@@ -78,7 +78,7 @@ class TestHospitalDetail:
 class TestHospitalCalendar:
     @pytest.mark.django_db
     def test_get_calendar_by_hospital(self, client, hospital_test_A, hospital_calendar_test_A):
-        response = client.get(f'/hospital/v1/hospital-calendars/?hospital={hospital_test_A.uuid}')
+        response = client.get(f'/hospital/v1/hospital-calendars?hospital={hospital_test_A.uuid}')
         content = json.loads(response.content)
 
         assert response.status_code == 200
@@ -88,7 +88,7 @@ class TestHospitalCalendar:
     def test_get_calendars_at_once_by_hospitals(self, client, hospital_test_A, hospital_test_B,
                                                 hospital_calendar_test_A, hospital_calendar_test_B):
         response = client.get(
-            f'/hospital/v1/hospital-calendars/?hospital={hospital_test_A.uuid}&hospital={hospital_test_B.uuid}')
+            f'/hospital/v1/hospital-calendars?hospital={hospital_test_A.uuid}&hospital={hospital_test_B.uuid}')
         content = json.loads(response.content)
 
         assert response.status_code == 200
@@ -99,7 +99,7 @@ class TestHospitalImage:
     @pytest.mark.django_db
     def test_get_images_by_hospital_should_return_all_two_images(self, client, hospital_test_A, hospital_image_1_test_A,
                                                                  hospital_image_2_test_A):
-        response = client.get(f'/hospital/v1/hospital-images/?hospital={hospital_test_A.uuid}')
+        response = client.get(f'/hospital/v1/hospital-images?hospital={hospital_test_A.uuid}')
         content = json.loads(response.content)
 
         assert response.status_code == 200
@@ -113,7 +113,7 @@ class TestHospitalImage:
                                                                            hospital_image_3_test_B,
                                                                            hospital_image_4_test_B):
         response = client.get(
-            f'/hospital/v1/hospital-images/?hospital={hospital_test_A.uuid}&hospital={hospital_test_B.uuid}')
+            f'/hospital/v1/hospital-images?hospital={hospital_test_A.uuid}&hospital={hospital_test_B.uuid}')
         content = json.loads(response.content)
 
         assert response.status_code == 200
