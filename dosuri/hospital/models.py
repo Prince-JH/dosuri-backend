@@ -15,6 +15,7 @@ class Hospital(models.Model):
     address = models.CharField(max_length=128, null=True)
     name = models.CharField(max_length=128)
     introduction = models.CharField(max_length=512, null=True)
+    area = models.CharField(max_length=32, null=True)
     phone_no = models.CharField(max_length=32, null=True)
     up_count = models.IntegerField(default=0)
     view_count = models.IntegerField(default=0)
@@ -133,7 +134,7 @@ class HospitalTreatment(models.Model):
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_treatment')
     price = models.IntegerField()
     price_per_hour = models.IntegerField(null=True)
-    description = models.CharField(max_length=128, null=True)
+    description = models.CharField(max_length=256, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
