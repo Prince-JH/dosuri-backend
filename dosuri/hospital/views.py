@@ -1,3 +1,4 @@
+from requests import Response
 from rest_framework import (
     generics as g,
     filters as rf,
@@ -12,7 +13,6 @@ from dosuri.hospital import (
 from dosuri.common import filters as f
 
 
-# Todo verification 로직 타기
 class HospitalList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.Hospital.objects.all()
@@ -172,3 +172,17 @@ class HospitalTreatmentDetail(g.RetrieveUpdateDestroyAPIView):
     queryset = m.HospitalTreatment.objects.all()
     serializer_class = s.HospitalTreatment
     lookup_field = 'uuid'
+
+
+'''
+내 주변 TOP 병원 등, drf 오버라이드가 필요한 views
+'''
+class TopHospitalList(g.ListAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = m.Hospital.objects.all()
+    serializer_class = s.TopHospital
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(data=serializer.data)
