@@ -34,45 +34,53 @@ def read_hospital_data(file_loc):
         code = line[0]
         name = line[1]
         full_address = line[4]
+        area = line[8]
         longitude = line[20]
         latitude = line[21]
-        addresses = full_address.split(' ')
-        do, city, gun, gu = None, None, None, None
-        for address in addresses:
-            if address == '':
-                continue
-            elif address[-1] == '도':
-                do = address
-            elif address[-1] == '시':
-                city = address
-            elif address[-1] == '군':
-                gun = address
-            elif address[-1] == '구':
-                gu = address
-        phone_no = line[9]
-        opened_at = datetime.strptime(line[11], '%Y-%m-%d')
-        hospital_obj = hm.Hospital.objects.create(
-            code=code,
-            address=full_address,
-            name=name,
-            phone_no=phone_no,
-            opened_at=opened_at,
-            latitude=latitude,
-            longitude=longitude
-        )
-        address_qs = cm.Address.objects.filter(do=do, city=city, gun=gun, gu=gu)
-        if not address_qs.exists():
-            address_obj = cm.Address.objects.create(
-                do=do,
-                city=city,
-                gun=gu,
-                gu=gu
+
+        hospital_qs = hm.Hospital.objects.filter(code=code)
+        if hospital_qs.exists():
+            hospital_qs.update(area=area)
+            print(code, area)
+        else:
+            addresses = full_address.split(' ')
+            do, city, gun, gu = None, None, None, None
+            for address in addresses:
+                if address == '':
+                    continue
+                elif address[-1] == '도':
+                    do = address
+                elif address[-1] == '시':
+                    city = address
+                elif address[-1] == '군':
+                    gun = address
+                elif address[-1] == '구':
+                    gu = address
+            phone_no = line[9]
+            opened_at = datetime.strptime(line[11], '%Y-%m-%d')
+            hospital_obj = hm.Hospital.objects.create(
+                code=code,
+                address=full_address,
+                name=name,
+                phone_no=phone_no,
+                opened_at=opened_at,
+                latitude=latitude,
+                longitude=longitude,
+                area=area
             )
-        hm.HospitalAddressAssoc.objects.create(
-            hospital=hospital_obj,
-            address=address_obj
-        )
-        print(do, city, gun, gu, phone_no, opened_at, latitude, longitude)
+            address_qs = cm.Address.objects.filter(do=do, city=city, gun=gun, gu=gu)
+            if not address_qs.exists():
+                address_obj = cm.Address.objects.create(
+                    do=do,
+                    city=city,
+                    gun=gu,
+                    gu=gu
+                )
+            hm.HospitalAddressAssoc.objects.create(
+                hospital=hospital_obj,
+                address=address_obj
+            )
+            print(do, city, gun, gu, phone_no, opened_at, latitude, longitude)
 
 
 def read_hospital_treatment_data(file_loc):
