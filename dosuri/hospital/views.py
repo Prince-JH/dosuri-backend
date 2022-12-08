@@ -15,7 +15,7 @@ from dosuri.common import filters as f
 
 class HospitalList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all()
+    queryset = m.Hospital.objects.all().prefetch_related('article')
     serializer_class = s.Hospital
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, rf.SearchFilter]
     ordering_field = '__all__'

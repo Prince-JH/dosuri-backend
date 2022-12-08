@@ -2,6 +2,9 @@ from rest_framework import serializers as s
 
 from dosuri.hospital import models as hm
 from dosuri.common import models as cm
+from dosuri.community import (
+    models as cmm,
+)
 
 
 class Hospital(s.ModelSerializer):
@@ -13,11 +16,20 @@ class Hospital(s.ModelSerializer):
     phone_no: s.Field = s.CharField(allow_null=True)
     up_count: s.Field = s.IntegerField(read_only=True)
     view_count: s.Field = s.IntegerField(read_only=True)
-    article_count: s.Field = s.IntegerField(read_only=True)
-    latest_article: s.Field = s.CharField(read_only=True)
+    article_count: s.Field = s.SerializerMethodField()
+    latest_article: s.Field = s.SerializerMethodField(allow_null=True)
     is_partner: s.Field = s.BooleanField()
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
+
+    def get_article_count(self, obj):
+        return cmm.Article.objects.filter(hospital=obj).count()
+
+    def get_latest_article(self, obj):
+        latest_article = cmm.ArticleDetail.objects.filter(article__hospital=obj).order_by('-created_at').first()
+        if not latest_article:
+            return
+        return latest_article.content
 
     class Meta:
         model = hm.Hospital
