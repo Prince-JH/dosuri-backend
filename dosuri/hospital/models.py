@@ -15,6 +15,7 @@ class Hospital(models.Model):
     address = models.CharField(max_length=128, null=True)
     name = models.CharField(max_length=128)
     introduction = models.CharField(max_length=512, null=True)
+    area = models.CharField(max_length=32, null=True)
     phone_no = models.CharField(max_length=32, null=True)
     up_count = models.IntegerField(default=0)
     view_count = models.IntegerField(default=0)

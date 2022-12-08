@@ -9,6 +9,7 @@ class Hospital(s.ModelSerializer):
     address: s.Field = s.CharField()
     name: s.Field = s.CharField()
     introduction: s.Field = s.CharField(allow_null=True)
+    area: s.Field = s.CharField(allow_null=True)
     phone_no: s.Field = s.CharField(allow_null=True)
     up_count: s.Field = s.IntegerField(read_only=True)
     view_count: s.Field = s.IntegerField(read_only=True)
@@ -164,6 +165,7 @@ class HospitalTreatment(s.ModelSerializer):
     class Meta:
         model = hm.HospitalTreatment
         exclude = ('id',)
+
 
 class TopHospital(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)

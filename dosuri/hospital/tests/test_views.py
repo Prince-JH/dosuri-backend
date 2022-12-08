@@ -57,7 +57,8 @@ class TestHospitalList:
             'introduction': None,
             'phone_no': None,
             'is_partner': False,
-            'opened_at': None
+            'opened_at': None,
+            'area': None
         }
         response = client.post('/hospital/v1/hospitals/', data=data, content_type='application/json')
 
