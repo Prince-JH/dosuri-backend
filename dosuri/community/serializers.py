@@ -7,6 +7,7 @@ from dosuri.hospital import models as hm
 from dosuri.user import models as um
 from django.db import transaction
 
+
 class AuthAttach(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     path: s.Field = s.CharField()
@@ -15,6 +16,7 @@ class AuthAttach(s.ModelSerializer):
     class Meta:
         model = dosuri.community.models.AuthAttach
         exclude = ('id', 'article_auth')
+
 
 class ArticleAuth(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
@@ -28,6 +30,7 @@ class ArticleAuth(s.ModelSerializer):
         model = dosuri.community.models.ArticleAuth
         exclude = ('id', 'article')
 
+
 class ArticleAttach(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     path: s.Field = s.CharField()
@@ -36,6 +39,7 @@ class ArticleAttach(s.ModelSerializer):
     class Meta:
         model = dosuri.community.models.ArticleAttach
         exclude = ('id', 'article')
+
 
 class ArticleKeywordAssoc(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
@@ -54,6 +58,7 @@ class ArticleKeywordAssoc(s.ModelSerializer):
         model = dosuri.community.models.ArticleKeywordAssoc
         exclude = ('id', 'article')
 
+
 class ArticleDetail(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     treatment_effect: s.Field = s.IntegerField(default=0)
@@ -67,6 +72,7 @@ class ArticleDetail(s.ModelSerializer):
         model = dosuri.community.models.ArticleDetail
         exclude = ('id', 'article')
 
+
 class ArticleDoctorAssoc(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     doctor: s.Field = s.SlugRelatedField(
@@ -78,6 +84,7 @@ class ArticleDoctorAssoc(s.ModelSerializer):
     class Meta:
         model = dosuri.community.models.ArticleDoctorAssoc
         exclude = ('id', 'article')
+
 
 class Article(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
@@ -94,11 +101,11 @@ class Article(s.ModelSerializer):
         slug_field='uuid',
         queryset=hm.Hospital.objects.all()
     )
-    article_attach = ArticleAttach(many=True)
-    article_keyword_assoc = ArticleKeywordAssoc(many=True)
-    article_detail = ArticleDetail(many=False)
-    article_auth = ArticleAuth(many=False)
-    article_doctor_assoc = ArticleDoctorAssoc(many=True)
+    article_attach = ArticleAttach(many=True, write_only=True)
+    article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True)
+    article_detail = ArticleDetail(many=False, write_only=True)
+    article_auth = ArticleAuth(many=False, write_only=True)
+    article_doctor_assoc = ArticleDoctorAssoc(many=True, write_only=True)
 
     class Meta:
         model = dosuri.community.models.Article
@@ -114,7 +121,8 @@ class Article(s.ModelSerializer):
 
         with transaction.atomic():
             article = comm.Article.objects.create(**validated_data)
-            article_keyword_assoc_data = [comm.ArticleKeywordAssoc(**item, article=article) for item in article_keyword_assoc_list]
+            article_keyword_assoc_data = [comm.ArticleKeywordAssoc(**item, article=article) for item in
+                                          article_keyword_assoc_list]
             comm.ArticleKeywordAssoc.objects.bulk_create(article_keyword_assoc_data)
 
             comm.ArticleDetail.objects.create(**article_detail_data, article=article)
@@ -130,9 +138,6 @@ class Article(s.ModelSerializer):
             article_doctor_assoc_data = [comm.ArticleDoctorAssoc(**item, article=article) for item in doctor_assoc_list]
             comm.ArticleDoctorAssoc.objects.bulk_create(article_doctor_assoc_data)
         return article
-
-
-
 
 
 class ArticleUpdate(s.ModelSerializer):
