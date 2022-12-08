@@ -25,8 +25,6 @@ class ForeignUuidFilter(fsc.ForeignUuidFilter, filters.BaseFilterBackend):
         if not kwargs:
             return queryset
         conds = self.get_filter_condition(queryset, kwargs)
-        print(conds)
-        print('qs', queryset.filter(**conds).distinct())
         return queryset.filter(**conds).distinct()
 
     def get_param_kwargs(self, request, params):
@@ -41,7 +39,6 @@ class ForeignUuidFilter(fsc.ForeignUuidFilter, filters.BaseFilterBackend):
             chunk = model_abs_name.split('__')
             if len(chunk) > 1:
                 conds[f'{model_abs_name}__uuid__in'] = uuid_list
-                print(conds)
                 continue
 
             model_name = chunk[0]
