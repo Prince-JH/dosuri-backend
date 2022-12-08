@@ -14,7 +14,7 @@ from dosuri.user import (
 class TestUserDetail:
     @pytest.mark.django_db
     def test_get_user_without_jwt(self, client):
-        response = client.get(f'/user/v1/users/me/')
+        response = client.get(f'/user/v1/users/me')
         assert response.status_code == 401
 
 
@@ -28,7 +28,7 @@ class TestKaKaoAuth:
             'token': 'dummy_token',
             'type': 'kakao',
         }
-        response = client.post('/user/v1/auth/', data=data, content_type='application/json')
+        response = client.post('/user/v1/auth', data=data, content_type='application/json')
         content = json.loads(response.content)
 
         assert response.status_code == 201
@@ -43,7 +43,7 @@ class TestKaKaoAuth:
             'token': 'dummy_token',
             'type': 'kakao'
         }
-        response = client.post('/user/v1/auth/', data=data, content_type='application/json')
+        response = client.post('/user/v1/auth', data=data, content_type='application/json')
         content = json.loads(response.content)
 
         assert response.status_code == 201

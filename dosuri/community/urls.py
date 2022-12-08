@@ -12,6 +12,6 @@ urlpatterns = [
     path('v1/community/article-keyword-assoc', v.ArticleKeywordAssocList.as_view(), name='treatment'),
     path('v1/community/article-auth', v.ArticleAuth.as_view(), name='article-auth'),
     path('v1/community/auth-attach', v.AuthAttach.as_view(), name='auth-attach'),
-    path('v1/community/articles/<uuid>/', v.ArticleUpdate.as_view(), name='article-update'),
+    path('v1/community/article-auth/<uuid>', v.ArticleAuthDetail.as_view(), name='auth-update'),
 
 ]
