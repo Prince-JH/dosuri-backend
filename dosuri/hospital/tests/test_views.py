@@ -103,7 +103,7 @@ class TestHospitalImage:
         content = json.loads(response.content)
 
         assert response.status_code == 200
-        assert len(content['results']) == 2
+        assert len(content) == 2
 
     @pytest.mark.django_db
     def test_get_images_at_once_by_hospitals_should_return_all_four_images(self, client, hospital_test_A,
@@ -117,7 +117,7 @@ class TestHospitalImage:
         content = json.loads(response.content)
 
         assert response.status_code == 200
-        assert len(content['results']) == 4
+        assert len(content) == 4
 
 
 class TestHospitalAddressAssoc:

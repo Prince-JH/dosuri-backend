@@ -48,6 +48,7 @@ class HospitalCalendarDetail(g.RetrieveUpdateDestroyAPIView):
 
 class HospitalImageList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
+    pagination_class = None
     queryset = m.HospitalImage.objects.select_related('hospital').all()
     serializer_class = s.HospitalImage
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
