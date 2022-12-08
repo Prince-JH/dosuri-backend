@@ -95,14 +95,14 @@ class ArticleAttach(models.Model):
         ordering = ['-id']
 
 
-class DoctorAssoc(models.Model):
+class ArticleDoctorAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='doctor_assoc')
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='doctor_assoc')
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_doctor_assoc')
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='article_doctor_assoc')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'doctor_assoc'
+        db_table = 'article_doctor_assoc'
         ordering = ['-id']
 
 

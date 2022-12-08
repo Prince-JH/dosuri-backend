@@ -67,7 +67,7 @@ class ArticleDetail(s.ModelSerializer):
         model = dosuri.community.models.ArticleDetail
         exclude = ('id', 'article')
 
-class DoctorAssoc(s.ModelSerializer):
+class ArticleDoctorAssoc(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     doctor: s.Field = s.SlugRelatedField(
         slug_field='uuid',
@@ -76,7 +76,7 @@ class DoctorAssoc(s.ModelSerializer):
     created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
-        model = dosuri.community.models.DoctorAssoc
+        model = dosuri.community.models.ArticleDoctorAssoc
         exclude = ('id', 'article')
 
 class Article(s.ModelSerializer):
@@ -98,7 +98,7 @@ class Article(s.ModelSerializer):
     article_keyword_assoc = ArticleKeywordAssoc(many=True)
     article_detail = ArticleDetail(many=False)
     article_auth = ArticleAuth(many=False)
-    doctor_assoc = DoctorAssoc(many=True)
+    article_doctor_assoc = ArticleDoctorAssoc(many=True)
 
     class Meta:
         model = dosuri.community.models.Article
@@ -110,7 +110,7 @@ class Article(s.ModelSerializer):
         article_detail_data = validated_data.pop('article_detail')
         article_auth_data = validated_data.pop('article_auth')
         auth_attach_list = article_auth_data.pop('auth_attach')
-        doctor_assoc_list = validated_data.pop('doctor_assoc')
+        article_doctor_assoc_list = validated_data.pop('article_doctor_assoc')
 
         with transaction.atomic():
             article = comm.Article.objects.create(**validated_data)
@@ -127,8 +127,8 @@ class Article(s.ModelSerializer):
             auth_attach_data = [comm.AuthAttach(**item, article_auth=article_auth) for item in auth_attach_list]
             comm.AuthAttach.objects.bulk_create(auth_attach_data)
 
-            doctor_assoc_data = [comm.DoctorAssoc(**item, article=article) for item in doctor_assoc_list]
-            comm.DoctorAssoc.objects.bulk_create(doctor_assoc_data)
+            article_doctor_assoc_data = [comm.ArticleDoctorAssoc(**item, article=article) for item in doctor_assoc_list]
+            comm.ArticleDoctorAssoc.objects.bulk_create(article_doctor_assoc_data)
         return article
 
 
