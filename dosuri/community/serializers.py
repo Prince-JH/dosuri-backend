@@ -22,13 +22,23 @@ class ArticleAuth(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     sensitive_agreement: s.Field = s.BooleanField()
     personal_agreement: s.Field = s.BooleanField()
-    status: s.Field = s.CharField(read_only=True)
+    status: s.Field = s.CharField(write_only=True)
     auth_attach: s.Field = AuthAttach(many=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
         model = dosuri.community.models.ArticleAuth
         exclude = ('id', 'article')
+    def update(self, instance, validated_data):
+        instance.sensitive_agreement = validated_data.get('sensitive_agreement', instance.sensitive_agreement)
+        instance.personal_agreement = validated_data.get('personal_agreement', instance.personal_agreement)
+        if validated_data.get('status', instance.status) in ['Deny', 'Complete']:
+            with transaction.atomic():
+                instance.status = validated_data.get('status', instance.status)
+                instance.article.status=validated_data.get('status', instance.status)
+                instance.save()
+                instance.article.save()
+        return instance
 
 
 class ArticleAttach(s.ModelSerializer):
@@ -118,33 +128,32 @@ class Article(s.ModelSerializer):
         article_auth_data = validated_data.pop('article_auth')
         auth_attach_list = article_auth_data.pop('auth_attach')
         article_doctor_assoc_list = validated_data.pop('article_doctor_assoc')
+        if validated_data['article_type'] == 'Review':
+            with transaction.atomic():
+                article = comm.Article.objects.create(**validated_data)
+                article_keyword_assoc_data = [comm.ArticleKeywordAssoc(**item, article=article) for item in
+                                            article_keyword_assoc_list]
+                comm.ArticleKeywordAssoc.objects.bulk_create(article_keyword_assoc_data)
 
-        with transaction.atomic():
-            article = comm.Article.objects.create(**validated_data)
-            article_keyword_assoc_data = [comm.ArticleKeywordAssoc(**item, article=article) for item in
-                                          article_keyword_assoc_list]
-            comm.ArticleKeywordAssoc.objects.bulk_create(article_keyword_assoc_data)
+                comm.ArticleDetail.objects.create(**article_detail_data, article=article)
 
-            comm.ArticleDetail.objects.create(**article_detail_data, article=article)
+                article_attach_data = [comm.ArticleAttach(**item, article=article) for item in article_attach_list]
+                comm.ArticleAttach.objects.bulk_create(article_attach_data)
 
-            article_attach_data = [comm.ArticleAttach(**item, article=article) for item in article_attach_list]
-            comm.ArticleAttach.objects.bulk_create(article_attach_data)
+                article_auth = comm.ArticleAuth.objects.create(**article_auth_data, article=article)
 
-            article_auth = comm.ArticleAuth.objects.create(**article_auth_data, article=article)
+                auth_attach_data = [comm.AuthAttach(**item, article_auth=article_auth) for item in auth_attach_list]
+                comm.AuthAttach.objects.bulk_create(auth_attach_data)
 
-            auth_attach_data = [comm.AuthAttach(**item, article_auth=article_auth) for item in auth_attach_list]
-            comm.AuthAttach.objects.bulk_create(auth_attach_data)
+                article_doctor_assoc_data = [comm.ArticleDoctorAssoc(**item, article=article) for item in doctor_assoc_list]
+                comm.ArticleDoctorAssoc.objects.bulk_create(article_doctor_assoc_data)
+        if validated_data['article_type'] == 'Question':
+            with transaction.atomic():
+                article = comm.Article.objects.create(**validated_data)
+                comm.ArticleDetail.objects.create(**article_detail_data, article=article)
 
-            article_doctor_assoc_data = [comm.ArticleDoctorAssoc(**item, article=article) for item in doctor_assoc_list]
-            comm.ArticleDoctorAssoc.objects.bulk_create(article_doctor_assoc_data)
+                article_attach_data = [comm.ArticleAttach(**item, article=article) for item in article_attach_list]
+                comm.ArticleAttach.objects.bulk_create(article_attach_data)
         return article
 
 
-class ArticleUpdate(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
-    status: s.Field = s.CharField()
-    created_at: s.Field = s.DateTimeField(read_only=True)
-
-    class Meta:
-        model = dosuri.community.models.Article
-        exclude = ('id', 'article_type', 'cost', 'treat_count', 'user', 'hospital')

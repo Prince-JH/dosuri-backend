@@ -25,7 +25,7 @@ class ArticleList(g.ListCreateAPIView):
         serializer.save(user=self.request.user)
 
 
-class ArticleAttachList(g.ListCreateAPIView):
+class ArticleAttachList(g.ListAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.ArticleAttach.objects.all()
     serializer_class = s.ArticleAttach
@@ -33,7 +33,7 @@ class ArticleAttachList(g.ListCreateAPIView):
     uuid_filter_params = ['hospital']
     ordering_field = '__all__'
 
-class ArticleDoctorAssocList(g.ListCreateAPIView):
+class ArticleDoctorAssocList(g.ListAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.ArticleDoctorAssoc.objects.all()
     serializer_class = s.ArticleDoctorAssoc
@@ -41,7 +41,7 @@ class ArticleDoctorAssocList(g.ListCreateAPIView):
     uuid_filter_params = ['hospital']
     ordering_field = '__all__'
 
-class ArticleKeywordAssocList(g.ListCreateAPIView):
+class ArticleKeywordAssocList(g.ListAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.ArticleKeywordAssoc.objects.all()
     serializer_class = s.ArticleKeywordAssoc
@@ -49,7 +49,7 @@ class ArticleKeywordAssocList(g.ListCreateAPIView):
     uuid_filter_params = ['hospital']
     ordering_field = '__all__'
 
-class ArticleDetail(g.ListCreateAPIView):
+class ArticleDetail(g.ListAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.ArticleDetail.objects.all()
     serializer_class = s.ArticleDetail
@@ -57,7 +57,7 @@ class ArticleDetail(g.ListCreateAPIView):
     uuid_filter_params = ['article']
     ordering_field = '__all__'
 
-class ArticleAuth(g.ListCreateAPIView):
+class ArticleAuth(g.ListAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.ArticleAuth.objects.all()
     serializer_class = s.ArticleAuth
@@ -65,7 +65,7 @@ class ArticleAuth(g.ListCreateAPIView):
     uuid_filter_params = ['article']
     ordering_field = '__all__'
 
-class AuthAttach(g.ListCreateAPIView):
+class AuthAttach(g.ListAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.AuthAttach.objects.all()
     serializer_class = s.AuthAttach
@@ -73,8 +73,8 @@ class AuthAttach(g.ListCreateAPIView):
     uuid_filter_params = ['article_auth']
     ordering_field = '__all__'
 
-class ArticleUpdate(g.RetrieveUpdateDestroyAPIView):
+class ArticleAuthDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Article.objects.all()
-    serializer_class = s.ArticleUpdate
+    queryset = m.ArticleAuth.objects.all()
+    serializer_class = s.ArticleAuth
     lookup_field = 'uuid'
