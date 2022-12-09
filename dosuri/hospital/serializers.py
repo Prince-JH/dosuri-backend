@@ -47,7 +47,7 @@ class HospitalImage(s.ModelSerializer):
 
     class Meta:
         model = hm.HospitalImage
-        exclude = ('id',)
+        exclude = ('id', 'title')
 
 
 class HospitalCalendar(s.ModelSerializer):

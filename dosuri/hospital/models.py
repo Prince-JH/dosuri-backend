@@ -32,6 +32,7 @@ class Hospital(models.Model):
 
 class HospitalImage(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    title = models.CharField(max_length=64, default='')
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_image')
     url = models.CharField(max_length=512)
     created_at = models.DateTimeField(auto_now_add=True)
