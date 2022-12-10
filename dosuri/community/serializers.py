@@ -117,7 +117,7 @@ class Article(s.ModelSerializer):
     )
     content: s.Field = s.CharField(read_only=False)
     article_attach = ArticleAttach(many=True, write_only=True, required=False)
-    article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=True)
+    article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
     article_detail = ArticleDetail(many=False, write_only=True, required=False)
     article_auth = ArticleAuth(many=False, write_only=True, required=False)
     article_doctor_assoc = ArticleDoctorAssoc(many=True, write_only=True, required=False)
@@ -141,8 +141,7 @@ class Article(s.ModelSerializer):
             article_doctor_assoc_list = validated_data.pop('article_doctor_assoc')
         else:
             article_doctor_assoc_list = False
-
-        article_keyword_assoc_list = validated_data.pop('article_keyword_assoc')
+        
         if 'article_auth' in validated_data:
             article_auth_data = validated_data.pop('article_auth')
             auth_attach_list = article_auth_data.pop('auth_attach')
@@ -150,6 +149,7 @@ class Article(s.ModelSerializer):
             article_auth_data = False
             
         if validated_data['article_type'] == cc.ARTICLE_REVIEW:
+            article_keyword_assoc_list = validated_data.pop('article_keyword_assoc')
             with transaction.atomic():
                 article = comm.Article.objects.create(**validated_data)
                 article_keyword_assoc_data = [comm.ArticleKeywordAssoc(**item, article=article) for item in

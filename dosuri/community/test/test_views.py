@@ -301,3 +301,54 @@ class ArticleListViewTestCase(TestCase):
         self.assertEqual(result['uuid'], auth_attach.uuid)
         self.assertEqual(result['path'], self.auth_attach_url)
         return article_auth
+
+    def test_질문_상담_생성(self):
+        self.client.force_login(self.일반사용자)
+        res = self.client.post(
+            path="/community/v1/community/articles",
+            data={
+                "hospital": self.병원.uuid,
+                "content": "가격이 어떻게되나요",
+                "article_attach": [
+                    {
+                        "path": self.attach_url
+                    }
+                ],
+                "article_type": cc.ARTICLE_QUESTION
+            },
+            content_type="application/json",
+        )
+        self.assertEqual(res.status_code, 201)
+        data = res.json()
+        self.assertIsNotNone(data["uuid"])
+        article = cm.Article.objects.get(uuid=data["uuid"])
+        self.assertIsNotNone(article)
+        self.assertEqual(article.article_type, cc.ARTICLE_QUESTION)
+
+        article_attach = cm.ArticleAttach.objects.filter(article=article)
+        self.assertEqual(len(article_attach), 1)
+        
+        article_detail = cm.ArticleDetail.objects.filter(article=article)
+        self.assertEqual(len(article_detail), 0)
+        
+
+        return article
+
+    def test_질문과_후기_작성후_조회(self):
+        review_article=self.test_선택항목_모두_작성_후기_생성()
+        question_article=self.test_질문_상담_생성()
+        res = self.client.get(
+            path="/community/v1/community/articles?hospital="+self.병원.uuid
+        )
+        self.assertEqual(res.status_code, 200)
+        
+        data=res.json()
+        results=data['results']
+        self.assertEqual(len(results), 2)
+        result_review_article = list(filter(lambda article: article['article_type'] == 'Review', results))[0]
+        result_question_article = list(filter(lambda article: article['article_type'] == 'Question', results))[0]
+
+        self.assertEqual(review_article.uuid, result_review_article['uuid'])
+        self.assertEqual(question_article.uuid, result_question_article['uuid'])
+        
+        return
