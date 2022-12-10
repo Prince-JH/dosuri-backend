@@ -5,16 +5,20 @@ from dosuri.user.models import User
 from dosuri.hospital.models import Hospital, Doctor, HospitalTreatment
 from dosuri.community import constants as cc
 
+
 def generate_uuid():
     return uuid4().hex
+
 
 class ArticleKeyword(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     keyword = models.CharField(max_length=15, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
     class Meta:
         db_table = 'article_keyword'
         ordering = ['-id']
+
 
 class Article(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
@@ -121,7 +125,7 @@ class ArticleKeywordAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_keyword_assoc')
     article_keyword = models.ForeignKey(ArticleKeyword, on_delete=models.CASCADE,
-                                           related_name='article_keyword_assoc')
+                                        related_name='article_keyword_assoc')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
