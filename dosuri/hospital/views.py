@@ -1,10 +1,9 @@
-from requests import Response
+from rest_framework.response import Response
 from rest_framework import (
     generics as g,
     filters as rf,
     permissions as p
 )
-
 from dosuri.common import models as cm
 from dosuri.hospital import (
     models as m,
@@ -194,5 +193,6 @@ class TopHospitalList(g.ListAPIView):
 class ReviewOrderHospitalList(g.ListAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.Hospital.objects.all().prefetch_related('article')
+    pagination_class = None
     serializer_class = s.Hospital
     filter_backends = [hf.ReviewOrderingFilter]

@@ -2,13 +2,14 @@ from rest_framework import filters
 from django.db.models import Count, Case, When
 from rest_framework.settings import api_settings
 
+from dosuri.hospital import filter_schema as fsc
 from dosuri.community import (
     models as cmm,
     constants as cmc,
 )
 
 
-class ReviewOrderingFilter(filters.BaseFilterBackend):
+class ReviewOrderingFilter(fsc.ReviewOrderingFilter, filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view, now=None):
         page = int(request.GET.get('page', 1))
         page_size = api_settings.PAGE_SIZE
@@ -21,7 +22,10 @@ class ReviewOrderingFilter(filters.BaseFilterBackend):
             list_hospital_ids = list(hospital_ids[start: end])
             preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(list(hospital_ids)[start: end])])
         else:
-            extra = end - hospital_ids.count()
+            if start > hospital_ids.count():
+                extra = page_size
+            else:
+                extra = end - hospital_ids.count()
             extra_hospital_ids = list(queryset.exclude(
                 id__in=cmm.Article.objects.filter(article_type=cmc.ARTICLE_REVIEW).all().values_list('hospital',
                                                                                                      flat=True)).order_by(
