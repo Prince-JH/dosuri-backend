@@ -1,6 +1,6 @@
-STATUS_INCOMPLETE = 'InComplete'
-STATUS_COMPLETE = 'Complete'
-STATUS_DENY = 'Deny'
+STATUS_INCOMPLETE = 'incomplete'
+STATUS_COMPLETE = 'complete'
+STATUS_DENY = 'deny'
 
-ARTICLE_REVIEW = 'Review'
-ARTICLE_QUESTION = 'Question'
+ARTICLE_REVIEW = 'review'
+ARTICLE_QUESTION = 'question'
