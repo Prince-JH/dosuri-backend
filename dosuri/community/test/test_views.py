@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from dosuri.community import (
     models as cm,
-    constants as cc
+    constants as cmc
 )
 from dosuri.user.models import User
 from dosuri.hospital import models as hm
@@ -63,7 +63,7 @@ class ArticleListViewTestCase(TestCase):
                 #         "doctor": "string"
                 #     }
                 # ],
-                "article_type": cc.ARTICLE_REVIEW
+                "article_type": cmc.ARTICLE_REVIEW
             },
             content_type="application/json",
         )
@@ -72,7 +72,7 @@ class ArticleListViewTestCase(TestCase):
         self.assertIsNotNone(data["uuid"])
         article = cm.Article.objects.get(uuid=data["uuid"])
         self.assertIsNotNone(article)
-        self.assertEqual(article.article_type, cc.ARTICLE_REVIEW)
+        self.assertEqual(article.article_type, cmc.ARTICLE_REVIEW)
 
         article_attach = cm.ArticleAttach.objects.filter(article=article)
         self.assertEqual(len(article_attach), 1)
@@ -124,7 +124,7 @@ class ArticleListViewTestCase(TestCase):
                     "cost": 50000,
                     "treat_count": 3
                 },
-                "article_type": cc.ARTICLE_REVIEW
+                "article_type": cmc.ARTICLE_REVIEW
             },
             content_type="application/json",
         )
@@ -133,7 +133,7 @@ class ArticleListViewTestCase(TestCase):
         self.assertIsNotNone(data["uuid"])
         article = cm.Article.objects.get(uuid=data["uuid"])
         self.assertIsNotNone(article)
-        self.assertEqual(article.article_type, cc.ARTICLE_REVIEW)
+        self.assertEqual(article.article_type, cmc.ARTICLE_REVIEW)
 
         article_attach = cm.ArticleAttach.objects.filter(article=article)
         self.assertEqual(len(article_attach), 1)
@@ -176,7 +176,7 @@ class ArticleListViewTestCase(TestCase):
                     "cost": 50000,
                     "treat_count": 3
                 },
-                "article_type": cc.ARTICLE_REVIEW
+                "article_type": cmc.ARTICLE_REVIEW
             },
             content_type="application/json",
         )
@@ -185,7 +185,7 @@ class ArticleListViewTestCase(TestCase):
         self.assertIsNotNone(data["uuid"])
         article = cm.Article.objects.get(uuid=data["uuid"])
         self.assertIsNotNone(article)
-        self.assertEqual(article.article_type, cc.ARTICLE_REVIEW)
+        self.assertEqual(article.article_type, cmc.ARTICLE_REVIEW)
 
         article_attach = cm.ArticleAttach.objects.filter(article=article)
         self.assertEqual(len(article_attach), 0)
@@ -225,7 +225,7 @@ class ArticleListViewTestCase(TestCase):
                     "staff_kindness": 1,
                     "clean_score": 1
                 },
-                "article_type": cc.ARTICLE_REVIEW
+                "article_type": cmc.ARTICLE_REVIEW
             },
             content_type="application/json",
         )
@@ -234,7 +234,7 @@ class ArticleListViewTestCase(TestCase):
         self.assertIsNotNone(data["uuid"])
         article = cm.Article.objects.get(uuid=data["uuid"])
         self.assertIsNotNone(article)
-        self.assertEqual(article.article_type, cc.ARTICLE_REVIEW)
+        self.assertEqual(article.article_type, cmc.ARTICLE_REVIEW)
 
         article_attach = cm.ArticleAttach.objects.filter(article=article)
         self.assertEqual(len(article_attach), 0)
@@ -314,7 +314,7 @@ class ArticleListViewTestCase(TestCase):
                         "path": self.attach_url
                     }
                 ],
-                "article_type": cc.ARTICLE_QUESTION
+                "article_type": cmc.ARTICLE_QUESTION
             },
             content_type="application/json",
         )
@@ -323,7 +323,7 @@ class ArticleListViewTestCase(TestCase):
         self.assertIsNotNone(data["uuid"])
         article = cm.Article.objects.get(uuid=data["uuid"])
         self.assertIsNotNone(article)
-        self.assertEqual(article.article_type, cc.ARTICLE_QUESTION)
+        self.assertEqual(article.article_type, cmc.ARTICLE_QUESTION)
 
         article_attach = cm.ArticleAttach.objects.filter(article=article)
         self.assertEqual(len(article_attach), 1)
@@ -345,8 +345,8 @@ class ArticleListViewTestCase(TestCase):
         data=res.json()
         results=data['results']
         self.assertEqual(len(results), 2)
-        result_review_article = list(filter(lambda article: article['article_type'] == 'Review', results))[0]
-        result_question_article = list(filter(lambda article: article['article_type'] == 'Question', results))[0]
+        result_review_article = list(filter(lambda article: article['article_type'] == cmc.ARTICLE_REVIEW, results))[0]
+        result_question_article = list(filter(lambda article: article['article_type'] == cmc.ARTICLE_QUESTION, results))[0]
 
         self.assertEqual(review_article.uuid, result_review_article['uuid'])
         self.assertEqual(question_article.uuid, result_question_article['uuid'])
