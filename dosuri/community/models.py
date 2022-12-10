@@ -3,7 +3,7 @@ from uuid import uuid4
 from django.db import models
 from dosuri.user.models import User
 from dosuri.hospital.models import Hospital, Doctor, HospitalTreatment
-
+from dosuri.community import constants as cc
 
 def generate_uuid():
     return uuid4().hex
@@ -19,14 +19,12 @@ class ArticleKeyword(models.Model):
 class Article(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='article')
-    status = models.CharField(max_length=15, default="InComplete")
+    status = models.CharField(max_length=15, default=cc.STATUS_INCOMPLETE)
     article_type = models.CharField(default=None, null=True, max_length=20)
     up_count = models.IntegerField(default=0)
     view_count = models.IntegerField(default=0)
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='article')
-    cost = models.IntegerField(default=None, null=True)
     content = models.CharField(max_length=1200, blank=True, null=False, default='')  ## 후기 최대글자 한글은 3 bytes (최대 400글자)
-    treat_count = models.IntegerField(default=None, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -54,6 +52,8 @@ class ArticleDetail(models.Model):
     therapist_kindness = models.IntegerField(default=None, null=True)
     clean_score = models.IntegerField(default=None, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    cost = models.IntegerField(default=None, null=True)
+    treat_count = models.IntegerField(default=None, null=True)
 
     class Meta:
         db_table = 'article_detail'
@@ -65,7 +65,7 @@ class ArticleAuth(models.Model):
     article = models.OneToOneField(Article, on_delete=models.CASCADE, related_name='article_auth')
     sensitive_agreement = models.BooleanField(default=False)
     personal_agreement = models.BooleanField(default=False)
-    status = models.CharField(max_length=15, default="Pending")
+    status = models.CharField(max_length=15, default=cc.STATUS_INCOMPLETE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

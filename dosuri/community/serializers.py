@@ -2,6 +2,7 @@ from rest_framework import serializers as s
 
 import dosuri.common.models
 from dosuri.community import models as comm
+from dosuri.community import constants as cc
 from dosuri.common import models as cm
 from dosuri.hospital import models as hm
 from dosuri.user import models as um
@@ -22,7 +23,7 @@ class ArticleAuth(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     sensitive_agreement: s.Field = s.BooleanField()
     personal_agreement: s.Field = s.BooleanField()
-    status: s.Field = s.CharField(write_only=True)
+    status: s.Field = s.CharField(required=False)
     auth_attach: s.Field = AuthAttach(many=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
 
@@ -32,7 +33,7 @@ class ArticleAuth(s.ModelSerializer):
     def update(self, instance, validated_data):
         instance.sensitive_agreement = validated_data.get('sensitive_agreement', instance.sensitive_agreement)
         instance.personal_agreement = validated_data.get('personal_agreement', instance.personal_agreement)
-        if validated_data.get('status', instance.status) in ['Deny', 'Complete']:
+        if validated_data.get('status', instance.status) in [cc.STATUS_DENY, cc.STATUS_COMPLETE]:
             with transaction.atomic():
                 instance.status = validated_data.get('status', instance.status)
                 instance.article.status=validated_data.get('status', instance.status)
@@ -112,7 +113,7 @@ class Article(s.ModelSerializer):
     )
     content: s.Field = s.CharField(read_only=False)
     article_attach = ArticleAttach(many=True, write_only=True, required=False)
-    article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
+    article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=True)
     article_detail = ArticleDetail(many=False, write_only=True, required=False)
     article_auth = ArticleAuth(many=False, write_only=True, required=False)
     article_doctor_assoc = ArticleDoctorAssoc(many=True, write_only=True, required=False)
@@ -128,7 +129,7 @@ class Article(s.ModelSerializer):
         article_auth_data = validated_data.pop('article_auth')
         auth_attach_list = article_auth_data.pop('auth_attach')
         article_doctor_assoc_list = validated_data.pop('article_doctor_assoc')
-        if validated_data['article_type'] == 'Review':
+        if validated_data['article_type'] == cc.ARTICLE_REVIEW:
             with transaction.atomic():
                 article = comm.Article.objects.create(**validated_data)
                 article_keyword_assoc_data = [comm.ArticleKeywordAssoc(**item, article=article) for item in
@@ -147,7 +148,7 @@ class Article(s.ModelSerializer):
 
                 article_doctor_assoc_data = [comm.ArticleDoctorAssoc(**item, article=article) for item in doctor_assoc_list]
                 comm.ArticleDoctorAssoc.objects.bulk_create(article_doctor_assoc_data)
-        if validated_data['article_type'] == 'Question':
+        if validated_data['article_type'] == cc.ARTICLE_QUESTION:
             with transaction.atomic():
                 article = comm.Article.objects.create(**validated_data)
                 comm.ArticleDetail.objects.create(**article_detail_data, article=article)

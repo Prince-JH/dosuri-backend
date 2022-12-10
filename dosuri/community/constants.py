@@ -1,0 +1,6 @@
+STATUS_INCOMPLETE = 'InComplete'
+STATUS_COMPLETE = 'Complete'
+STATUS_DENY = 'Deny'
+
+ARTICLE_REVIEW = 'Review'
+ARTICLE_QUESTION = 'Question'
