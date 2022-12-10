@@ -19,6 +19,8 @@ class ArticleListViewTestCase(TestCase):
             introduction="최고의 도수치료를 자랑합니다."
         )
         self.게시글_키워드 = cm.ArticleKeyword.objects.create(keyword="도수치료")
+        self.attach_url='https://img.hankyung.com/photo/202110/01.27720352.1.jpg'
+        self.auth_attach_url='https://cdn.topstarnews.net/news/photo/first/201705/img_269634_1.jpg'
         
         
     def test_선택항목_모두_작성_후기_생성(self):
@@ -30,7 +32,7 @@ class ArticleListViewTestCase(TestCase):
                 "content": "선생님이 변태 같아요",
                 "article_attach": [
                     {
-                        "path": "https://img.hankyung.com/photo/202110/01.27720352.1.jpg"
+                        "path": self.attach_url
                     }
                 ],
                 "article_keyword_assoc": [
@@ -52,7 +54,7 @@ class ArticleListViewTestCase(TestCase):
                     "personal_agreement": True,
                     "auth_attach": [
                     {
-                        "path": "https://img.hankyung.com/photo/202110/01.27720352.1.jpg"
+                        "path": self.auth_attach_url
                     }
                     ]
                 },
@@ -91,7 +93,7 @@ class ArticleListViewTestCase(TestCase):
 
         auth_attach = cm.AuthAttach.objects.filter(article_auth=article_auth)
         self.assertEqual(len(auth_attach), 1)
-        self.assertEqual(auth_attach[0].path, "https://img.hankyung.com/photo/202110/01.27720352.1.jpg")
+        self.assertEqual(auth_attach[0].path, self.auth_attach_url)
 
         
         return article
@@ -256,6 +258,7 @@ class ArticleListViewTestCase(TestCase):
         res = self.client.get(
             path="/community/v1/community/articles?hospital="+self.병원.uuid
         )
+        self.assertEqual(res.status_code, 200)
         
         data=res.json()
         results=data['results']
@@ -263,3 +266,38 @@ class ArticleListViewTestCase(TestCase):
         self.assertEqual(article.uuid, result_article_uuid)
         self.assertEqual(self.일반사용자.uuid, results[0]['user'])
         return result_article_uuid
+    
+    def test_작성한_후기_첨부파일_조회(self):
+        article=self.test_선택항목_모두_작성_후기_생성()
+        res = self.client.get(
+            path="/community/v1/community/article-attaches?article="+article.uuid
+        )
+        self.assertEqual(res.status_code, 200)
+        data=res.json()
+        result=data['results'][0]
+        article_attach=cm.ArticleAttach.objects.get(article=article)
+        self.assertEqual(result['path'], self.attach_url)
+        self.assertEqual(result['uuid'], article_attach.uuid)
+        return article_attach
+
+    def test_작성한_후기의_인증_데이터_조회(self):
+        article=self.test_선택항목_모두_작성_후기_생성()
+        res = self.client.get(
+            path="/community/v1/community/article-auth?article="+article.uuid
+        )
+        self.assertEqual(res.status_code, 200)
+        data=res.json()
+        result=data['results'][0]
+        article_auth=cm.ArticleAuth.objects.get(article=article)
+        auth_attach=cm.AuthAttach.objects.get(article_auth=article_auth)
+        self.assertEqual(result['uuid'], article_auth.uuid)
+
+        res = self.client.get(
+            path="/community/v1/community/auth-attach?article_auth="+article_auth.uuid
+        )
+        self.assertEqual(res.status_code, 200)
+        data=res.json()
+        result=data['results'][0]
+        self.assertEqual(result['uuid'], auth_attach.uuid)
+        self.assertEqual(result['path'], self.auth_attach_url)
+        return article_auth

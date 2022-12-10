@@ -24,7 +24,7 @@ class ArticleAuth(s.ModelSerializer):
     sensitive_agreement: s.Field = s.BooleanField()
     personal_agreement: s.Field = s.BooleanField()
     status: s.Field = s.CharField(required=False)
-    auth_attach: s.Field = AuthAttach(many=True, required=True)
+    auth_attach: s.Field = AuthAttach(many=True, write_only=True, required=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
