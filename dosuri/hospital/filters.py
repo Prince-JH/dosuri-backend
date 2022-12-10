@@ -25,8 +25,7 @@ class ReviewOrderingFilter(filters.BaseFilterBackend):
             extra_hospital_ids = list(queryset.exclude(
                 id__in=cmm.Article.objects.filter(article_type=cmc.ARTICLE_REVIEW).all().values_list('hospital',
                                                                                                      flat=True)).order_by(
-                '?')[:extra - 1].values_list('id', flat=True))
+                '?')[:extra].values_list('id', flat=True))
             list_hospital_ids = list(hospital_ids[start:]) + extra_hospital_ids
             preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(list_hospital_ids)])
         return queryset.filter(id__in=list_hospital_ids).order_by(preserved)
-
