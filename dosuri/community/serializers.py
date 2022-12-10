@@ -111,7 +111,6 @@ class Article(s.ModelSerializer):
     view_count: s.Field = s.IntegerField(default=0, read_only=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
     hospital: s.Field = s.SlugRelatedField(
-        write_only=True,
         slug_field='uuid',
         queryset=hm.Hospital.objects.all()
     )
