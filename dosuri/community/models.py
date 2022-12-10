@@ -50,6 +50,7 @@ class ArticleDetail(models.Model):
     treatment_effect = models.IntegerField(default=None, null=True)
     doctor_kindness = models.IntegerField(default=None, null=True)
     therapist_kindness = models.IntegerField(default=None, null=True)
+    staff_kindness = models.IntegerField(default=None, null=True)
     clean_score = models.IntegerField(default=None, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     cost = models.IntegerField(default=None, null=True)
