@@ -26,7 +26,7 @@ class Hospital(s.ModelSerializer):
         return cmm.Article.objects.filter(hospital=obj).count()
 
     def get_latest_article(self, obj):
-        latest_article = cmm.ArticleDetail.objects.filter(article__hospital=obj).order_by('-created_at').first()
+        latest_article = cmm.Article.objects.filter(hospital=obj).order_by('-created_at').first()
         if not latest_article:
             return
         return latest_article.content
