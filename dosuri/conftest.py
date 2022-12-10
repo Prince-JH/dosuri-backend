@@ -5,6 +5,10 @@ from dosuri.hospital import (
     models as hm,
     constants as hc
 )
+from dosuri.community import (
+    models as cmm,
+    constants as cmc
+)
 from dosuri.user.models import User
 
 
@@ -32,16 +36,23 @@ def address_수원시_팔달구():
 
 
 @pytest.fixture
-def hospital_test_A(address_서울시_강남구):
+def hospital_test_A():
     return hm.Hospital.objects.create(
         name='test_A'
     )
 
 
 @pytest.fixture
-def hospital_test_B(address_서울시_강남구):
+def hospital_test_B():
     return hm.Hospital.objects.create(
         name='test_B'
+    )
+
+
+@pytest.fixture
+def hospital_test_C():
+    return hm.Hospital.objects.create(
+        name='test_C'
     )
 
 
@@ -179,4 +190,35 @@ def hospital_treatments_test_A(hospital_test_A):
         price=80000,
         price_per_hour=160000,
         description=None
+    )
+
+
+
+@pytest.fixture
+def article_A_hospital_A(hospital_test_A, user_dummy):
+    return cmm.Article.objects.create(
+        hospital=hospital_test_A,
+        content='A',
+        user=user_dummy,
+        article_type=cmc.ARTICLE_REVIEW
+    )
+
+
+@pytest.fixture
+def article_B_hospital_A(hospital_test_A, user_dummy):
+    return cmm.Article.objects.create(
+        hospital=hospital_test_A,
+        content='B',
+        user=user_dummy,
+        article_type=cmc.ARTICLE_REVIEW
+    )
+
+
+@pytest.fixture
+def article_A_hospital_B(hospital_test_B, user_dummy):
+    return cmm.Article.objects.create(
+        hospital=hospital_test_B,
+        content='A',
+        user=user_dummy,
+        article_type=cmc.ARTICLE_REVIEW
     )
