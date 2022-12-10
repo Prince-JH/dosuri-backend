@@ -8,7 +8,8 @@ from rest_framework import (
 from dosuri.common import models as cm
 from dosuri.hospital import (
     models as m,
-    serializers as s
+    serializers as s,
+    filters as hf
 )
 from dosuri.common import filters as f
 
@@ -177,6 +178,8 @@ class HospitalTreatmentDetail(g.RetrieveUpdateDestroyAPIView):
 '''
 내 주변 TOP 병원 등, drf 오버라이드가 필요한 views
 '''
+
+
 class TopHospitalList(g.ListAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.Hospital.objects.all()
@@ -186,3 +189,10 @@ class TopHospitalList(g.ListAPIView):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.serializer_class(queryset, many=True)
         return Response(data=serializer.data)
+
+
+class ReviewOrderHospitalList(g.ListAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = m.Hospital.objects.all().prefetch_related('article')
+    serializer_class = s.Hospital
+    filter_backends = [hf.ReviewOrderingFilter]
