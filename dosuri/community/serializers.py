@@ -75,7 +75,6 @@ class ArticleDetail(s.ModelSerializer):
     doctor_kindness: s.Field = s.IntegerField(default=0)
     therapist_kindness: s.Field = s.IntegerField(default=0)
     clean_score: s.Field = s.IntegerField(default=0)
-    content: s.Field = s.CharField(read_only=False)
     created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
@@ -111,11 +110,12 @@ class Article(s.ModelSerializer):
         slug_field='uuid',
         queryset=hm.Hospital.objects.all()
     )
-    article_attach = ArticleAttach(many=True, write_only=True)
-    article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True)
-    article_detail = ArticleDetail(many=False, write_only=True)
-    article_auth = ArticleAuth(many=False, write_only=True)
-    article_doctor_assoc = ArticleDoctorAssoc(many=True, write_only=True)
+    content: s.Field = s.CharField(read_only=False)
+    article_attach = ArticleAttach(many=True, write_only=True, required=False)
+    article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
+    article_detail = ArticleDetail(many=False, write_only=True, required=False)
+    article_auth = ArticleAuth(many=False, write_only=True, required=False)
+    article_doctor_assoc = ArticleDoctorAssoc(many=True, write_only=True, required=False)
 
     class Meta:
         model = dosuri.community.models.Article

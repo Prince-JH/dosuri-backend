@@ -25,6 +25,7 @@ class Article(models.Model):
     view_count = models.IntegerField(default=0)
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='article')
     cost = models.IntegerField(default=None, null=True)
+    content = models.CharField(max_length=1200, blank=True, null=False, default='')  ## 후기 최대글자 한글은 3 bytes (최대 400글자)
     treat_count = models.IntegerField(default=None, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -52,7 +53,6 @@ class ArticleDetail(models.Model):
     doctor_kindness = models.IntegerField(default=None, null=True)
     therapist_kindness = models.IntegerField(default=None, null=True)
     clean_score = models.IntegerField(default=None, null=True)
-    content = models.CharField(max_length=1200)  ## 후기 최대글자 한글은 3 bytes (최대 400글자)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
