@@ -21,7 +21,7 @@ class ArticleListViewTestCase(TestCase):
         self.게시글_키워드 = cm.ArticleKeyword.objects.create(keyword="도수치료")
         
         
-    def test_인증_첨부_후기_생성(self):
+    def test_선택항목_모두_작성_후기_생성(self):
         self.client.force_login(self.일반사용자)
         res = self.client.post(
             path="/community/v1/community/articles",
@@ -204,7 +204,6 @@ class ArticleListViewTestCase(TestCase):
 
         return article
 
-    
     def test_필수정보_후기_생성(self):
         self.client.force_login(self.일반사용자)
         res = self.client.post(
@@ -251,3 +250,16 @@ class ArticleListViewTestCase(TestCase):
         self.assertEqual(len(article_auth), 0)
 
         return article
+
+    def test_후기_생성_후_후기_목록_조회(self):
+        article=self.test_선택항목_모두_작성_후기_생성()
+        res = self.client.get(
+            path="/community/v1/community/articles?hospital="+self.병원.uuid
+        )
+        
+        data=res.json()
+        results=data['results']
+        result_article_uuid = results[0]['uuid']
+        self.assertEqual(article.uuid, result_article_uuid)
+        self.assertEqual(self.일반사용자.uuid, results[0]['user'])
+        return result_article_uuid
