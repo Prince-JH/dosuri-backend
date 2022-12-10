@@ -106,6 +106,7 @@ class Article(s.ModelSerializer):
         slug_field='uuid',
         # queryset=um.User.objects.all()
     )
+    article_type: s.Field = s.CharField()
     up_count: s.Field = s.IntegerField(default=0, read_only=True)
     view_count: s.Field = s.IntegerField(default=0, read_only=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
@@ -147,7 +148,7 @@ class Article(s.ModelSerializer):
             auth_attach_list = article_auth_data.pop('auth_attach')
         else:
             article_auth_data = False
-
+            
         if validated_data['article_type'] == cc.ARTICLE_REVIEW:
             with transaction.atomic():
                 article = comm.Article.objects.create(**validated_data)
