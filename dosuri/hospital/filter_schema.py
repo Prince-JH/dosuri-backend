@@ -2,7 +2,7 @@ import coreapi
 import coreschema
 
 
-class ReviewOrderingFilter:
+class PageQueryParamFilterSchema:
     def get_schema_fields(self, view):
         return [
             coreapi.Field(
