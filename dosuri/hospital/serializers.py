@@ -18,6 +18,7 @@ class Hospital(s.ModelSerializer):
     view_count: s.Field = s.IntegerField(read_only=True)
     article_count: s.Field = s.IntegerField(read_only=True)
     latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
+    latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
     is_partner: s.Field = s.BooleanField()
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     created_at: s.Field = s.DateTimeField(read_only=True)

@@ -24,14 +24,18 @@ class HospitalList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.Hospital.objects.all().annotate(article_count=Count('article')).annotate(
         latest_article=Subquery(
-            cmm.Article.objects.filter(hospital=OuterRef('pk')).order_by('-created_at').values('content')[:1]))
+            cmm.Article.objects.filter(article_type=cmc.ARTICLE_REVIEW, hospital=OuterRef('pk')).order_by(
+                '-created_at').values('content')[:1]),
+        latest_article_created_at=Subquery(
+            cmm.Article.objects.filter(article_type=cmc.ARTICLE_REVIEW, hospital=OuterRef('pk')).order_by(
+                '-created_at').values('created_at')[:1])
+    )
     serializer_class = s.Hospital
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, rf.SearchFilter]
     ordering_field = '__all__'
     ordering = ['view_count']
     search_fields = ['name']
     uuid_filter_params = ['hospital_address_assoc__address']
-
 
 class HospitalDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
@@ -197,35 +201,3 @@ class TopHospitalList(g.ListAPIView):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.serializer_class(queryset, many=True)
         return Response(data=serializer.data)
-
-
-class ReviewCountOrderHospitalList(g.ListAPIView):
-    permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all().annotate(article_count=Count('article')).annotate(
-        latest_article=Subquery(
-            cmm.Article.objects.filter(hospital=OuterRef('pk')).order_by('-created_at').values('content')[:1]))
-    pagination_class = None
-    serializer_class = s.Hospital
-    filter_backends = [hf.ReviewCountOrderingFilter]
-    page_query_param = 'page'
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        serializer = self.serializer_class(queryset, many=True)
-        return Response(data=hp.make_response_with_paging(self, serializer.data))
-
-
-class ReviewNewOrderHospitalList(g.ListAPIView):
-    permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all().annotate(article_count=Count('article')).annotate(
-        latest_article=Subquery(
-            cmm.Article.objects.filter(hospital=OuterRef('pk')).order_by('-created_at').values('content')[:1]))
-    pagination_class = None
-    serializer_class = s.Hospital
-    filter_backends = [hf.ReviewNewOrderingFilter]
-    page_query_param = 'page'
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        serializer = self.serializer_class(queryset, many=True)
-        return Response(data=hp.make_response_with_paging(self, serializer.data))

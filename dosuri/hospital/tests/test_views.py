@@ -65,6 +65,29 @@ class TestHospitalList:
         assert response.status_code == 201
         assert hm.Hospital.objects.all().count() == 1
 
+    @pytest.mark.django_db
+    def test_hospital_list_order_by_review_count(
+            self, client, hospital_test_A, hospital_test_B, hospital_test_C, article_A_hospital_A, article_B_hospital_A,
+            article_A_hospital_B):
+        response = client.get('/hospital/v1/hospitals?ordering=-article_count', content_type='application/json')
+        content = json.loads(response.content)
+        assert len(content['results']) == 3
+        assert content['results'][0]['uuid'] == hospital_test_A.uuid
+        assert content['results'][1]['uuid'] == hospital_test_B.uuid
+        assert content['results'][2]['uuid'] == hospital_test_C.uuid
+
+    @pytest.mark.django_db
+    def test_hospital_list_order_by_review_new(
+            self, client, hospital_test_A, hospital_test_B, hospital_test_C, article_A_hospital_A, article_B_hospital_A,
+            article_A_hospital_B):
+        response = client.get('/hospital/v1/hospitals?ordering=-latest_article_created_at', content_type='application/json')
+        content = json.loads(response.content)
+        print(content)
+        assert len(content['results']) == 3
+        assert content['results'][0]['uuid'] == hospital_test_B.uuid
+        assert content['results'][1]['uuid'] == hospital_test_A.uuid
+        assert content['results'][2]['uuid'] == hospital_test_C.uuid
+
 
 class TestHospitalDetail:
     @pytest.mark.django_db
@@ -317,29 +340,3 @@ class TestHospitalTreatment:
 
         assert response.status_code == 201
         assert hm.HospitalTreatment.objects.all().count() == 1
-
-
-class TestReviewCountOrderHospitalList:
-    @pytest.mark.django_db
-    def test_hospital_list_order_by_article_count(
-            self, client, hospital_test_A, hospital_test_B, hospital_test_C, article_A_hospital_A, article_B_hospital_A,
-            article_A_hospital_B):
-        response = client.get('/hospital/v1/review-count-order-hospitals', content_type='application/json')
-        content = json.loads(response.content)
-        assert len(content['result']) == 3
-        assert content['result'][0]['uuid'] == hospital_test_A.uuid
-        assert content['result'][1]['uuid'] == hospital_test_B.uuid
-        assert content['result'][2]['uuid'] == hospital_test_C.uuid
-
-
-class TestReviewCountOrderHospitalList:
-    @pytest.mark.django_db
-    def test_hospital_list_order_by_article_count(
-            self, client, hospital_test_A, hospital_test_B, hospital_test_C, article_A_hospital_A, article_B_hospital_A,
-            article_A_hospital_B):
-        response = client.get('/hospital/v1/review-new-order-hospitals', content_type='application/json')
-        content = json.loads(response.content)
-        assert len(content['result']) == 3
-        assert content['result'][0]['uuid'] == hospital_test_B.uuid
-        assert content['result'][1]['uuid'] == hospital_test_A.uuid
-        assert content['result'][2]['uuid'] == hospital_test_C.uuid
