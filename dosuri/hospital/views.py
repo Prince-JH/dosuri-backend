@@ -4,6 +4,8 @@ from rest_framework import (
     filters as rf,
     permissions as p
 )
+from rest_framework.utils.urls import replace_query_param, remove_query_param
+
 from dosuri.common import models as cm
 from dosuri.hospital import (
     models as m,
@@ -196,3 +198,30 @@ class ReviewOrderHospitalList(g.ListAPIView):
     pagination_class = None
     serializer_class = s.Hospital
     filter_backends = [hf.ReviewOrderingFilter]
+    page_query_param = 'page'
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(data=self.make_response_with_paging(serializer.data))
+
+    def make_response_with_paging(self, data):
+        res = {}
+        res['count'] = len(data)
+        page = int(self.request.GET.get('page', 1))
+        res['next'] = self.get_next_link(page)
+        res['prev'] = self.get_previous_link(page)
+        res['result'] = data
+        return res
+
+    def get_next_link(self, page):
+        url = self.request.build_absolute_uri()
+        page_number = page + 1
+        return replace_query_param(url, self.page_query_param, page_number)
+
+    def get_previous_link(self, page):
+        url = self.request.build_absolute_uri()
+        page_number = page - 1
+        if page_number == 0:
+            return remove_query_param(url, self.page_query_param)
+        return replace_query_param(url, self.page_query_param, page_number)
