@@ -5,7 +5,7 @@ from rest_framework import (
     permissions as p
 )
 from rest_framework.utils.urls import replace_query_param, remove_query_param
-
+from django.db.models import Count, OuterRef, Subquery
 from dosuri.common import models as cm
 from dosuri.hospital import (
     models as m,
@@ -13,11 +13,12 @@ from dosuri.hospital import (
     filters as hf
 )
 from dosuri.common import filters as f
-
+from dosuri.community import models as comm
 
 class HospitalList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all().prefetch_related('article')
+    article_query_set = comm.Article.objects.filter(hospital=OuterRef('pk')).order_by('-created_at')
+    queryset = m.Hospital.objects.all().annotate(article_count=Count('article')).annotate(latest_article_content=Subquery(article_query_set.values('content')[:1]))
     serializer_class = s.Hospital
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, rf.SearchFilter]
     ordering_field = '__all__'
