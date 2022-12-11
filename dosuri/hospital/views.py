@@ -1,24 +1,30 @@
+from django.db.models import OuterRef, Count, Subquery
 from rest_framework.response import Response
 from rest_framework import (
     generics as g,
     filters as rf,
     permissions as p
 )
-from rest_framework.utils.urls import replace_query_param, remove_query_param
-from django.db.models import Count, OuterRef, Subquery
+
 from dosuri.common import models as cm
+from dosuri.community import (
+    models as cmm,
+    constants as cmc,
+)
 from dosuri.hospital import (
     models as m,
     serializers as s,
-    filters as hf
+    filters as hf,
+    pagings as hp
 )
 from dosuri.common import filters as f
-from dosuri.community import models as comm
+
 
 class HospitalList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    article_query_set = comm.Article.objects.filter(hospital=OuterRef('pk')).order_by('-created_at')
-    queryset = m.Hospital.objects.all().annotate(article_count=Count('article')).annotate(latest_article_content=Subquery(article_query_set.values('content')[:1]))
+    queryset = m.Hospital.objects.all().annotate(article_count=Count('article')).annotate(
+        latest_article=Subquery(
+            cmm.Article.objects.filter(hospital=OuterRef('pk')).order_by('-created_at').values('content')[:1]))
     serializer_class = s.Hospital
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, rf.SearchFilter]
     ordering_field = '__all__'
@@ -193,36 +199,33 @@ class TopHospitalList(g.ListAPIView):
         return Response(data=serializer.data)
 
 
-class ReviewOrderHospitalList(g.ListAPIView):
+class ReviewCountOrderHospitalList(g.ListAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all().prefetch_related('article')
+    queryset = m.Hospital.objects.all().annotate(article_count=Count('article')).annotate(
+        latest_article=Subquery(
+            cmm.Article.objects.filter(hospital=OuterRef('pk')).order_by('-created_at').values('content')[:1]))
     pagination_class = None
     serializer_class = s.Hospital
-    filter_backends = [hf.ReviewOrderingFilter]
+    filter_backends = [hf.ReviewCountOrderingFilter]
     page_query_param = 'page'
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.serializer_class(queryset, many=True)
-        return Response(data=self.make_response_with_paging(serializer.data))
+        return Response(data=hp.make_response_with_paging(self, serializer.data))
 
-    def make_response_with_paging(self, data):
-        res = {}
-        res['count'] = len(data)
-        page = int(self.request.GET.get('page', 1))
-        res['next'] = self.get_next_link(page)
-        res['prev'] = self.get_previous_link(page)
-        res['result'] = data
-        return res
 
-    def get_next_link(self, page):
-        url = self.request.build_absolute_uri()
-        page_number = page + 1
-        return replace_query_param(url, self.page_query_param, page_number)
+class ReviewNewOrderHospitalList(g.ListAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = m.Hospital.objects.all().annotate(article_count=Count('article')).annotate(
+        latest_article=Subquery(
+            cmm.Article.objects.filter(hospital=OuterRef('pk')).order_by('-created_at').values('content')[:1]))
+    pagination_class = None
+    serializer_class = s.Hospital
+    filter_backends = [hf.ReviewNewOrderingFilter]
+    page_query_param = 'page'
 
-    def get_previous_link(self, page):
-        url = self.request.build_absolute_uri()
-        page_number = page - 1
-        if page_number == 0:
-            return remove_query_param(url, self.page_query_param)
-        return replace_query_param(url, self.page_query_param, page_number)
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(data=hp.make_response_with_paging(self, serializer.data))
