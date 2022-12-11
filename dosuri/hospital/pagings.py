@@ -19,6 +19,6 @@ def get_next_link(view, page):
 def get_previous_link(view, page):
     url = view.request.build_absolute_uri()
     page_number = page - 1
-    if page_number == 0:
-        return remove_query_param(url, view.page_query_param)
+    if page_number <= 0:
+        return None
     return replace_query_param(url, view.page_query_param, page_number)
