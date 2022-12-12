@@ -163,7 +163,7 @@ class HospitalTreatment(s.ModelSerializer):
         queryset=hm.Hospital.objects.all()
     )
     price: s.Field = s.IntegerField()
-    price_per_hour: s.Field = s.IntegerField()
+    price_per_hour: s.Field = s.IntegerField(allow_null=True)
     description: s.Field = s.CharField(allow_null=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
 
