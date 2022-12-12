@@ -130,8 +130,9 @@ class DoctorDescriptionDetail(g.RetrieveUpdateDestroyAPIView):
 class KeywordList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.Keyword.objects.all()
+    pagination_class = None
     serializer_class = s.Keyword
-    filter_backends = [rf.OrderingFilter]
+    filter_backends = [rf.OrderingFilter, f.UuidSetBodyFilter]
     ordering_field = '__all__'
 
 

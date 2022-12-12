@@ -112,13 +112,12 @@ class DoctorDescription(s.ModelSerializer):
 class Keyword(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     name: s.Field = s.CharField()
-    is_custom: s.Field = s.BooleanField()
-    domain: s.Field = s.CharField()
-    created_at: s.Field = s.DateTimeField(read_only=True)
+    is_custom: s.Field = s.BooleanField(write_only=True)
+    domain: s.Field = s.CharField(write_only=True)
 
     class Meta:
         model = hm.Keyword
-        exclude = ('id',)
+        exclude = ('id', 'created_at')
 
 
 class HospitalKeywordAssoc(s.ModelSerializer):
