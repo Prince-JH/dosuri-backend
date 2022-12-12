@@ -4,10 +4,17 @@ from dosuri.hospital import (
     models as hm,
     filters as hf
 )
+from dosuri.community import (
+    models as cmm
+)
+from dosuri.common import (
+    filters as cf
+)
 
 
 class DummyView:
     page = 1
+    uuid_filter_body_params = ['hospital']
 
 
 class TestReviewCountOrderingFilter:

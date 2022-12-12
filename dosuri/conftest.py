@@ -115,6 +115,14 @@ def hospital_image_4_test_B(hospital_test_B):
         url='url_4'
     )
 
+@pytest.fixture
+def hospital_image_5_test_C(hospital_test_C):
+    return hm.HospitalImage.objects.create(
+        hospital=hospital_test_C,
+        url='url_5'
+    )
+
+
 
 @pytest.fixture
 def assoc_hospital_A_address_강남(hospital_test_A, address_서울시_강남구):
@@ -218,6 +226,15 @@ def article_B_hospital_A(hospital_test_A, user_dummy):
 def article_A_hospital_B(hospital_test_B, user_dummy):
     return cmm.Article.objects.create(
         hospital=hospital_test_B,
+        content='A',
+        user=user_dummy,
+        article_type=cmc.ARTICLE_REVIEW
+    )
+
+@pytest.fixture
+def article_A_hospital_C(hospital_test_C, user_dummy):
+    return cmm.Article.objects.create(
+        hospital=hospital_test_C,
         content='A',
         user=user_dummy,
         article_type=cmc.ARTICLE_REVIEW

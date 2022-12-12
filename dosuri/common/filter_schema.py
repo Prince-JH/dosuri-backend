@@ -50,6 +50,32 @@ class ForeignUuidFilter:
         ]
 
 
+class ForeignUuidBodyFilter:
+    def get_schema_fields(self, view):
+        return [
+            coreapi.Field(
+                name=param, location='body', required=False,
+                schema=coreschema.String(title=f'uuid list of {param}',
+                                         description=f'uuid list of {param}')
+            )
+            for param
+            in view.uuid_filter_body_params
+        ]
+
+    def get_schema_operation_parameters(self, view):
+        return [
+            {
+                'name': param,
+                'in': 'body',
+                'required': False,
+                'description': f'uuid list of {param}',
+                'schema': {'type': 'string'}
+            }
+            for param
+            in view.uuid_filter_body_params
+        ]
+
+
 class UuidSetFilter:
     def get_schema_fields(self, view):
         return [
