@@ -53,7 +53,7 @@ class ForeignUuidFilter(fsc.ForeignUuidFilter, filters.BaseFilterBackend):
         return list(model.objects.only('id').filter(uuid__in=uuid_list).values_list('id', flat=True))
 
 
-class ForeignUuidBodyFilter(fsc.ForeignUuidFilter, filters.BaseFilterBackend):
+class ForeignUuidBodyFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         params = view.uuid_filter_body_params
         kwargs = self.get_param_kwargs(request, params)
@@ -101,6 +101,19 @@ class UuidSetFilter(fsc.UuidSetFilter, filters.BaseFilterBackend):
 
         return queryset.filter(uuid__in=uuid_list)
 
+
+class UuidSetBodyFilter(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        # Used Django's GET variable to utilize multiple value feature which DRF doesn't provide.
+        # note: https://docs.djangoproject.com/en/4.0/ref/request-response/#querydict-objects
+        uuid_list = request.data.get('uuid')
+
+        if not uuid_list:
+            return queryset
+
+        uuid_list = uuid_list if isinstance(uuid_list, (tuple, list)) else [uuid_list]
+
+        return queryset.filter(uuid__in=uuid_list)
 
 class CompleteStatusFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
