@@ -80,9 +80,9 @@ class TestHospitalList:
     def test_hospital_list_order_by_review_new(
             self, client, hospital_test_A, hospital_test_B, hospital_test_C, article_A_hospital_A, article_B_hospital_A,
             article_A_hospital_B):
-        response = client.get('/hospital/v1/hospitals?ordering=-latest_article_created_at', content_type='application/json')
+        response = client.get('/hospital/v1/hospitals?ordering=-latest_article_created_at',
+                              content_type='application/json')
         content = json.loads(response.content)
-        print(content)
         assert len(content['results']) == 3
         assert content['results'][0]['uuid'] == hospital_test_B.uuid
         assert content['results'][1]['uuid'] == hospital_test_A.uuid
@@ -137,6 +137,19 @@ class TestHospitalImage:
                                                                            hospital_image_4_test_B):
         response = client.get(
             f'/hospital/v1/hospital-images?hospital={hospital_test_A.uuid}&hospital={hospital_test_B.uuid}')
+        content = json.loads(response.content)
+
+        assert response.status_code == 200
+        assert len(content) == 4
+
+    @pytest.mark.django_db
+    def test_get_images_at_once_by_hospitals_in_body_should_return_all_four_images(
+            self, client, hospital_test_A, hospital_test_B, hospital_test_C, hospital_image_1_test_A,
+            hospital_image_2_test_A, hospital_image_3_test_B, hospital_image_4_test_B, hospital_image_5_test_C):
+        data = {
+            'hospitals': [hospital_test_A.uuid, hospital_test_B.uuid]
+        }
+        response = client.get('/hospital/v1/hospital-images', data=data, content_type='application/json')
         content = json.loads(response.content)
 
         assert response.status_code == 200

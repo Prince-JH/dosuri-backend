@@ -35,11 +35,10 @@ class HospitalImage(s.ModelSerializer):
         queryset=hm.Hospital.objects.all()
     )
     url: s.Field = s.CharField()
-    created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
         model = hm.HospitalImage
-        exclude = ('id', 'title')
+        exclude = ('id', 'title', 'created_at')
 
 
 class HospitalCalendar(s.ModelSerializer):

@@ -37,6 +37,7 @@ class HospitalList(g.ListCreateAPIView):
     search_fields = ['name']
     uuid_filter_params = ['hospital_address_assoc__address']
 
+
 class HospitalDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.Hospital.objects.all()
@@ -64,9 +65,11 @@ class HospitalImageList(g.ListCreateAPIView):
     pagination_class = None
     queryset = m.HospitalImage.objects.select_related('hospital').all()
     serializer_class = s.HospitalImage
-    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
+    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, f.ForeignUuidBodyFilter]
     ordering_field = '__all__'
+    ordering = 'hospital'
     uuid_filter_params = ['hospital']
+    uuid_filter_body_params = ['hospital']
 
 
 class HospitalImageDetail(g.RetrieveUpdateDestroyAPIView):
