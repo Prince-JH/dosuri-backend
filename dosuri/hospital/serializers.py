@@ -87,8 +87,13 @@ class Doctor(s.ModelSerializer):
     thumbnail_url: s.Field = s.CharField(allow_null=True)
     name: s.Field = s.CharField()
     title: s.Field = s.CharField(allow_null=True)
+    subtitle: s.Field = s.CharField(allow_null=True)
     position: s.Field = s.CharField(allow_null=True)
+    keywords: s.Field = s.SerializerMethodField(allow_null=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
+
+    def get_keywords(self, obj):
+        return list(hm.Keyword.objects.filter(doctor_keyword_assoc__doctor=obj).values_list('name', flat=True))
 
     class Meta:
         model = hm.Doctor
