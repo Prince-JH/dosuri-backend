@@ -99,6 +99,7 @@ class Doctor(models.Model):
     thumbnail_url = models.CharField(max_length=512, null=True)
     name = models.CharField(max_length=64)
     title = models.CharField(max_length=64)
+    subtitle = models.CharField(max_length=64)
     position = models.CharField(max_length=64)
     created_at = models.DateTimeField(auto_now_add=True)
 

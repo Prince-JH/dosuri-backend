@@ -133,8 +133,9 @@ class KeywordList(g.ListCreateAPIView):
     queryset = m.Keyword.objects.all()
     pagination_class = None
     serializer_class = s.Keyword
-    filter_backends = [rf.OrderingFilter, f.UuidSetBodyFilter]
+    filter_backends = [rf.OrderingFilter, f.UuidSetBodyFilter, f.ForeignUuidFilter]
     ordering_field = '__all__'
+    uuid_filter_params = ['hospital_keyword_assoc__hospital']
 
 
 class KeywordDetail(g.RetrieveUpdateDestroyAPIView):

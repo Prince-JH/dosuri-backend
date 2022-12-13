@@ -115,13 +115,13 @@ def hospital_image_4_test_B(hospital_test_B):
         url='url_4'
     )
 
+
 @pytest.fixture
 def hospital_image_5_test_C(hospital_test_C):
     return hm.HospitalImage.objects.create(
         hospital=hospital_test_C,
         url='url_5'
     )
-
 
 
 @pytest.fixture
@@ -166,10 +166,27 @@ def hospital_keyword_A():
 
 
 @pytest.fixture
+def hospital_keyword_B():
+    return hm.Keyword.objects.create(
+        name='test_B',
+        is_custom=False,
+        domain=hc.KEYWORD_HOSPITAL
+    )
+
+
+@pytest.fixture
 def hospital_A_keyword_A_assoc(hospital_test_A, hospital_keyword_A):
     return hm.HospitalKeywordAssoc.objects.create(
         hospital=hospital_test_A,
         keyword=hospital_keyword_A
+    )
+
+
+@pytest.fixture
+def hospital_B_keyword_B_assoc(hospital_test_B, hospital_keyword_B):
+    return hm.HospitalKeywordAssoc.objects.create(
+        hospital=hospital_test_B,
+        keyword=hospital_keyword_B
     )
 
 
@@ -201,7 +218,6 @@ def hospital_treatments_test_A(hospital_test_A):
     )
 
 
-
 @pytest.fixture
 def article_A_hospital_A(hospital_test_A, user_dummy):
     return cmm.Article.objects.create(
@@ -230,6 +246,7 @@ def article_A_hospital_B(hospital_test_B, user_dummy):
         user=user_dummy,
         article_type=cmc.ARTICLE_REVIEW
     )
+
 
 @pytest.fixture
 def article_A_hospital_C(hospital_test_C, user_dummy):
