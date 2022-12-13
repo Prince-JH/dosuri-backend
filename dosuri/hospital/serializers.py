@@ -25,7 +25,7 @@ class Hospital(s.ModelSerializer):
 
     class Meta:
         model = hm.Hospital
-        exclude = ('id',)
+        exclude = ('id', 'created_at')
 
 
 class HospitalImage(s.ModelSerializer):
@@ -58,7 +58,7 @@ class HospitalCalendar(s.ModelSerializer):
 
     class Meta:
         model = hm.HospitalCalendar
-        exclude = ('id',)
+        exclude = ('id', 'created_at')
 
 
 class HospitalAddressAssoc(s.ModelSerializer):
@@ -75,7 +75,7 @@ class HospitalAddressAssoc(s.ModelSerializer):
 
     class Meta:
         model = hm.HospitalAddressAssoc
-        exclude = ('id',)
+        exclude = ('id', 'created_at')
 
 
 class Doctor(s.ModelSerializer):
@@ -89,15 +89,10 @@ class Doctor(s.ModelSerializer):
     title: s.Field = s.CharField(allow_null=True)
     subtitle: s.Field = s.CharField(allow_null=True)
     position: s.Field = s.CharField(allow_null=True)
-    keywords: s.Field = s.SerializerMethodField(allow_null=True)
-    created_at: s.Field = s.DateTimeField(read_only=True)
-
-    def get_keywords(self, obj):
-        return list(hm.Keyword.objects.filter(doctor_keyword_assoc__doctor=obj).values_list('name', flat=True))
 
     class Meta:
         model = hm.Doctor
-        exclude = ('id',)
+        exclude = ('id', 'created_at')
 
 
 class DoctorDescription(s.ModelSerializer):
@@ -107,11 +102,10 @@ class DoctorDescription(s.ModelSerializer):
         queryset=hm.Doctor.objects.all()
     )
     description: s.Field = s.CharField()
-    created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
         model = hm.DoctorDescription
-        exclude = ('id',)
+        exclude = ('id', 'created_at')
 
 
 class Keyword(s.ModelSerializer):
@@ -135,11 +129,10 @@ class HospitalKeywordAssoc(s.ModelSerializer):
         slug_field='uuid',
         queryset=hm.Keyword.objects.all()
     )
-    created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
         model = hm.HospitalKeywordAssoc
-        exclude = ('id',)
+        exclude = ('id', 'created_at')
 
 
 class DoctorKeywordAssoc(s.ModelSerializer):
@@ -152,11 +145,10 @@ class DoctorKeywordAssoc(s.ModelSerializer):
         slug_field='uuid',
         queryset=hm.Keyword.objects.all()
     )
-    created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
         model = hm.DoctorKeywordAssoc
-        exclude = ('id',)
+        exclude = ('id', 'created_at')
 
 
 class HospitalTreatment(s.ModelSerializer):
@@ -169,11 +161,10 @@ class HospitalTreatment(s.ModelSerializer):
     price: s.Field = s.IntegerField()
     price_per_hour: s.Field = s.IntegerField(allow_null=True)
     description: s.Field = s.CharField(allow_null=True)
-    created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
         model = hm.HospitalTreatment
-        exclude = ('id',)
+        exclude = ('id', 'created_at')
 
 
 class TopHospital(s.ModelSerializer):
@@ -186,8 +177,7 @@ class TopHospital(s.ModelSerializer):
     view_count: s.Field = s.IntegerField(read_only=True)
     is_partner: s.Field = s.BooleanField()
     opened_at: s.Field = s.DateTimeField(allow_null=True)
-    created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
         model = hm.Hospital
-        exclude = ('id',)
+        exclude = ('id', 'created_at')
