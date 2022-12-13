@@ -10,39 +10,17 @@ from dosuri.community import (
 from django.db.models.functions import Radians, Power, Sin, Cos, ATan2, Sqrt, Radians
 from django.db.models import F
 
-class HosipitalDistanceOrderingFilter(fsc.PageQueryParamFilterSchema, filters.BaseFilterBackend):
-    distance_param='distance'
-    latitude_param='latitude'
-    longitude_param='longitude'
-    def get_schema_fields(self, view):
-        return [
-            coreapi.Field(
-                name=param, location='query', required=False,
-                schema=coreschema.String(title=f'{param} of user',
-                                         description=f'{param} of user')
-            )
-            for param
-            in view.hospital_distance_filter_params if param != 'distance'
-        ]
 
-    def get_schema_operation_parameters(self, view):
-        return [
-            {
-                'name': param,
-                'in': 'query',
-                'required': False,
-                'description': f'{param} of user',
-                'schema': {'type': 'float'}
-            }
-            for param
-            in view.hospital_distance_filter_params if param != 'distance'
-        ]
-    
+class HospitalDistanceOrderingFilter(fsc.PageQueryParamFilterSchema, filters.BaseFilterBackend):
+    distance_param = 'distance'
+    latitude_param = 'latitude'
+    longitude_param = 'longitude'
+
     def get_distance_annotation(self, latitude, longitude):
         d_lat = (F('latitude') - latitude) * 111.19
         d_long = (F('longitude') - longitude) * 88.80
 
-        return Sqrt((d_lat * d_lat)+(d_long * d_long))
+        return Sqrt((d_lat * d_lat) + (d_long * d_long))
 
     def filter_queryset(self, request, queryset, view, now=None):
         try:
@@ -52,17 +30,17 @@ class HosipitalDistanceOrderingFilter(fsc.PageQueryParamFilterSchema, filters.Ba
             return queryset
         if not latitude or not longitude:
             return queryset
-        
+
         # latitude_range = self.get_latitude_range(latitude, distance)                       ### Distance Param 생성 시 해당 Distance 내의 병원 조회 현재 API 성능에 이상 없으므로 주석처리
         # longitude_range = self.get_longitude_range(longitude, distance)
 
         return queryset.annotate(
             distance=self.get_distance_annotation(latitude, longitude)
         ).order_by('distance')
-        #.filter(latitude__range=latitude_range, longitude__range=longitude_range)          ### Distance Param 생성 시 해당 Distance 내의 병원 조회 현재 API 성능에 이상 없으므로 주석처리
-        #queryset.filter(latitude__range=latitude_range, longitude__range=longitude_range).annotate(
+        # .filter(latitude__range=latitude_range, longitude__range=longitude_range)          ### Distance Param 생성 시 해당 Distance 내의 병원 조회 현재 API 성능에 이상 없으므로 주석처리
+        # queryset.filter(latitude__range=latitude_range, longitude__range=longitude_range).annotate(
         #    distance=anno_distance
-        #).order_by('distance')
+        # ).order_by('distance')
 
     def get_distance_param(self, request):
         params = request.query_params.get(self.distance_param, None)
@@ -78,13 +56,11 @@ class HosipitalDistanceOrderingFilter(fsc.PageQueryParamFilterSchema, filters.Ba
 
     def get_latitude_range(self, latitude, km_distance):
         delta = round(km_distance / 111.19, 13)
-        return (round(latitude-delta, 13), round(latitude+delta, 13))
+        return round(latitude - delta, 13), round(latitude + delta, 13)
 
     def get_longitude_range(self, longitude, km_distance):
         delta = round(km_distance / 88.80, 13)
-        return (round(longitude-delta, 13), round(longitude+delta, 13))
-
-
+        return round(longitude - delta, 13), round(longitude + delta, 13)
 
 
 class ReviewCountOrderingFilter(fsc.PageQueryParamFilterSchema, filters.BaseFilterBackend):

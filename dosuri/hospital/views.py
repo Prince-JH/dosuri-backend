@@ -31,7 +31,7 @@ class HospitalList(g.ListCreateAPIView):
                 '-created_at').values('created_at')[:1])
     )
     serializer_class = s.Hospital
-    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, rf.SearchFilter, hf.HosipitalDistanceOrderingFilter]
+    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, rf.SearchFilter, hf.HospitalDistanceOrderingFilter]
     ordering_field = '__all__'
     ordering = ['view_count']
     search_fields = ['name']
