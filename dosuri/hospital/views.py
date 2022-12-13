@@ -131,12 +131,13 @@ class DoctorDescriptionDetail(g.RetrieveUpdateDestroyAPIView):
 class HospitalKeywordList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.HospitalKeyword.objects.all().annotate(
-        hospital=Subquery(m.HospitalKeywordAssoc.objects.filter(keyword=OuterRef('pk')).values('hospital__uuid')[:1])
+        hospital=Subquery(m.HospitalKeywordAssoc.objects.filter(keyword=OuterRef('pk')).values('hospital__uuid'))
     )
     pagination_class = None
     serializer_class = s.HospitalKeyword
     filter_backends = [rf.OrderingFilter, f.UuidSetBodyFilter, f.ForeignUuidFilter]
     ordering_field = '__all__'
+    ordering = 'hospital'
     uuid_filter_params = ['hospital_keyword_assoc__hospital']
 
 
@@ -156,6 +157,7 @@ class DoctorKeywordList(g.ListCreateAPIView):
     serializer_class = s.DoctorKeyword
     filter_backends = [rf.OrderingFilter, f.UuidSetBodyFilter, f.ForeignUuidFilter]
     ordering_field = '__all__'
+    ordering = 'doctor'
     uuid_filter_params = ['doctor_keyword_assoc__doctor']
 
 

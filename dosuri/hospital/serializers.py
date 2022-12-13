@@ -110,7 +110,7 @@ class HospitalKeyword(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     name: s.Field = s.CharField()
     is_custom: s.Field = s.BooleanField(write_only=True)
-    doctor: s.Field = s.CharField(read_only=True)
+    hospital: s.Field = s.CharField(read_only=True)
 
     class Meta:
         model = hm.HospitalKeyword
