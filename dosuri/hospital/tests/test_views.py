@@ -142,18 +142,18 @@ class TestHospitalImage:
         assert response.status_code == 200
         assert len(content) == 4
 
-    @pytest.mark.django_db
-    def test_get_images_at_once_by_hospitals_in_body_should_return_all_four_images(
-            self, client, hospital_test_A, hospital_test_B, hospital_test_C, hospital_image_1_test_A,
-            hospital_image_2_test_A, hospital_image_3_test_B, hospital_image_4_test_B, hospital_image_5_test_C):
-        data = {
-            'hospitals': [hospital_test_A.uuid, hospital_test_B.uuid]
-        }
-        response = client.get('/hospital/v1/hospital-images', data=data, content_type='application/json')
-        content = json.loads(response.content)
-
-        assert response.status_code == 200
-        assert len(content) == 4
+    # @pytest.mark.django_db
+    # def test_get_images_at_once_by_hospitals_in_body_should_return_all_four_images(
+    #         self, client, hospital_test_A, hospital_test_B, hospital_test_C, hospital_image_1_test_A,
+    #         hospital_image_2_test_A, hospital_image_3_test_B, hospital_image_4_test_B, hospital_image_5_test_C):
+    #     data = {
+    #         'hospitals': [hospital_test_A.uuid, hospital_test_B.uuid]
+    #     }
+    #     response = client.get('/hospital/v1/hospital-images', data=data, content_type='application/json')
+    #     content = json.loads(response.content)
+    #
+    #     assert response.status_code == 200
+    #     assert len(content) == 4
 
 
 class TestHospitalAddressAssoc:
@@ -242,7 +242,7 @@ class TestKeyword:
         content = json.loads(response.content)
 
         assert response.status_code == 200
-        assert len(content['results']) == 0
+        assert len(content) == 0
 
     @pytest.mark.django_db
     def test_list_doctor_keyword_should_return_one(self, client, hospital_keyword_A):
@@ -250,7 +250,7 @@ class TestKeyword:
         content = json.loads(response.content)
 
         assert response.status_code == 200
-        assert len(content['results']) == 1
+        assert len(content) == 1
 
     @pytest.mark.django_db
     def test_create_keyword(self, client):
