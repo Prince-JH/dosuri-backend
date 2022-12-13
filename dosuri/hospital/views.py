@@ -116,7 +116,7 @@ class DoctorDescriptionList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.DoctorDescription.objects.select_related('doctor').all()
     serializer_class = s.DoctorDescription
-    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
+    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, f.UuidSetBodyFilter]
     ordering_field = '__all__'
     uuid_filter_params = ['doctor']
 
