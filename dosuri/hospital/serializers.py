@@ -21,7 +21,6 @@ class Hospital(s.ModelSerializer):
     latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
     is_partner: s.Field = s.BooleanField()
     opened_at: s.Field = s.DateTimeField(allow_null=True)
-    created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
         model = hm.Hospital
@@ -54,7 +53,6 @@ class HospitalCalendar(s.ModelSerializer):
     friday: s.Field = s.CharField(allow_null=True)
     saturday: s.Field = s.CharField(allow_null=True)
     sunday: s.Field = s.CharField(allow_null=True)
-    created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
         model = hm.HospitalCalendar
@@ -71,7 +69,6 @@ class HospitalAddressAssoc(s.ModelSerializer):
         slug_field='uuid',
         queryset=cm.Address.objects.all()
     )
-    created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
         model = hm.HospitalAddressAssoc
