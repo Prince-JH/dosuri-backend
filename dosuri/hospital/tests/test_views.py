@@ -236,10 +236,10 @@ class TestDoctorDescription:
         assert hm.Hospital.objects.all().count() == 1
 
 
-class TestKeyword:
+class TestHospitalKeyword:
     @pytest.mark.django_db
     def test_list_keyword_should_return_zero(self, client):
-        response = client.get(f'/hospital/v1/keywords')
+        response = client.get(f'/hospital/v1/hospital-keywords')
         content = json.loads(response.content)
 
         assert response.status_code == 200
@@ -247,7 +247,7 @@ class TestKeyword:
 
     @pytest.mark.django_db
     def test_list_hospital_keyword_should_return_one(self, client, hospital_keyword_A):
-        response = client.get(f'/hospital/v1/keywords')
+        response = client.get(f'/hospital/v1/hospital-keywords')
         content = json.loads(response.content)
 
         assert response.status_code == 200
@@ -257,22 +257,50 @@ class TestKeyword:
     def test_create_keyword(self, client):
         data = {
             'name': 'test',
-            'is_custom': False,
-            'domain': hc.KEYWORD_HOSPITAL
+            'is_custom': False
         }
-        response = client.post('/hospital/v1/keywords', data=data, content_type='application/json')
+        response = client.post('/hospital/v1/hospital-keywords', data=data, content_type='application/json')
 
         assert response.status_code == 201
-        assert hm.Keyword.objects.all().count() == 1
+        assert hm.HospitalKeyword.objects.all().count() == 1
 
     @pytest.mark.django_db
     def test_list_hospital_keyword_should_return_one(self, client, hospital_A_keyword_A_assoc, hospital_test_A):
-        response = client.get(f'/hospital/v1/keywords?hospital_keyword_assoc__hospital={hospital_test_A.uuid}',
+        response = client.get(f'/hospital/v1/hospital-keywords?hospital_keyword_assoc__hospital={hospital_test_A.uuid}',
                               content_type='application/json')
         content = json.loads(response.content)
 
         assert response.status_code == 200
         assert len(content) == 1
+
+
+class TestDoctorKeyword:
+    @pytest.mark.django_db
+    def test_list_keyword_should_return_zero(self, client):
+        response = client.get(f'/hospital/v1/doctor-keywords')
+        content = json.loads(response.content)
+
+        assert response.status_code == 200
+        assert len(content) == 0
+
+    @pytest.mark.django_db
+    def test_list_doctor_keyword_should_return_one(self, client, doctor_keyword_A):
+        response = client.get(f'/hospital/v1/doctor-keywords')
+        content = json.loads(response.content)
+
+        assert response.status_code == 200
+        assert len(content) == 1
+
+    @pytest.mark.django_db
+    def test_create_keyword(self, client):
+        data = {
+            'name': 'test',
+            'is_custom': False
+        }
+        response = client.post('/hospital/v1/doctor-keywords', data=data, content_type='application/json')
+
+        assert response.status_code == 201
+        assert hm.DoctorKeyword.objects.all().count() == 1
 
 
 class TestHospitalKeywordAssoc:

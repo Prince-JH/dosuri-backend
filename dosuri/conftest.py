@@ -158,19 +158,17 @@ def description_A_doctor_A_test_A(doctor_A_hospital_A):
 
 @pytest.fixture
 def hospital_keyword_A():
-    return hm.Keyword.objects.create(
+    return hm.HospitalKeyword.objects.create(
         name='test_A',
-        is_custom=False,
-        domain=hc.KEYWORD_HOSPITAL
+        is_custom=False
     )
 
 
 @pytest.fixture
 def hospital_keyword_B():
-    return hm.Keyword.objects.create(
+    return hm.HospitalKeyword.objects.create(
         name='test_B',
-        is_custom=False,
-        domain=hc.KEYWORD_HOSPITAL
+        is_custom=False
     )
 
 
@@ -192,10 +190,9 @@ def hospital_B_keyword_B_assoc(hospital_test_B, hospital_keyword_B):
 
 @pytest.fixture
 def doctor_keyword_A():
-    return hm.Keyword.objects.create(
+    return hm.DoctorKeyword.objects.create(
         name='test_A',
-        is_custom=False,
-        domain=hc.KEYWORD_DOCTOR
+        is_custom=False
     )
 
 

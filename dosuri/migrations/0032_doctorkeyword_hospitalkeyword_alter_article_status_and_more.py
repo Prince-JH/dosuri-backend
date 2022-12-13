@@ -26,19 +26,9 @@ class Migration(migrations.Migration):
                 'ordering': ['-id'],
             },
         ),
-        migrations.CreateModel(
-            name='HospitalKeyword',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uuid', models.CharField(db_index=True, default=dosuri.hospital.models.generate_uuid, max_length=32)),
-                ('name', models.CharField(max_length=64)),
-                ('is_custom', models.BooleanField(default=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-            ],
-            options={
-                'db_table': 'hospital_keyword',
-                'ordering': ['-id'],
-            },
+        migrations.RenameModel(
+            old_name='Keyword',
+            new_name='HospitalKeyword'
         ),
         migrations.AlterField(
             model_name='article',
@@ -59,8 +49,5 @@ class Migration(migrations.Migration):
             model_name='hospitalkeywordassoc',
             name='keyword',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='hospital_keyword_assoc', to='dosuri.hospitalkeyword'),
-        ),
-        migrations.DeleteModel(
-            name='Keyword',
-        ),
+        )
     ]

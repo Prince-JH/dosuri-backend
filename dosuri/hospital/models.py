@@ -70,11 +70,10 @@ class HospitalAddressAssoc(models.Model):
         ordering = ['-id']
 
 
-class Keyword(models.Model):
+class HospitalKeyword(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     name = models.CharField(max_length=64)
     is_custom = models.BooleanField(default=False)  # 사용자가 추가한 키워드 True, 관리자가 추가한 키워드 False
-    domain = models.CharField(max_length=64)  # doctor keyword / hospital keyword
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -85,7 +84,7 @@ class Keyword(models.Model):
 class HospitalKeywordAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_keyword_assoc')
-    keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE, related_name='hospital_keyword_assoc')
+    keyword = models.ForeignKey(HospitalKeyword, on_delete=models.CASCADE, related_name='hospital_keyword_assoc')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -119,10 +118,21 @@ class DoctorDescription(models.Model):
         ordering = ['-id']
 
 
+class DoctorKeyword(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    name = models.CharField(max_length=64)
+    is_custom = models.BooleanField(default=False)  # 사용자가 추가한 키워드 True, 관리자가 추가한 키워드 False
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'doctor_keyword'
+        ordering = ['-id']
+
+
 class DoctorKeywordAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='doctor_keyword_assoc')
-    keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE, related_name='doctor_keyword_assoc')
+    keyword = models.ForeignKey(DoctorKeyword, on_delete=models.CASCADE, related_name='doctor_keyword_assoc')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -142,12 +152,3 @@ class HospitalTreatment(models.Model):
     class Meta:
         db_table = 'hospital_treatment'
         ordering = ['-id']
-
-# class Review(models.Model):
-#     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-#     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='doctor_keyword_assoc')
-#     keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE, related_name='doctor_keyword_assoc')
-#     created_at = models.DateTimeField(auto_now_add=True)
-#
-#     class Meta:
-#         db_table = 'review'

@@ -127,20 +127,41 @@ class DoctorDescriptionDetail(g.RetrieveUpdateDestroyAPIView):
     lookup_field = 'uuid'
 
 
-class KeywordList(g.ListCreateAPIView):
+class HospitalKeywordList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Keyword.objects.all()
+    queryset = m.HospitalKeyword.objects.all().annotate(
+        hospital=Subquery(m.HospitalKeywordAssoc.objects.filter(keyword=OuterRef('pk')).values('hospital__uuid')[:1])
+    )
     pagination_class = None
-    serializer_class = s.Keyword
+    serializer_class = s.HospitalKeyword
     filter_backends = [rf.OrderingFilter, f.UuidSetBodyFilter, f.ForeignUuidFilter]
     ordering_field = '__all__'
     uuid_filter_params = ['hospital_keyword_assoc__hospital']
 
 
-class KeywordDetail(g.RetrieveUpdateDestroyAPIView):
+class HospitalKeywordDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Keyword.objects.all()
-    serializer_class = s.Keyword
+    queryset = m.HospitalKeyword.objects.all()
+    serializer_class = s.HospitalKeyword
+    lookup_field = 'uuid'
+
+
+class DoctorKeywordList(g.ListCreateAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = m.DoctorKeyword.objects.all().annotate(
+        doctor=Subquery(m.DoctorKeywordAssoc.objects.filter(keyword=OuterRef('pk')).values('doctor__uuid')[:1])
+    )
+    pagination_class = None
+    serializer_class = s.DoctorKeyword
+    filter_backends = [rf.OrderingFilter, f.UuidSetBodyFilter, f.ForeignUuidFilter]
+    ordering_field = '__all__'
+    uuid_filter_params = ['doctor_keyword_assoc__doctor']
+
+
+class DoctorKeywordDetail(g.RetrieveUpdateDestroyAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = m.DoctorKeyword.objects.all()
+    serializer_class = s.DoctorKeyword
     lookup_field = 'uuid'
 
 

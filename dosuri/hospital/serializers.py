@@ -105,14 +105,25 @@ class DoctorDescription(s.ModelSerializer):
         exclude = ('id', 'created_at')
 
 
-class Keyword(s.ModelSerializer):
+class HospitalKeyword(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     name: s.Field = s.CharField()
     is_custom: s.Field = s.BooleanField(write_only=True)
-    domain: s.Field = s.CharField(write_only=True)
+    doctor: s.Field = s.CharField(read_only=True)
 
     class Meta:
-        model = hm.Keyword
+        model = hm.HospitalKeyword
+        exclude = ('id', 'created_at')
+
+
+class DoctorKeyword(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    name: s.Field = s.CharField()
+    is_custom: s.Field = s.BooleanField(write_only=True)
+    doctor: s.Field = s.CharField(read_only=True)
+
+    class Meta:
+        model = hm.DoctorKeyword
         exclude = ('id', 'created_at')
 
 
@@ -124,7 +135,7 @@ class HospitalKeywordAssoc(s.ModelSerializer):
     )
     keyword: s.Field = s.SlugRelatedField(
         slug_field='uuid',
-        queryset=hm.Keyword.objects.all()
+        queryset=hm.HospitalKeyword.objects.all()
     )
 
     class Meta:
@@ -140,7 +151,7 @@ class DoctorKeywordAssoc(s.ModelSerializer):
     )
     keyword: s.Field = s.SlugRelatedField(
         slug_field='uuid',
-        queryset=hm.Keyword.objects.all()
+        queryset=hm.DoctorKeyword.objects.all()
     )
 
     class Meta:
