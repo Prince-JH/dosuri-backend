@@ -31,11 +31,12 @@ class HospitalList(g.ListCreateAPIView):
                 '-created_at').values('created_at')[:1])
     )
     serializer_class = s.Hospital
-    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, rf.SearchFilter]
+    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, rf.SearchFilter, hf.HosipitalDistanceOrderingFilter]
     ordering_field = '__all__'
     ordering = ['view_count']
     search_fields = ['name']
     uuid_filter_params = ['hospital_address_assoc__address']
+    hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
 
 
 class HospitalDetail(g.RetrieveUpdateDestroyAPIView):
