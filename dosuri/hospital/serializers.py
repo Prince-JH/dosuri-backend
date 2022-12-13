@@ -21,7 +21,6 @@ class Hospital(s.ModelSerializer):
     latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
     is_partner: s.Field = s.BooleanField()
     opened_at: s.Field = s.DateTimeField(allow_null=True)
-    created_at: s.Field = s.DateTimeField(read_only=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
 
     class Meta:
