@@ -116,10 +116,10 @@ class DoctorDescriptionList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.DoctorDescription.objects.select_related('doctor').all()
     serializer_class = s.DoctorDescription
-    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, f.UuidSetBodyFilter]
+    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, f.ForeignUuidBodyFilter]
     ordering_field = '__all__'
     uuid_filter_params = ['doctor']
-
+    uuid_filter_body_params = ['doctor']
 
 class DoctorDescriptionDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
@@ -155,10 +155,11 @@ class DoctorKeywordList(g.ListCreateAPIView):
     )
     pagination_class = None
     serializer_class = s.DoctorKeyword
-    filter_backends = [rf.OrderingFilter, f.UuidSetBodyFilter, f.ForeignUuidFilter]
+    filter_backends = [rf.OrderingFilter, f.UuidSetBodyFilter, f.ForeignUuidFilter, f.ForeignUuidBodyFilter]
     ordering_field = '__all__'
     ordering = 'doctor'
     uuid_filter_params = ['doctor_keyword_assoc__doctor']
+    uuid_filter_body_params = ['doctor_keyword_assoc__doctor']
 
 
 class DoctorKeywordDetail(g.RetrieveUpdateDestroyAPIView):
