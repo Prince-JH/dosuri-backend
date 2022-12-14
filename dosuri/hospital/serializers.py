@@ -7,6 +7,19 @@ from dosuri.community import (
 )
 
 
+class HospitalImage(s.ModelSerializer):
+    hospital: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=hm.Hospital.objects.all(),
+        write_only=True
+    )
+    url: s.Field = s.CharField()
+
+    class Meta:
+        model = hm.HospitalImage
+        exclude = ('uuid', 'id', 'title', 'created_at')
+
+
 class Hospital(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     address: s.Field = s.CharField()
@@ -22,30 +35,20 @@ class Hospital(s.ModelSerializer):
     is_partner: s.Field = s.BooleanField()
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
+    images = HospitalImage(many=True, source='hospital_image')
+    latitude: s.Field = s.FloatField(write_only=True)
+    longitude: s.Field = s.FloatField(write_only=True)
 
     class Meta:
         model = hm.Hospital
-        exclude = ('id', 'created_at')
-
-
-class HospitalImage(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
-    hospital: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=hm.Hospital.objects.all()
-    )
-    url: s.Field = s.CharField()
-
-    class Meta:
-        model = hm.HospitalImage
-        exclude = ('id', 'title', 'created_at')
+        exclude = ('id', 'created_at', 'code')
 
 
 class HospitalCalendar(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
     hospital: s.Field = s.SlugRelatedField(
         slug_field='uuid',
-        queryset=hm.Hospital.objects.all()
+        queryset=hm.Hospital.objects.all(),
+        write_only=True
     )
     monday: s.Field = s.CharField(allow_null=True)
     tuesday: s.Field = s.CharField(allow_null=True)
@@ -57,7 +60,26 @@ class HospitalCalendar(s.ModelSerializer):
 
     class Meta:
         model = hm.HospitalCalendar
-        exclude = ('id', 'created_at')
+        exclude = ('uuid', 'id', 'created_at')
+
+
+class HospitalDetail(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    address: s.Field = s.CharField()
+    name: s.Field = s.CharField()
+    introduction: s.Field = s.CharField(allow_null=True)
+    area: s.Field = s.CharField(allow_null=True)
+    phone_no: s.Field = s.CharField(allow_null=True)
+    is_partner: s.Field = s.BooleanField(write_only=True)
+    opened_at: s.Field = s.DateTimeField(write_only=True, allow_null=True)
+    calendar: s.Field = HospitalCalendar(source='hospital_calendar')
+    keywords: s.Field = s.ListField()
+    latitude: s.Field = s.FloatField(write_only=True)
+    longitude: s.Field = s.FloatField(write_only=True)
+
+    class Meta:
+        model = hm.Hospital
+        exclude = ('id', 'created_at', 'view_count', 'up_count', 'code')
 
 
 class HospitalAddressAssoc(s.ModelSerializer):
@@ -112,7 +134,7 @@ class Doctor(s.ModelSerializer):
     subtitle: s.Field = s.CharField(allow_null=True)
     position: s.Field = s.CharField(allow_null=True)
     descriptions: s.Field = DoctorDescription(many=True, source='doctor_detail')
-    keywords: s.Field = s.ListField(read_only=True)
+    keywords: s.Field = s.ListField()
 
     class Meta:
         model = hm.Doctor

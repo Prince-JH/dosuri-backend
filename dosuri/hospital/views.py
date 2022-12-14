@@ -23,7 +23,7 @@ from dosuri.common import filters as f
 
 class HospitalList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all().annotate(article_count=Count('article')).annotate(
+    queryset = m.Hospital.objects.all().prefetch_related('hospital_image').annotate(article_count=Count('article')).annotate(
         latest_article=Subquery(
             cmm.Article.objects.filter(article_type=cmc.ARTICLE_REVIEW, hospital=OuterRef('pk')).order_by(
                 '-created_at').values('content')[:1]),
@@ -32,7 +32,7 @@ class HospitalList(g.ListCreateAPIView):
                 '-created_at').values('created_at')[:1])
     )
     serializer_class = s.Hospital
-    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, rf.SearchFilter, hf.HospitalDistanceOrderingFilter]
+    filter_backends = [rf.OrderingFilter, rf.SearchFilter, hf.HospitalDistanceOrderingFilter]
     ordering_field = '__all__'
     ordering = ['view_count']
     search_fields = ['name']
@@ -42,8 +42,11 @@ class HospitalList(g.ListCreateAPIView):
 
 class HospitalDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all()
-    serializer_class = s.Hospital
+    queryset = m.Hospital.objects.all().annotate(
+        keywords=ArraySubquery(
+            m.HospitalKeywordAssoc.objects.filter(hospital=OuterRef('pk')).values_list('keyword__name', flat=True))
+    )
+    serializer_class = s.HospitalDetail
     lookup_field = 'uuid'
 
 
