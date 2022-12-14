@@ -63,6 +63,34 @@ class HospitalCalendar(s.ModelSerializer):
         exclude = ('uuid', 'id', 'created_at')
 
 
+class HospitalKeyword(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    name: s.Field = s.CharField()
+    is_custom: s.Field = s.BooleanField(write_only=True)
+    hospital: s.Field = s.CharField(read_only=True)
+
+    class Meta:
+        model = hm.HospitalKeyword
+        exclude = ('id', 'created_at')
+
+
+class HospitalKeywordAssoc(s.ModelSerializer):
+    hospital: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=hm.Hospital.objects.all(),
+        write_only=True
+    )
+    # keyword: s.Field = s.SlugRelatedField(
+    #     slug_field='uuid',
+    #     queryset=hm.HospitalKeyword.objects.all()
+    # )
+    keyword: s.Field = s.CharField(source='keyword.name')
+
+    class Meta:
+        model = hm.HospitalKeywordAssoc
+        exclude = ('id', 'created_at', 'uuid')
+
+
 class HospitalDetail(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     address: s.Field = s.CharField()
@@ -73,9 +101,10 @@ class HospitalDetail(s.ModelSerializer):
     is_partner: s.Field = s.BooleanField(write_only=True)
     opened_at: s.Field = s.DateTimeField(write_only=True, allow_null=True)
     calendar: s.Field = HospitalCalendar(source='hospital_calendar')
-    keywords: s.Field = s.ListField()
+    keywords: s.Field = HospitalKeywordAssoc(many=True, source='hospital_keyword_assoc')
     latitude: s.Field = s.FloatField(write_only=True)
     longitude: s.Field = s.FloatField(write_only=True)
+    is_up: s.Field = s.BooleanField(read_only=True)
 
     class Meta:
         model = hm.Hospital
@@ -102,11 +131,24 @@ class DoctorKeyword(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     name: s.Field = s.CharField()
     is_custom: s.Field = s.BooleanField(write_only=True)
-    doctor: s.Field = s.CharField(read_only=True)
+    doctor: s.Field = s.CharField()
 
     class Meta:
         model = hm.DoctorKeyword
         exclude = ('id', 'created_at')
+
+
+class DoctorKeywordAssoc(s.ModelSerializer):
+    doctor: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=hm.Doctor.objects.all(),
+        write_only=True
+    )
+    keyword: s.Field = s.CharField(source='keyword.name')
+
+    class Meta:
+        model = hm.DoctorKeywordAssoc
+        exclude = ('uuid', 'id', 'created_at')
 
 
 class DoctorDescription(s.ModelSerializer):
@@ -134,53 +176,11 @@ class Doctor(s.ModelSerializer):
     subtitle: s.Field = s.CharField(allow_null=True)
     position: s.Field = s.CharField(allow_null=True)
     descriptions: s.Field = DoctorDescription(many=True, source='doctor_detail')
-    keywords: s.Field = s.ListField()
+    # keywords: s.Field = s.ListField(read_only=True)
+    keywords: s.Field = DoctorKeywordAssoc(many=True, source='doctor_keyword_assoc')
 
     class Meta:
         model = hm.Doctor
-        exclude = ('id', 'created_at')
-
-
-class HospitalKeyword(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
-    name: s.Field = s.CharField()
-    is_custom: s.Field = s.BooleanField(write_only=True)
-    hospital: s.Field = s.CharField(read_only=True)
-
-    class Meta:
-        model = hm.HospitalKeyword
-        exclude = ('id', 'created_at')
-
-
-class HospitalKeywordAssoc(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
-    hospital: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=hm.Hospital.objects.all()
-    )
-    keyword: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=hm.HospitalKeyword.objects.all()
-    )
-
-    class Meta:
-        model = hm.HospitalKeywordAssoc
-        exclude = ('id', 'created_at')
-
-
-class DoctorKeywordAssoc(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
-    doctor: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=hm.Doctor.objects.all()
-    )
-    keyword: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=hm.DoctorKeyword.objects.all()
-    )
-
-    class Meta:
-        model = hm.DoctorKeywordAssoc
         exclude = ('id', 'created_at')
 
 

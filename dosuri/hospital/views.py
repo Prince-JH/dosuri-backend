@@ -1,5 +1,7 @@
+from django.contrib.auth import get_user_model
 from django.contrib.postgres.expressions import ArraySubquery
 from django.db.models import OuterRef, Count, Subquery
+from django.db.models.functions import Coalesce
 from rest_framework.response import Response
 from rest_framework import (
     generics as g,
@@ -23,7 +25,8 @@ from dosuri.common import filters as f
 
 class HospitalList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all().prefetch_related('hospital_image').annotate(article_count=Count('article')).annotate(
+    queryset = m.Hospital.objects.all().prefetch_related('hospital_image').annotate(
+        article_count=Count('article')).annotate(
         latest_article=Subquery(
             cmm.Article.objects.filter(article_type=cmc.ARTICLE_REVIEW, hospital=OuterRef('pk')).order_by(
                 '-created_at').values('content')[:1]),
@@ -42,12 +45,21 @@ class HospitalList(g.ListCreateAPIView):
 
 class HospitalDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all().annotate(
-        keywords=ArraySubquery(
-            m.HospitalKeywordAssoc.objects.filter(hospital=OuterRef('pk')).values_list('keyword__name', flat=True))
-    )
+    queryset = m.Hospital.objects.all().prefetch_related('hospital_keyword_assoc', 'hospital_keyword_assoc__keyword')
     serializer_class = s.HospitalDetail
     lookup_field = 'uuid'
+
+    def get_queryset(self):
+        user = self.request.user
+        if not user.is_authenticated:
+            user = get_user_model().objects.first()
+        return self.queryset.annotate(
+            keywords=ArraySubquery(
+                m.HospitalKeywordAssoc.objects.filter(hospital=OuterRef('pk')).values_list('keyword__name', flat=True)),
+            is_up=Coalesce(Subquery(
+                m.HospitalUserAssoc.objects.filter(user=user, hospital=OuterRef('pk')).values('is_up')[:1]
+            ), False)
+        )
 
 
 class HospitalCalendarList(g.ListCreateAPIView):
@@ -102,7 +114,9 @@ class HospitalAddressAssocDetail(g.RetrieveUpdateDestroyAPIView):
 
 class DoctorList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Doctor.objects.select_related('hospital').all().prefetch_related('doctor_detail').annotate(
+    queryset = m.Doctor.objects.select_related('hospital').all().prefetch_related('doctor_detail',
+                                                                                  'doctor_keyword_assoc',
+                                                                                  'doctor_keyword_assoc__keyword').annotate(
         keywords=ArraySubquery(
             m.DoctorKeywordAssoc.objects.filter(doctor=OuterRef('pk')).values_list('keyword__name', flat=True))
     )
