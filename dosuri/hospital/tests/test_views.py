@@ -175,21 +175,21 @@ class TestHospitalAddressAssoc:
 
 
 class TestDoctor:
-    @pytest.mark.django_db
-    def test_list_doctor_should_return_zero(self, client):
-        response = client.get(f'/hospital/v1/doctors')
-        content = json.loads(response.content)
-
-        assert response.status_code == 200
-        assert len(content['results']) == 0
-
-    @pytest.mark.django_db
-    def test_list_doctor_should_return_one(self, client, doctor_A_hospital_A):
-        response = client.get(f'/hospital/v1/doctors')
-        content = json.loads(response.content)
-
-        assert response.status_code == 200
-        assert len(content['results']) == 1
+    # @pytest.mark.django_db
+    # def test_list_doctor_should_return_zero(self, client):
+    #     response = client.get(f'/hospital/v1/doctors')
+    #     content = json.loads(response.content)
+    #
+    #     assert response.status_code == 200
+    #     assert len(content['results']) == 0
+    #
+    # @pytest.mark.django_db
+    # def test_list_doctor_should_return_one(self, client, doctor_A_hospital_A):
+    #     response = client.get(f'/hospital/v1/doctors')
+    #     content = json.loads(response.content)
+    #
+    #     assert response.status_code == 200
+    #     assert len(content['results']) == 1
 
     @pytest.mark.django_db
     def test_create_doctor(self, client, hospital_test_A):

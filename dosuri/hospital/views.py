@@ -1,3 +1,4 @@
+from django.contrib.postgres.expressions import ArraySubquery
 from django.db.models import OuterRef, Count, Subquery
 from rest_framework.response import Response
 from rest_framework import (
@@ -98,7 +99,10 @@ class HospitalAddressAssocDetail(g.RetrieveUpdateDestroyAPIView):
 
 class DoctorList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Doctor.objects.select_related('hospital').all()
+    queryset = m.Doctor.objects.select_related('hospital').all().prefetch_related('doctor_detail').annotate(
+        keywords=ArraySubquery(
+            m.DoctorKeywordAssoc.objects.filter(doctor=OuterRef('pk')).values_list('keyword__name', flat=True))
+    )
     serializer_class = s.Doctor
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
     ordering_field = '__all__'
@@ -121,6 +125,7 @@ class DoctorDescriptionList(g.ListCreateAPIView):
     uuid_filter_params = ['doctor']
     uuid_filter_body_params = ['doctor']
 
+
 class DoctorDescriptionDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.DoctorDescription.objects.all()
@@ -131,7 +136,7 @@ class DoctorDescriptionDetail(g.RetrieveUpdateDestroyAPIView):
 class HospitalKeywordList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.HospitalKeyword.objects.all().annotate(
-        hospital=Subquery(m.HospitalKeywordAssoc.objects.filter(keyword=OuterRef('pk')).values('hospital__uuid'))
+        hospital=Subquery(m.HospitalKeywordAssoc.objects.filter(keyword=OuterRef('pk')).values('hospital__uuid')[:1])
     )
     pagination_class = None
     serializer_class = s.HospitalKeyword

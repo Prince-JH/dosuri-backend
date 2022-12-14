@@ -76,6 +76,30 @@ class HospitalAddressAssoc(s.ModelSerializer):
         exclude = ('id', 'created_at')
 
 
+class DoctorKeyword(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    name: s.Field = s.CharField()
+    is_custom: s.Field = s.BooleanField(write_only=True)
+    doctor: s.Field = s.CharField(read_only=True)
+
+    class Meta:
+        model = hm.DoctorKeyword
+        exclude = ('id', 'created_at')
+
+
+class DoctorDescription(s.ModelSerializer):
+    doctor: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=hm.Doctor.objects.all(),
+        write_only=True
+    )
+    description: s.Field = s.CharField()
+
+    class Meta:
+        model = hm.DoctorDescription
+        fields = ('doctor', 'description')
+
+
 class Doctor(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     hospital: s.Field = s.SlugRelatedField(
@@ -87,22 +111,11 @@ class Doctor(s.ModelSerializer):
     title: s.Field = s.CharField(allow_null=True)
     subtitle: s.Field = s.CharField(allow_null=True)
     position: s.Field = s.CharField(allow_null=True)
+    descriptions: s.Field = DoctorDescription(many=True, source='doctor_detail')
+    keywords: s.Field = s.ListField(read_only=True)
 
     class Meta:
         model = hm.Doctor
-        exclude = ('id', 'created_at')
-
-
-class DoctorDescription(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
-    doctor: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=hm.Doctor.objects.all()
-    )
-    description: s.Field = s.CharField()
-
-    class Meta:
-        model = hm.DoctorDescription
         exclude = ('id', 'created_at')
 
 
@@ -114,17 +127,6 @@ class HospitalKeyword(s.ModelSerializer):
 
     class Meta:
         model = hm.HospitalKeyword
-        exclude = ('id', 'created_at')
-
-
-class DoctorKeyword(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
-    name: s.Field = s.CharField()
-    is_custom: s.Field = s.BooleanField(write_only=True)
-    doctor: s.Field = s.CharField(read_only=True)
-
-    class Meta:
-        model = hm.DoctorKeyword
         exclude = ('id', 'created_at')
 
 
