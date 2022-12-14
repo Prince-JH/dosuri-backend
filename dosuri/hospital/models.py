@@ -3,6 +3,7 @@ from uuid import uuid4
 from django.db import models
 
 from dosuri.common import models as cm
+from dosuri.user import models as um
 
 
 def generate_uuid():
@@ -151,4 +152,15 @@ class HospitalTreatment(models.Model):
 
     class Meta:
         db_table = 'hospital_treatment'
+        ordering = ['-id']
+
+
+class HospitalUserAssoc(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_user_assoc')
+    user = models.ForeignKey(um.User, on_delete=models.CASCADE, related_name='hospital_user_assoc')
+    is_up = models.BooleanField()
+
+    class Meta:
+        db_table = 'hospital_user_assoc'
         ordering = ['-id']
