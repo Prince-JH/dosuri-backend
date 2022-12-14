@@ -44,7 +44,7 @@ class HospitalImage(models.Model):
 
 class HospitalCalendar(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_calendar')
+    hospital = models.OneToOneField(Hospital, on_delete=models.CASCADE, related_name='hospital_calendar')
     monday = models.CharField(max_length=128, null=True)
     tuesday = models.CharField(max_length=128, null=True)
     wednesday = models.CharField(max_length=128, null=True)
