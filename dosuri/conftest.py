@@ -9,6 +9,7 @@ from dosuri.community import (
     models as cmm,
     constants as cmc
 )
+from dosuri.user.auth import get_tokens_for_user
 from dosuri.user.models import User
 
 
@@ -17,6 +18,10 @@ def user_dummy():
     return User.objects.create_user(
         username='dummy@dummy.com'
     )
+
+@pytest.fixture
+def tokens_user_dummy(user_dummy):
+    return get_tokens_for_user(user_dummy)
 
 
 @pytest.fixture

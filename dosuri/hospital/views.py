@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from rest_framework import (
     generics as g,
     filters as rf,
-    permissions as p
+    permissions as p,
+    status,
 )
 
 from dosuri.common import models as cm
@@ -237,6 +238,18 @@ class HospitalTreatmentDetail(g.RetrieveUpdateDestroyAPIView):
     queryset = m.HospitalTreatment.objects.all()
     serializer_class = s.HospitalTreatment
     lookup_field = 'uuid'
+
+
+class HospitalUserAssoc(g.CreateAPIView):
+    permission_classes = [p.IsAuthenticated]
+    queryset = m.HospitalUserAssoc.objects.all()
+    serializer_class = s.HospitalUserAssoc
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user)
+        return Response(status=status.HTTP_201_CREATED, data=serializer.data)
 
 
 '''

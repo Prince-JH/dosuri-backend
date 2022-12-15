@@ -90,12 +90,12 @@ class TestHospitalList:
 
 
 # class TestHospitalDetail:
-    # @pytest.mark.django_db
-    # def test_get_hospital_by_uuid(self, client, hospital_test_A):
-    #     response = client.get(f'/hospital/v1/hospitals/{hospital_test_A.uuid}')
-    #     content = json.loads(response.content)
-    #     assert response.status_code == 200
-    #     assert content['name'] == hospital_test_A.name
+# @pytest.mark.django_db
+# def test_get_hospital_by_uuid(self, client, hospital_test_A):
+#     response = client.get(f'/hospital/v1/hospitals/{hospital_test_A.uuid}')
+#     content = json.loads(response.content)
+#     assert response.status_code == 200
+#     assert content['name'] == hospital_test_A.name
 
 
 # class TestDoctor:
@@ -145,3 +145,24 @@ class TestHospitalTreatment:
 
         assert response.status_code == 201
         assert hm.HospitalTreatment.objects.all().count() == 1
+
+
+class TestHospitalUserAssoc:
+    @pytest.mark.django_db
+    def test_create_hospital_treatment(self, client, hospital_test_A, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        data = {
+            'hospital': hospital_test_A.uuid,
+            'is_up': True
+        }
+        response = client.post('/hospital/v1/hospital-user-assocs', data=data, **headers)
+
+        assert response.status_code == 201
+        assert hm.HospitalUserAssoc.objects.all().count() == 1
+        assert hm.HospitalUserAssoc.objects.first().is_up
+
+        client.post('/hospital/v1/hospital-user-assocs', data=data, **headers)
+        assert hm.HospitalUserAssoc.objects.all().count() == 1
