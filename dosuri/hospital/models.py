@@ -4,7 +4,7 @@ from django.db import models
 
 from dosuri.common import models as cm
 from dosuri.user import models as um
-
+from dosuri.hospital import model_managers as hmm
 
 def generate_uuid():
     return uuid4().hex
@@ -160,7 +160,13 @@ class HospitalUserAssoc(models.Model):
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_user_assoc')
     user = models.ForeignKey(um.User, on_delete=models.CASCADE, related_name='hospital_user_assoc')
     is_up = models.BooleanField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = hmm.HospitalUserAssocManager()
 
     class Meta:
         db_table = 'hospital_user_assoc'
         ordering = ['-id']
+        constraints = [
+            models.UniqueConstraint(fields=['hospital', 'user'], name='hospital_user_unique_constraint'),
+        ]

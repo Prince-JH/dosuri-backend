@@ -1,6 +1,9 @@
 from rest_framework import serializers as s
 
-from dosuri.hospital import models as hm
+from dosuri.hospital import (
+    models as hm,
+    model_managers as hmm
+)
 from dosuri.common import models as cm
 from dosuri.community import (
     models as cmm,
@@ -214,3 +217,24 @@ class TopHospital(s.ModelSerializer):
     class Meta:
         model = hm.Hospital
         exclude = ('id', 'created_at')
+
+
+class HospitalUserAssoc(s.ModelSerializer):
+    hospital: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=hm.Hospital.objects.all()
+    )
+    is_up: s.Field = s.BooleanField()
+
+    class Meta:
+        model = hm.HospitalUserAssoc
+        exclude = ('id', 'user', 'created_at')
+
+    def create(self, validated_data):
+        hospital = validated_data['hospital']
+        user = validated_data['user']
+        is_up = validated_data['is_up']
+        print(self.Meta.model)
+        print(self.Meta.model.objects)
+        self.Meta.model.objects.press_up_button(hospital, user, is_up)
+        return {'hospital': hospital, 'is_up': is_up}
