@@ -27,7 +27,7 @@ with open(secret_file, encoding='utf-8') as fin:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-APPEND_SLASH=False
+APPEND_SLASH = False
 
 ALLOWED_HOSTS = ['*']
 # ALLOWED_HOSTS = ['dosuri-env.eba-igc5wtjb.ap-northeast-2.elasticbeanstalk.com', '127.0.0.1']
@@ -72,8 +72,6 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
     ),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
@@ -83,6 +81,7 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=15),
     'SIGNING_KEY': SECRET_KEY,
     'ALGORITHM': 'HS256',
+    'AUTH_HEADER_TYPES': 'Bearer'
 }
 
 ROOT_URLCONF = 'dosuri.urls'

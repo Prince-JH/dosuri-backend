@@ -3,7 +3,8 @@ from uuid import uuid4
 from django.db import models
 
 from dosuri.common import models as cm
-
+from dosuri.user import models as um
+from dosuri.hospital import model_managers as hmm
 
 def generate_uuid():
     return uuid4().hex
@@ -44,7 +45,7 @@ class HospitalImage(models.Model):
 
 class HospitalCalendar(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_calendar')
+    hospital = models.OneToOneField(Hospital, on_delete=models.CASCADE, related_name='hospital_calendar')
     monday = models.CharField(max_length=128, null=True)
     tuesday = models.CharField(max_length=128, null=True)
     wednesday = models.CharField(max_length=128, null=True)
@@ -152,3 +153,20 @@ class HospitalTreatment(models.Model):
     class Meta:
         db_table = 'hospital_treatment'
         ordering = ['-id']
+
+
+class HospitalUserAssoc(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_user_assoc')
+    user = models.ForeignKey(um.User, on_delete=models.CASCADE, related_name='hospital_user_assoc')
+    is_up = models.BooleanField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = hmm.HospitalUserAssocManager()
+
+    class Meta:
+        db_table = 'hospital_user_assoc'
+        ordering = ['-id']
+        constraints = [
+            models.UniqueConstraint(fields=['hospital', 'user'], name='hospital_user_unique_constraint'),
+        ]

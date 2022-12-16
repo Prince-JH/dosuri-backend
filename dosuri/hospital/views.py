@@ -1,9 +1,13 @@
+from django.contrib.auth import get_user_model
+from django.contrib.postgres.expressions import ArraySubquery
 from django.db.models import OuterRef, Count, Subquery
+from django.db.models.functions import Coalesce
 from rest_framework.response import Response
 from rest_framework import (
     generics as g,
     filters as rf,
-    permissions as p
+    permissions as p,
+    status,
 )
 
 from dosuri.common import models as cm
@@ -22,7 +26,8 @@ from dosuri.common import filters as f
 
 class HospitalList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all().annotate(article_count=Count('article')).annotate(
+    queryset = m.Hospital.objects.all().prefetch_related('hospital_image').annotate(
+        article_count=Count('article')).annotate(
         latest_article=Subquery(
             cmm.Article.objects.filter(article_type=cmc.ARTICLE_REVIEW, hospital=OuterRef('pk')).order_by(
                 '-created_at').values('content')[:1]),
@@ -31,7 +36,7 @@ class HospitalList(g.ListCreateAPIView):
                 '-created_at').values('created_at')[:1])
     )
     serializer_class = s.Hospital
-    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, rf.SearchFilter, hf.HospitalDistanceOrderingFilter]
+    filter_backends = [rf.OrderingFilter, rf.SearchFilter, hf.HospitalDistanceOrderingFilter]
     ordering_field = '__all__'
     ordering = ['view_count']
     search_fields = ['name']
@@ -41,9 +46,21 @@ class HospitalList(g.ListCreateAPIView):
 
 class HospitalDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all()
-    serializer_class = s.Hospital
+    queryset = m.Hospital.objects.all().prefetch_related('hospital_keyword_assoc', 'hospital_keyword_assoc__keyword')
+    serializer_class = s.HospitalDetail
     lookup_field = 'uuid'
+
+    def get_queryset(self):
+        user = self.request.user
+        if not user.is_authenticated:
+            user = get_user_model().objects.first()
+        return self.queryset.annotate(
+            keywords=ArraySubquery(
+                m.HospitalKeywordAssoc.objects.filter(hospital=OuterRef('pk')).values_list('keyword__name', flat=True)),
+            is_up=Coalesce(Subquery(
+                m.HospitalUserAssoc.objects.filter(user=user, hospital=OuterRef('pk')).values('is_up')[:1]
+            ), False)
+        )
 
 
 class HospitalCalendarList(g.ListCreateAPIView):
@@ -98,7 +115,12 @@ class HospitalAddressAssocDetail(g.RetrieveUpdateDestroyAPIView):
 
 class DoctorList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Doctor.objects.select_related('hospital').all()
+    queryset = m.Doctor.objects.select_related('hospital').all().prefetch_related('doctor_detail',
+                                                                                  'doctor_keyword_assoc',
+                                                                                  'doctor_keyword_assoc__keyword').annotate(
+        keywords=ArraySubquery(
+            m.DoctorKeywordAssoc.objects.filter(doctor=OuterRef('pk')).values_list('keyword__name', flat=True))
+    )
     serializer_class = s.Doctor
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
     ordering_field = '__all__'
@@ -121,6 +143,7 @@ class DoctorDescriptionList(g.ListCreateAPIView):
     uuid_filter_params = ['doctor']
     uuid_filter_body_params = ['doctor']
 
+
 class DoctorDescriptionDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.DoctorDescription.objects.all()
@@ -131,7 +154,7 @@ class DoctorDescriptionDetail(g.RetrieveUpdateDestroyAPIView):
 class HospitalKeywordList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.HospitalKeyword.objects.all().annotate(
-        hospital=Subquery(m.HospitalKeywordAssoc.objects.filter(keyword=OuterRef('pk')).values('hospital__uuid'))
+        hospital=Subquery(m.HospitalKeywordAssoc.objects.filter(keyword=OuterRef('pk')).values('hospital__uuid')[:1])
     )
     pagination_class = None
     serializer_class = s.HospitalKeyword
@@ -215,6 +238,18 @@ class HospitalTreatmentDetail(g.RetrieveUpdateDestroyAPIView):
     queryset = m.HospitalTreatment.objects.all()
     serializer_class = s.HospitalTreatment
     lookup_field = 'uuid'
+
+
+class HospitalUserAssoc(g.CreateAPIView):
+    permission_classes = [p.IsAuthenticated]
+    queryset = m.HospitalUserAssoc.objects.all()
+    serializer_class = s.HospitalUserAssoc
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user)
+        return Response(status=status.HTTP_201_CREATED, data=serializer.data)
 
 
 '''
