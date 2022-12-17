@@ -1,10 +1,12 @@
 from uuid import uuid4
 
+from django.contrib.auth import get_user_model
 from django.db import models
 
 from dosuri.common import models as cm
 from dosuri.user import models as um
 from dosuri.hospital import model_managers as hmm
+
 
 def generate_uuid():
     return uuid4().hex
@@ -170,3 +172,14 @@ class HospitalUserAssoc(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['hospital', 'user'], name='hospital_user_unique_constraint'),
         ]
+
+
+class HospitalSearch(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='hospital_search')
+    word = models.CharField(max_length=64)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'hospital_search'
+        ordering = ['-id']
