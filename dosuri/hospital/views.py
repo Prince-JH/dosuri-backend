@@ -122,7 +122,7 @@ class DoctorList(g.ListCreateAPIView):
             m.DoctorKeywordAssoc.objects.filter(doctor=OuterRef('pk')).values_list('keyword__name', flat=True))
     )
     serializer_class = s.Doctor
-    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
+    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, hf.DoctorPositionFilter]
     ordering_field = '__all__'
     uuid_filter_params = ['hospital']
 

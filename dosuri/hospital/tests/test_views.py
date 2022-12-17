@@ -99,6 +99,18 @@ class TestHospitalList:
 
 
 # class TestDoctor:
+    # @pytest.mark.django_db
+    # def test_doctor_list_by_position(
+    #         self, client, doctor_A_hospital_A, therapist_A_hospital_A):
+    #     response = client.get('/hospital/v1/doctors?position=doctor', content_type='application/json')
+    #     content = json.loads(response.content)
+    #     assert len(content['results']) == 1
+    #     assert content['results'][0]['position'] == 'doctor'
+    #
+    #     response = client.get('/hospital/v1/doctors?position=therapist', content_type='application/json')
+    #     content = json.loads(response.content)
+    #     assert len(content['results']) == 1
+    #     assert content['results'][0]['position'] == 'therapist'
 #     @pytest.mark.django_db
 #     def test_create_doctor(self, client, hospital_test_A):
 #         data = {

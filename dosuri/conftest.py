@@ -151,6 +151,15 @@ def doctor_A_hospital_A(hospital_test_A):
     return hm.Doctor.objects.create(
         hospital=hospital_test_A,
         name='test_A',
+        position=hc.POSITION_DOCTOR
+    )
+
+@pytest.fixture
+def therapist_A_hospital_A(hospital_test_A):
+    return hm.Doctor.objects.create(
+        hospital=hospital_test_A,
+        name='test_A',
+        position=hc.POSITION_THERAPIST
     )
 
 
