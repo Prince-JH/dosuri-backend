@@ -232,6 +232,19 @@ class HospitalTreatmentList(g.ListCreateAPIView):
     ordering_field = '__all__'
     uuid_filter_params = ['hospital']
 
+    def list(self, request, *args, **kwargs):
+        res = super().list(request, *args, **kwargs)
+        res.data['price_per_hour'] = self.get_avg_price_per_hour(res.data['results'])
+        return res
+
+    def get_avg_price_per_hour(self, results):
+        prices = []
+        for result in results:
+            price = result['price_per_hour']
+            if price:
+                prices.append(price)
+        return sum(prices) / len(prices) if len(prices) > 0 else None
+
 
 class HospitalTreatmentDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
