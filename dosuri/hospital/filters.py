@@ -15,6 +15,7 @@ class HospitalDistanceOrderingFilter(fsc.PageQueryParamFilterSchema, filters.Bas
     distance_param = 'distance'
     latitude_param = 'latitude'
     longitude_param = 'longitude'
+
     def get_schema_fields(self, view):
         return [
             coreapi.Field(
@@ -136,3 +137,11 @@ class ReviewNewOrderingFilter(fsc.PageQueryParamFilterSchema, filters.BaseFilter
             list_hospital_ids = list_hospital_ids[start:] + list(extra_hospital_ids)
             preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(list_hospital_ids)])
         return queryset.filter(id__in=list_hospital_ids).order_by(preserved)
+
+
+class DoctorPositionFilter(fsc.DoctorPositionFilterSchema, filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        position = request.GET.get('position')
+        if not position:
+            return queryset
+        return queryset.filter(position=position)

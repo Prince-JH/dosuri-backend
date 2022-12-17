@@ -28,3 +28,31 @@ class PageQueryParamFilterSchema:
                 },
             },
         ]
+
+
+class DoctorPositionFilterSchema:
+    def get_schema_fields(self, view):
+        return [
+            coreapi.Field(
+                name='position',
+                required=False,
+                location='query',
+                schema=coreschema.String(
+                    title='Position',
+                    description='position'
+                )
+            )
+        ]
+
+    def get_schema_operation_parameters(self, view):
+        return [
+            {
+                'name': 'position',
+                'required': False,
+                'in': 'query',
+                'description': 'position',
+                'schema': {
+                    'type': 'position',
+                },
+            },
+        ]
