@@ -203,7 +203,7 @@ class HospitalTreatment(s.ModelSerializer):
         exclude = ('id', 'created_at')
 
 
-class TopHospital(s.ModelSerializer):
+class HomeHospital(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     address: s.Field = s.CharField()
     name: s.Field = s.CharField()
@@ -234,7 +234,14 @@ class HospitalUserAssoc(s.ModelSerializer):
         hospital = validated_data['hospital']
         user = validated_data['user']
         is_up = validated_data['is_up']
-        print(self.Meta.model)
-        print(self.Meta.model.objects)
         self.Meta.model.objects.press_up_button(hospital, user, is_up)
         return {'hospital': hospital, 'is_up': is_up}
+
+
+class HospitalSearch(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    word: s.Field = s.CharField()
+
+    class Meta:
+        model = hm.HospitalSearch
+        exclude = ('id', 'user', 'created_at')

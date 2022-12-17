@@ -166,3 +166,37 @@ class TestHospitalUserAssoc:
 
         client.post('/hospital/v1/hospital-user-assocs', data=data, **headers)
         assert hm.HospitalUserAssoc.objects.all().count() == 1
+
+
+class TestHospitalSearch:
+    @pytest.mark.django_db
+    def test_create_hospital_search(self, client, user_dummy, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        data = {
+            'word': 'value'
+        }
+        response = client.post('/hospital/v1/hospital-searches', data=data, **headers)
+
+        assert response.status_code == 201
+        assert hm.HospitalSearch.objects.all().count() == 1
+        search = hm.HospitalSearch.objects.all().first()
+        assert search.user == user_dummy
+        assert search.word == 'value'
+
+    @pytest.mark.django_db
+    def test_list_hospital_searches(self, client, tokens_user_dummy, hospital_search_A_user_dummy,
+                                    hospital_search_B_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get('/hospital/v1/hospital-searches', **headers)
+
+        assert response.status_code == 200
+        content = json.loads(response.content)
+
+        assert len(content['results']) == 2
+        assert content['results'][0]['word'] == 'B'

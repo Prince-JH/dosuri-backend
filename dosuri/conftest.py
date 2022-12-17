@@ -19,6 +19,7 @@ def user_dummy():
         username='dummy@dummy.com'
     )
 
+
 @pytest.fixture
 def tokens_user_dummy(user_dummy):
     return get_tokens_for_user(user_dummy)
@@ -257,4 +258,20 @@ def article_A_hospital_C(hospital_test_C, user_dummy):
         content='A',
         user=user_dummy,
         article_type=cmc.ARTICLE_REVIEW
+    )
+
+
+@pytest.fixture
+def hospital_search_A_user_dummy(user_dummy):
+    return hm.HospitalSearch.objects.create(
+        user=user_dummy,
+        word='A'
+    )
+
+
+@pytest.fixture
+def hospital_search_B_user_dummy(user_dummy):
+    return hm.HospitalSearch.objects.create(
+        user=user_dummy,
+        word='B'
     )

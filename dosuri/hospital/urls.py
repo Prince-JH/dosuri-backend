@@ -18,7 +18,9 @@ urlpatterns = [
     path('v1/doctors', v.DoctorList.as_view(), name='doctor'),
     path('v1/doctors/<uuid>', v.DoctorDetail.as_view(), name='doctor-detail'),
 
-    path('v1/hospital-treatments', v.HospitalTreatmentList.as_view(), name='hospital-treatments'),
-    path('v1/hospital-treatments/<uuid>', v.HospitalTreatmentDetail.as_view(), name='hospital-treatments'),
+    path('v1/hospital-treatments', v.HospitalTreatmentList.as_view(), name='hospital-treatment'),
+    path('v1/hospital-treatments/<uuid>', v.HospitalTreatmentDetail.as_view(), name='hospital-treatment-detail'),
 
+    path('v1/hospital-searches', v.HospitalSearch.as_view(), name='hospital-search'),
+    path('v1/hospital-searches/<uuid>', v.HospitalSearchDetail.as_view(), name='hospital-search-detail'),
 ]
