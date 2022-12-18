@@ -28,16 +28,16 @@ def tokens_user_dummy(user_dummy):
 @pytest.fixture
 def address_서울시_강남구():
     return cm.Address.objects.create(
-        do='서울시',
-        gu='강남구'
+        large_address='서울',
+        small_address='강남구'
     )
 
 
 @pytest.fixture
 def address_수원시_팔달구():
     return cm.Address.objects.create(
-        do='수원시',
-        gu='팔달구'
+        large_address='경기',
+        small_address='수원시 팔달구'
     )
 
 
@@ -153,6 +153,7 @@ def doctor_A_hospital_A(hospital_test_A):
         name='test_A',
         position=hc.POSITION_DOCTOR
     )
+
 
 @pytest.fixture
 def therapist_A_hospital_A(hospital_test_A):
