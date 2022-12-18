@@ -291,10 +291,8 @@ class HomeHospitalList(g.ListAPIView):
         if user.is_authenticated:
             queryset = queryset.filter(hospital_address_assoc__address=user.address)
         else:
-            queryset = queryset.filter(Q(hospital_address_assoc__address__city='서울특별시'),
-                                       Q(hospital_address_assoc__address__gu='송파구') |
-                                       Q(hospital_address_assoc__address__gu='서초구') |
-                                       Q(hospital_address_assoc__address__gu='강남구')).distinct()
+            queryset = queryset.filter(hospital_address_assoc__address__large_area='서울',
+                                       hospital_address_assoc__address__small_area__in=['송파구', '서초구', '강남구']).distinct()
         return queryset
 
     def get_top_hospital_queryset(self, queryset):
