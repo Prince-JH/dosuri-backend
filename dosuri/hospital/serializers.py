@@ -245,3 +245,106 @@ class HospitalSearch(s.ModelSerializer):
     class Meta:
         model = hm.HospitalSearch
         exclude = ('id', 'user', 'created_at')
+
+
+class AroundHospital(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    address: s.Field = s.CharField()
+    name: s.Field = s.CharField()
+    introduction: s.Field = s.CharField(write_only=True, allow_null=True)
+    area: s.Field = s.CharField(allow_null=True)
+    phone_no: s.Field = s.CharField(write_only=True, allow_null=True)
+    up_count: s.Field = s.IntegerField(read_only=True)
+    view_count: s.Field = s.IntegerField(read_only=True)
+    article_count: s.Field = s.IntegerField(read_only=True)
+    latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
+    latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
+    is_partner: s.Field = s.BooleanField(write_only=True)
+    opened_at: s.Field = s.DateTimeField(allow_null=True)
+    distance: s.Field = s.FloatField(read_only=True, allow_null=True)
+    images = HospitalImage(many=True, source='hospital_image')
+    latitude: s.Field = s.FloatField(write_only=True)
+    longitude: s.Field = s.FloatField(write_only=True)
+
+    class Meta:
+        model = hm.Hospital
+        exclude = ('id', 'created_at', 'code')
+
+
+class NewHospital(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    address: s.Field = s.CharField()
+    name: s.Field = s.CharField()
+    introduction: s.Field = s.CharField(write_only=True, allow_null=True)
+    area: s.Field = s.CharField(allow_null=True)
+    phone_no: s.Field = s.CharField(write_only=True, allow_null=True)
+    up_count: s.Field = s.IntegerField(read_only=True)
+    view_count: s.Field = s.IntegerField(read_only=True)
+    article_count: s.Field = s.IntegerField(read_only=True)
+    latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
+    latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
+    is_partner: s.Field = s.BooleanField(write_only=True)
+    opened_at: s.Field = s.DateTimeField(allow_null=True)
+    distance: s.Field = s.FloatField(read_only=True, allow_null=True)
+    images = HospitalImage(many=True, source='hospital_image')
+    latitude: s.Field = s.FloatField(write_only=True)
+    longitude: s.Field = s.FloatField(write_only=True)
+
+    class Meta:
+        model = hm.Hospital
+        exclude = ('id', 'created_at', 'code')
+
+
+class GoodPriceHospital(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    address: s.Field = s.CharField()
+    name: s.Field = s.CharField()
+    introduction: s.Field = s.CharField(write_only=True, allow_null=True)
+    area: s.Field = s.CharField(allow_null=True)
+    phone_no: s.Field = s.CharField(write_only=True, allow_null=True)
+    up_count: s.Field = s.IntegerField(read_only=True)
+    view_count: s.Field = s.IntegerField(read_only=True)
+    article_count: s.Field = s.IntegerField(read_only=True)
+    latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
+    latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
+    is_partner: s.Field = s.BooleanField(write_only=True)
+    opened_at: s.Field = s.DateTimeField(allow_null=True)
+    distance: s.Field = s.FloatField(read_only=True, allow_null=True)
+    images = HospitalImage(many=True, source='hospital_image')
+    latitude: s.Field = s.FloatField(write_only=True)
+    longitude: s.Field = s.FloatField(write_only=True)
+
+    class Meta:
+        model = hm.Hospital
+        exclude = ('id', 'created_at', 'code')
+
+
+class GoodReviewHospital(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    address: s.Field = s.CharField()
+    name: s.Field = s.CharField()
+    introduction: s.Field = s.CharField(write_only=True, allow_null=True)
+    area: s.Field = s.CharField(allow_null=True)
+    phone_no: s.Field = s.CharField(write_only=True, allow_null=True)
+    up_count: s.Field = s.IntegerField(read_only=True)
+    view_count: s.Field = s.IntegerField(read_only=True)
+    article_count: s.Field = s.IntegerField(read_only=True)
+    latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
+    latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
+    is_partner: s.Field = s.BooleanField(write_only=True)
+    opened_at: s.Field = s.DateTimeField(allow_null=True)
+    distance: s.Field = s.FloatField(read_only=True, allow_null=True)
+    images = HospitalImage(many=True, source='hospital_image')
+    latitude: s.Field = s.FloatField(write_only=True)
+    longitude: s.Field = s.FloatField(write_only=True)
+
+    class Meta:
+        model = hm.Hospital
+        exclude = ('id', 'created_at', 'code')
+
+
+class HomeHospital(s.Serializer):
+    around_hospitals: s.Field = s.ListField()
+    new_hospitals: s.Field = s.ListField()
+    good_price_hospitals: s.Field = s.ListField()
+    good_review_hospitals: s.Field = s.ListField()

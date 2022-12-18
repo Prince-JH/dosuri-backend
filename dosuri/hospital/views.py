@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.expressions import ArraySubquery
-from django.db.models import OuterRef, Count, Subquery
+from django.db.models import OuterRef, Count, Subquery, Q, F, Avg
 from django.db.models.functions import Coalesce
 from rest_framework.response import Response
 from rest_framework import (
@@ -26,15 +26,7 @@ from dosuri.common import filters as f
 
 class HospitalList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all().prefetch_related('hospital_image').annotate(
-        article_count=Count('article')).annotate(
-        latest_article=Subquery(
-            cmm.Article.objects.filter(article_type=cmc.ARTICLE_REVIEW, hospital=OuterRef('pk')).order_by(
-                '-created_at').values('content')[:1]),
-        latest_article_created_at=Subquery(
-            cmm.Article.objects.filter(article_type=cmc.ARTICLE_REVIEW, hospital=OuterRef('pk')).order_by(
-                '-created_at').values('created_at')[:1])
-    )
+    queryset = m.Hospital.objects.all().prefetch_related('hospital_image').annotate_extra_fields()
     serializer_class = s.Hospital
     filter_backends = [rf.OrderingFilter, rf.SearchFilter, hf.HospitalDistanceOrderingFilter]
     ordering_field = '__all__'
@@ -265,20 +257,74 @@ class HospitalUserAssoc(g.CreateAPIView):
         return Response(status=status.HTTP_201_CREATED, data=serializer.data)
 
 
-'''
-내 주변 TOP 병원 등, drf 오버라이드가 필요한 views
-'''
-
-
 class HomeHospitalList(g.ListAPIView):
+    pagination_class = None
     permission_classes = [p.AllowAny]
     queryset = m.Hospital.objects.all()
     serializer_class = s.HomeHospital
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        serializer = self.serializer_class(queryset, many=True)
-        return Response(data=serializer.data)
+        queryset = self.filter_queryset(self.get_queryset()).prefetch_related('hospital_image')
+
+        address_filtered_queryset = self.get_address_filtered_queryset(request, queryset)
+
+        around_hospital_queryset = self.get_around_hospital_queryset(address_filtered_queryset)
+        around_hospital_serializer = s.AroundHospital(around_hospital_queryset, many=True)
+
+        new_hospital_queryset = self.get_new_hospital_queryset(address_filtered_queryset)
+        new_hospital_serializer = s.AroundHospital(new_hospital_queryset, many=True)
+
+        good_price_hospital_queryset = self.get_good_price_hospital_queryset(address_filtered_queryset)
+        good_price_hospital_serializer = s.AroundHospital(good_price_hospital_queryset, many=True)
+
+        good_review_hospital_queryset = self.get_good_review_hospital_queryset(address_filtered_queryset)
+        good_review_hospital_serializer = s.AroundHospital(good_review_hospital_queryset, many=True)
+
+        serializer = self.get_serializer({'around_hospitals': around_hospital_serializer.data,
+                                          'new_hospitals': new_hospital_serializer.data,
+                                          'good_price_hospitals': good_price_hospital_serializer.data,
+                                          'good_review_hospitals': good_review_hospital_serializer.data})
+        return Response(serializer.data)
+
+    def get_address_filtered_queryset(self, request, queryset):
+        user = request.user
+        if user.is_authenticated:
+            queryset = queryset.filter(hospital_address_assoc__address=user.address)
+        else:
+            queryset = queryset.filter(Q(hospital_address_assoc__address__city='서울특별시'),
+                                       Q(hospital_address_assoc__address__gu='송파구') |
+                                       Q(hospital_address_assoc__address__gu='서초구') |
+                                       Q(hospital_address_assoc__address__gu='강남구')).distinct()
+        return queryset
+
+    def get_around_hospital_queryset(self, queryset):
+        return queryset.annotate_extra_fields().order_by('-up_count')[:3]
+
+    def get_new_hospital_queryset(self, queryset):
+        return queryset.annotate_extra_fields().order_by('-opened_at')[:3]
+
+    def get_good_price_hospital_queryset(self, queryset):
+        count = queryset.count()
+        if count * 0.3 >= 3:
+            count = int(count * 0.3)
+        avg_price_per_hour = queryset.annotate(avg_price_per_hour=Coalesce(Subquery(
+            m.HospitalTreatment.objects.filter(price_per_hour__isnull=False, hospital=OuterRef('pk')).annotate(
+                avg_price_per_hour=Avg('price_per_hour')).values('avg_price_per_hour')[:1]), 0.0))[
+            count - 1].avg_price_per_hour
+
+        print('avg_price_per_hour:',  avg_price_per_hour)
+
+        queryset = queryset.annotate(avg_price_per_hour=Coalesce(Subquery(
+            m.HospitalTreatment.objects.filter(price_per_hour__isnull=False, hospital=OuterRef('pk')).annotate(
+                avg_price_per_hour=Avg('price_per_hour')).values('avg_price_per_hour')[:1]), 0.0))
+        return queryset.annotate_extra_fields().filter(avg_price_per_hour__gte=avg_price_per_hour).order_by('?')[:3]
+
+    def get_good_review_hospital_queryset(self, queryset):
+        count = queryset.count()
+        if count // 2 >= 3:
+            count //= 2
+        article_count = queryset.annotate(article_count=Count('article'))[count - 1].article_count
+        return queryset.annotate_extra_fields().filter(article_count__gte=article_count).order_by('?')[:3]
 
 
 class HospitalSearch(g.ListCreateAPIView):
