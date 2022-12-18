@@ -47,7 +47,6 @@ class HospitalDistanceOrderingFilter(fsc.PageQueryParamFilterSchema, filters.Bas
         return Sqrt((d_lat * d_lat) + (d_long * d_long))
 
     def filter_queryset(self, request, queryset, view, now=None):
-        print(request.META)
         try:
             latitude = float(self.get_latitude_param(request))
             longitude = float(self.get_longitude_param(request))
