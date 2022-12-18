@@ -344,7 +344,7 @@ class GoodReviewHospital(s.ModelSerializer):
 
 
 class HomeHospital(s.Serializer):
-    around_hospitals: s.Field = s.ListField()
+    top_hospitals: s.Field = s.ListField()
     new_hospitals: s.Field = s.ListField()
     good_price_hospitals: s.Field = s.ListField()
     good_review_hospitals: s.Field = s.ListField()
