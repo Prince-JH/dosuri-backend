@@ -28,16 +28,16 @@ def tokens_user_dummy(user_dummy):
 @pytest.fixture
 def address_서울시_강남구():
     return cm.Address.objects.create(
-        large_address='서울',
-        small_address='강남구'
+        large_area='서울',
+        small_area='강남구'
     )
 
 
 @pytest.fixture
 def address_수원시_팔달구():
     return cm.Address.objects.create(
-        large_address='경기',
-        small_address='수원시 팔달구'
+        large_area='경기',
+        small_area='수원시 팔달구'
     )
 
 

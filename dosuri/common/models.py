@@ -10,8 +10,8 @@ def generate_uuid():
 
 class Address(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    large_address = models.CharField(max_length=32, null=True)  # 도명/특별시명
-    small_address = models.CharField(max_length=32, null=True)  # 시/군/구
+    large_area = models.CharField(max_length=32, null=True)  # 도명/특별시명
+    small_area = models.CharField(max_length=32, null=True)  # 시/군/구
     created_at = models.DateTimeField(auto_now_add=True)
 
     objects = cmm.AddressManager()
