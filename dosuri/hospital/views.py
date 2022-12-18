@@ -268,8 +268,8 @@ class HomeHospitalList(g.ListAPIView):
 
         address_filtered_queryset = self.get_address_filtered_queryset(request, queryset)
 
-        around_hospital_queryset = self.get_around_hospital_queryset(address_filtered_queryset)
-        around_hospital_serializer = s.AroundHospital(around_hospital_queryset, many=True)
+        top_hospital_queryset = self.get_top_hospital_queryset(address_filtered_queryset)
+        top_hospital_serializer = s.AroundHospital(top_hospital_queryset, many=True)
 
         new_hospital_queryset = self.get_new_hospital_queryset(address_filtered_queryset)
         new_hospital_serializer = s.AroundHospital(new_hospital_queryset, many=True)
@@ -280,7 +280,7 @@ class HomeHospitalList(g.ListAPIView):
         good_review_hospital_queryset = self.get_good_review_hospital_queryset(address_filtered_queryset)
         good_review_hospital_serializer = s.AroundHospital(good_review_hospital_queryset, many=True)
 
-        serializer = self.get_serializer({'around_hospitals': around_hospital_serializer.data,
+        serializer = self.get_serializer({'top_hospitals': top_hospital_serializer.data,
                                           'new_hospitals': new_hospital_serializer.data,
                                           'good_price_hospitals': good_price_hospital_serializer.data,
                                           'good_review_hospitals': good_review_hospital_serializer.data})
@@ -297,8 +297,9 @@ class HomeHospitalList(g.ListAPIView):
                                        Q(hospital_address_assoc__address__gu='강남구')).distinct()
         return queryset
 
-    def get_around_hospital_queryset(self, queryset):
-        return queryset.annotate_extra_fields().order_by('-up_count')[:3]
+    def get_top_hospital_queryset(self, queryset):
+        queryset = queryset.annotate_extra_fields()
+        return queryset.annotate(top_count=F('up_count') + F('article_count')).order_by('-top_count')[:3]
 
     def get_new_hospital_queryset(self, queryset):
         return queryset.annotate_extra_fields().order_by('-opened_at')[:3]
@@ -312,8 +313,6 @@ class HomeHospitalList(g.ListAPIView):
                 avg_price_per_hour=Avg('price_per_hour')).values('avg_price_per_hour')[:1]), 0.0))[
             count - 1].avg_price_per_hour
 
-        print('avg_price_per_hour:',  avg_price_per_hour)
-
         queryset = queryset.annotate(avg_price_per_hour=Coalesce(Subquery(
             m.HospitalTreatment.objects.filter(price_per_hour__isnull=False, hospital=OuterRef('pk')).annotate(
                 avg_price_per_hour=Avg('price_per_hour')).values('avg_price_per_hour')[:1]), 0.0))
@@ -323,7 +322,7 @@ class HomeHospitalList(g.ListAPIView):
         count = queryset.count()
         if count // 2 >= 3:
             count //= 2
-        article_count = queryset.annotate(article_count=Count('article'))[count - 1].article_count
+        article_count = queryset.annotate_article_count()[count - 1].article_count
         return queryset.annotate_extra_fields().filter(article_count__gte=article_count).order_by('?')[:3]
 
 
