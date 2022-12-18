@@ -111,7 +111,7 @@ class HospitalDetail(s.ModelSerializer):
 
     class Meta:
         model = hm.Hospital
-        exclude = ('id', 'created_at', 'view_count', 'up_count', 'code')
+        exclude = ('id', 'created_at', 'view_count', 'code')
 
 
 class HospitalAddressAssoc(s.ModelSerializer):
