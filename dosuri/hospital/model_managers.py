@@ -1,4 +1,5 @@
 from django.db.models import Manager
+from dosuri.hospital import model_querysets as mqs
 
 
 class HospitalUserAssocManager(Manager):
@@ -8,3 +9,8 @@ class HospitalUserAssocManager(Manager):
             assoc.update(is_up=is_up)
         else:
             self.create(hospital=hospital, user=user, is_up=is_up)
+
+
+class HospitalManager(Manager):
+    def get_queryset(self):
+        return mqs.HospitalQuerySet(self.model, using=self._db)
