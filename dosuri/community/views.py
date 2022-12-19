@@ -16,7 +16,16 @@ from rest_framework.response import Response
 
 
 
-class ArticleList(g.ListCreateAPIView):
+class ArticleList(g.ListAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = m.Article.objects.all()
+    serializer_class = s.GetArticle
+    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
+    uuid_filter_params = ['hospital']
+    ordering_field = '__all__'
+
+
+class CreateArticle(g.CreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.Article.objects.all()
     serializer_class = s.Article
@@ -25,7 +34,6 @@ class ArticleList(g.ListCreateAPIView):
     ordering_field = '__all__'
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-
 
 class ArticleAttachList(g.ListAPIView):
     permission_classes = [p.AllowAny]
