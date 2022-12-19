@@ -1,7 +1,8 @@
 from rest_framework import (
     generics as g,
     filters as rf,
-    permissions as p
+    permissions as p,
+    status,
 )
 
 from dosuri.common import models as cm
@@ -10,6 +11,7 @@ from dosuri.community import (
     serializers as s
 )
 from dosuri.common import filters as f
+from rest_framework.response import Response
 
 
 
@@ -49,13 +51,11 @@ class ArticleKeywordAssocList(g.ListAPIView):
     uuid_filter_params = ['hospital']
     ordering_field = '__all__'
 
-class ArticleDetail(g.ListAPIView):
+class ArticleDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.ArticleDetail.objects.all()
+    queryset = m.Article.objects.all()
     serializer_class = s.ArticleDetail
-    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
-    uuid_filter_params = ['article']
-    ordering_field = '__all__'
+    lookup_field = 'uuid'
 
 class ArticleAuth(g.ListAPIView):
     permission_classes = [p.AllowAny]
@@ -78,3 +78,27 @@ class ArticleAuthDetail(g.RetrieveUpdateDestroyAPIView):
     queryset = m.ArticleAuth.objects.all()
     serializer_class = s.ArticleAuth
     lookup_field = 'uuid'
+
+class ArticleComment(g.CreateAPIView):
+    permission_classes = [p.IsAuthenticated]
+    queryset = m.ArticleComment.objects.all()
+    serializer_class = s.ArticleComment
+    lookup_field = 'uuid'
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user)
+        return Response(status=status.HTTP_201_CREATED, data=serializer.data)
+
+class ArticleThread(g.CreateAPIView):
+    permission_classes = [p.IsAuthenticated]
+    queryset = m.ArticleThread.objects.all()
+    serializer_class = s.ArticleThread
+    lookup_field = 'uuid'
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user)
+        return Response(status=status.HTTP_201_CREATED, data=serializer.data)

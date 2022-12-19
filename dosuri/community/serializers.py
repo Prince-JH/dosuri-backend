@@ -98,12 +98,52 @@ class ArticleDoctorAssoc(s.ModelSerializer):
         model = dosuri.community.models.ArticleDoctorAssoc
         exclude = ('id', 'article')
 
+class ArticleThread(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)  
+    user: s.Field = s.SlugRelatedField(
+        read_only=True,
+        slug_field='uuid',
+        # queryset=um.User.objects.all()
+    )
+    up_count: s.Field = s.IntegerField(default=0, read_only=True)
+    view_count: s.Field = s.IntegerField(default=0, read_only=True)
+    content: s.Field = s.CharField()
+    article_comment: s.Field = s.SlugRelatedField(
+        write_only=True,
+        slug_field='uuid',
+        queryset=comm.ArticleComment.objects.all()
+    )
+
+    class Meta:
+        model = dosuri.community.models.ArticleThread
+        exclude = ('id',)
+
+class ArticleComment(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    user: s.Field = s.SlugRelatedField(
+        read_only=True,
+        slug_field='uuid',
+        # queryset=um.User.objects.all()
+    )
+    up_count: s.Field = s.IntegerField(default=0, read_only=True)
+    view_count: s.Field = s.IntegerField(default=0, read_only=True)
+    content: s.Field = s.CharField()
+    article_thread = ArticleThread(many=True, read_only=True)
+    article: s.Field = s.SlugRelatedField(
+        write_only=True,
+        slug_field='uuid',
+        queryset=comm.Article.objects.all()
+    )
+
+    class Meta:
+        model = dosuri.community.models.ArticleComment
+        exclude = ('id',)
 
 class Article(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     user: s.Field = s.SlugRelatedField(
         read_only=True,
-        slug_field='uuid',
+        slug_field='nickname',
         # queryset=um.User.objects.all()
     )
     article_type: s.Field = s.CharField()
@@ -111,11 +151,11 @@ class Article(s.ModelSerializer):
     view_count: s.Field = s.IntegerField(default=0, read_only=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
     hospital: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
+        slug_field='name',
         queryset=hm.Hospital.objects.all()
     )
     content: s.Field = s.CharField(read_only=False)
-    article_attach = ArticleAttach(many=True, write_only=True, required=False)
+    article_attach = ArticleAttach(many=True, required=False)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
     article_detail = ArticleDetail(many=False, write_only=True, required=False)
     article_auth = ArticleAuth(many=False, write_only=True, required=False)
@@ -178,3 +218,29 @@ class Article(s.ModelSerializer):
         return article
 
 
+class ArticleDetail(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    user: s.Field = s.SlugRelatedField(
+        read_only=True,
+        slug_field='nickname',
+        # queryset=um.User.objects.all()
+    )
+    article_type: s.Field = s.CharField()
+    up_count: s.Field = s.IntegerField(default=0, read_only=True)
+    view_count: s.Field = s.IntegerField(default=0, read_only=True)
+    created_at: s.Field = s.DateTimeField(read_only=True)
+    hospital: s.Field = s.SlugRelatedField(
+        slug_field='name',
+        queryset=hm.Hospital.objects.all()
+    )
+    content: s.Field = s.CharField(read_only=False)
+    article_attach = ArticleAttach(many=True, required=False)
+    article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
+    article_detail = ArticleDetail(many=False, write_only=True, required=False)
+    article_auth = ArticleAuth(many=False, write_only=True, required=False)
+    article_doctor_assoc = ArticleDoctorAssoc(many=True, write_only=True, required=False)
+    article_comment = ArticleComment(many=True, read_only=True)
+
+    class Meta:
+        model = dosuri.community.models.Article
+        exclude = ('id', 'status')
