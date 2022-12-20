@@ -38,7 +38,8 @@ class HospitalList(g.ListCreateAPIView):
 
 class HospitalDetail(g.CreateAPIView, g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all().prefetch_related('hospital_keyword_assoc', 'hospital_keyword_assoc__keyword')
+    queryset = m.Hospital.objects.all().prefetch_related('hospital_keyword_assoc', 'hospital_keyword_assoc__keyword',
+                                                         'hospital_image')
     serializer_class = s.HospitalDetail
     lookup_field = 'uuid'
 
