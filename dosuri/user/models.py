@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -28,9 +29,15 @@ class User(AbstractUser):
 
 class InsuranceLog(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    user_id = models.CharField(max_length=16)
+    user_id = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='insurance_log')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'insurance_log'
         ordering = ['-id']
+
+
+class PainArea(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    name = models.CharField(max_length=64)
+    created_at = models.DateTimeField(auto_now_add=True)
