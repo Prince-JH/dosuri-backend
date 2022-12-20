@@ -48,3 +48,17 @@ class TestKaKaoAuth:
 
         assert response.status_code == 201
         assert content['is_new'] is False
+
+
+class TestUserNickname:
+    @pytest.mark.django_db
+    def test_not_duplicated_nickname(self, client):
+        response = client.get('/user/v1/users/nickname?nickname=dummy')
+
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_duplicated_nickname(self, client, user_dummy):
+        response = client.get('/user/v1/users/nickname?nickname=dummy')
+
+        assert response.status_code == 409

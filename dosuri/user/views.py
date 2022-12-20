@@ -1,14 +1,16 @@
+from django.contrib.auth import get_user_model
 from rest_framework import (
     generics as g,
     filters as rf,
-    permissions as p
+    permissions as p, status
 )
 from rest_framework.response import Response
 
 from dosuri.user import (
     models as um,
     serializers as s,
-    auth as a
+    auth as a,
+    exceptions as uexc,
 )
 
 
@@ -29,10 +31,23 @@ class SuperUserAuth(g.RetrieveAPIView):
 
 class UserList(g.CreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = um.User.objects.all()
+    queryset = get_user_model().objects.all()
     serializer_class = s.User
     filter_backends = [rf.OrderingFilter]
     ordering_field = '__all__'
+
+
+class UserNickname(g.RetrieveAPIView):
+    permission_classes = [p.AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        nickname = request.GET.get('nickname')
+        qs = get_user_model().objects.filter(nickname=nickname)
+        if qs.exists():
+            raise uexc.NicknameDuplicated()
+        else:
+            return Response(status=status.HTTP_200_OK)
+
 
 
 class UserDetail(g.RetrieveUpdateDestroyAPIView):
