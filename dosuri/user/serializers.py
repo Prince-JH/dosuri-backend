@@ -1,4 +1,5 @@
 from django.apps import apps
+from django.contrib.auth import get_user_model
 
 from rest_framework import serializers as s
 
@@ -8,7 +9,10 @@ from dosuri.user import (
     models as um,
     constants as c
 )
-from dosuri.common import models as cm
+from dosuri.common import (
+    models as cm,
+    serializers as cs
+)
 import requests
 
 
@@ -45,14 +49,84 @@ class Auth(s.Serializer):
         return validated_data
 
 
-class User(s.Serializer):
+class AddressUserAssoc(s.ModelSerializer):
+    address: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=cm.Address.objects.all(),
+        write_only=True
+    )
+    user: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=get_user_model().objects.all(),
+        write_only=True
+    )
+    large_area: s.Field = s.CharField(source='address.large_area')
+    small_area: s.Field = s.CharField(source='address.small_area')
+
+    class Meta:
+        model = um.AddressUserAssoc
+        exclude = ('id', 'created_at', 'uuid')
+
+
+class PainAreaUserAssoc(s.ModelSerializer):
+    name: s.Field = s.CharField(source='pain_area.name')
+
+    class Meta:
+        model = um.PainAreaUserAssoc
+        exclude = ('id', 'pain_area', 'user', 'created_at', 'uuid')
+
+
+class User(s.ModelSerializer):
+    uuid: s.Field = s.CharField(write_only=True)
     username: s.Field = s.CharField(read_only=True)
-    nickname: s.Field = s.CharField(read_only=True)
-    address_uuid: s.Field = s.SerializerMethodField('get_address_uuid')
-    birthday: s.Field = s.DateTimeField(read_only=True)
-    sex: s.Field = s.CharField(read_only=True)
+    nickname: s.Field = s.CharField()
+    address: s.Field = cs.ReadWriteSerializerMethodField()
+    birthday: s.Field = s.DateTimeField()
+    sex: s.Field = s.CharField()
+    pain_areas: s.Field = PainAreaUserAssoc(many=True, source='pain_area_user_assoc')
     is_real: s.Field = s.BooleanField(read_only=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
 
-    def get_address_uuid(self, obj):
-        return cm.Address.objects.get_uuid_by_id(obj.address_id)
+    class Meta:
+        model = get_user_model()
+        fields = ('uuid', 'username', 'nickname', 'birthday', 'address', 'sex', 'is_real', 'pain_areas', 'created_at')
+
+    def get_address(self, obj):
+        qs = cm.Address.objects.filter(address_user_assoc__user=obj)
+        if qs.exists():
+            return {
+                'large_area': qs.first().large_area,
+                'small_area': qs.first().small_area
+            }
+        return {}
+
+    def create(self, validated_data):
+        model = self.Meta.model
+        user = model.objects.get(uuid=validated_data['uuid'])
+        user.nickname = validated_data['nickname']
+        user.birthday = validated_data['birthday']
+        user.sex = validated_data['sex']
+        self.save_address(user, validated_data['address'])
+        self.save_address(user, validated_data['pain_area_user_assoc'])
+
+        return user
+
+    def save_address(self, user, address):
+        address_user_assoc_qs = um.AddressUserAssoc.objects.filter(user=user)
+        if not address_user_assoc_qs.exists():
+            address_qs = cm.Address.objects.filter(large_area=address['large_area'],
+                                                   small_area=address['small_area'])
+            if not address_qs.exists():
+                created_address = cm.Address.objects.create(large_area=address['large_area'],
+                                                            small_area=address['small_area'])
+            um.AddressUserAssoc.objects.create(user=user,
+                                               address=created_address)
+
+    def save_pain_areas(self, user, pain_area_user_assoc):
+        for area in pain_area_user_assoc:
+            try:
+                pain_area = um.PainArea.objects.get(name=area['pain_area']['name'])
+                um.PainAreaUserAssoc.objects.create(user=user,
+                                                    pain_area=pain_area)
+            except um.PainArea.DoesNotExist:
+                pass
