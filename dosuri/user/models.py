@@ -29,7 +29,7 @@ class User(AbstractUser):
 
 class InsuranceLog(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    user_id = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='insurance_log')
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='insurance_log')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -45,3 +45,10 @@ class PainArea(models.Model):
     class Meta:
         db_table = 'pain_area'
         ordering = ['-id']
+
+
+class PainAreaUserAssoc(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    pain_area = models.ForeignKey(PainArea, on_delete=models.CASCADE, related_name='pain_area_user_assoc')
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='pain_area_user_assoc')
+    created_at = models.DateTimeField(auto_now_add=True)
