@@ -23,7 +23,7 @@ def backward(app, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('maf_core', '0043_painarea_alter_insurancelog_user_id'),
+        ('dosuri', '0043_painarea_alter_insurancelog_user_id'),
     ]
 
     operations = [
