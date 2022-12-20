@@ -52,3 +52,7 @@ class PainAreaUserAssoc(models.Model):
     pain_area = models.ForeignKey(PainArea, on_delete=models.CASCADE, related_name='pain_area_user_assoc')
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='pain_area_user_assoc')
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'pain_area_user_assoc'
+        ordering = ['-id']
