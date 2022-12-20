@@ -41,3 +41,7 @@ class PainArea(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     name = models.CharField(max_length=64)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'pain_area'
+        ordering = ['-id']
