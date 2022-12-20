@@ -1,7 +1,7 @@
 from uuid import uuid4
 
 from django.contrib.auth import get_user_model
-from django.db import models
+from django.db import models, transaction
 
 from dosuri.common import models as cm
 from dosuri.user import models as um
@@ -34,8 +34,9 @@ class Hospital(models.Model):
         ordering = ['-id']
 
     def increase_view_count(self):
-        self.view_count += 1
-        self.save()
+        with transaction.atomic():
+            self.view_count += 1
+            self.save()
 
 
 class HospitalImage(models.Model):
