@@ -3,6 +3,16 @@ from rest_framework import serializers as s
 from dosuri.common import models as cm
 
 
+class ReadWriteSerializerMethodField(s.SerializerMethodField):
+    def __init__(self, method_name=None, **kwargs):
+        self.method_name = method_name
+        kwargs['source'] = '*'
+        super(s.SerializerMethodField, self).__init__(**kwargs)
+
+    def to_internal_value(self, data):
+        return {self.field_name: data}
+
+
 class Address(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     large_area: s.Field = s.CharField(allow_null=True)
