@@ -83,10 +83,6 @@ class HospitalKeywordAssoc(s.ModelSerializer):
         queryset=hm.Hospital.objects.all(),
         write_only=True
     )
-    # keyword: s.Field = s.SlugRelatedField(
-    #     slug_field='uuid',
-    #     queryset=hm.HospitalKeyword.objects.all()
-    # )
     keyword: s.Field = s.CharField(source='keyword.name')
 
     class Meta:
@@ -179,7 +175,6 @@ class Doctor(s.ModelSerializer):
     subtitle: s.Field = s.CharField(allow_null=True)
     position: s.Field = s.CharField(allow_null=True)
     descriptions: s.Field = DoctorDescription(many=True, source='doctor_detail')
-    # keywords: s.Field = s.ListField(read_only=True)
     keywords: s.Field = DoctorKeywordAssoc(many=True, source='doctor_keyword_assoc')
 
     class Meta:
