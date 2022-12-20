@@ -27,6 +27,7 @@ class User(AbstractUser):
     class Meta:
         db_table = 'user'
         app_label = 'dosuri'
+        ordering = ['-id']
 
 
 class InsuranceLog(models.Model):
