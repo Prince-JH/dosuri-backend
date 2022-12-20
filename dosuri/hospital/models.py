@@ -33,6 +33,10 @@ class Hospital(models.Model):
         db_table = 'hospital'
         ordering = ['-id']
 
+    def increase_view_count(self):
+        self.view_count += 1
+        self.save()
+
 
 class HospitalImage(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)

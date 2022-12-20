@@ -36,7 +36,7 @@ class HospitalList(g.ListCreateAPIView):
     hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
 
 
-class HospitalDetail(g.RetrieveUpdateDestroyAPIView):
+class HospitalDetail(g.CreateAPIView, g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.Hospital.objects.all().prefetch_related('hospital_keyword_assoc', 'hospital_keyword_assoc__keyword')
     serializer_class = s.HospitalDetail
@@ -53,6 +53,12 @@ class HospitalDetail(g.RetrieveUpdateDestroyAPIView):
                 m.HospitalUserAssoc.objects.filter(user=user, hospital=OuterRef('pk')).values('is_up')[:1]
             ), False)
         )
+
+    def create(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.increase_view_count()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
 
 class HospitalCalendarList(g.ListCreateAPIView):
