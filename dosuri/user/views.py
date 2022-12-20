@@ -27,7 +27,7 @@ class SuperUserAuth(g.RetrieveAPIView):
         return Response(tokens)
 
 
-class UserList(g.ListAPIView):
+class UserList(g.CreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = um.User.objects.all()
     serializer_class = s.User
