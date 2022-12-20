@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from dosuri.user import model_managers as umm
+from dosuri.common import models as cm
 
 
 def generate_uuid():
@@ -17,6 +18,7 @@ class User(AbstractUser):
     address_id = models.CharField(max_length=16, default='', blank=True)
     birthday = models.DateTimeField(null=True)
     sex = models.CharField(max_length=16, default='', blank=True)
+    phone_no = models.CharField(max_length=32, default='', blank=True)
     is_real = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -44,6 +46,17 @@ class PainArea(models.Model):
 
     class Meta:
         db_table = 'pain_area'
+        ordering = ['-id']
+
+
+class AddressUserAssoc(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    address = models.ForeignKey(cm.Address, on_delete=models.CASCADE, related_name='address_user_assoc')
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='address_user_assoc')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'address_user_assoc'
         ordering = ['-id']
 
 
