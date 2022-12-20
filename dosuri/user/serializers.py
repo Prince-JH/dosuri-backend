@@ -109,6 +109,7 @@ class User(s.ModelSerializer):
         self.save_address(user, validated_data['address'])
         self.save_address(user, validated_data['pain_area_user_assoc'])
 
+        user.save()
         return user
 
     def save_address(self, user, address):
