@@ -80,6 +80,7 @@ class User(s.ModelSerializer):
     uuid: s.Field = s.CharField(write_only=True)
     username: s.Field = s.CharField(read_only=True)
     nickname: s.Field = s.CharField()
+    phone_no: s.Field = s.CharField()
     address: s.Field = cs.ReadWriteSerializerMethodField()
     birthday: s.Field = s.DateTimeField()
     sex: s.Field = s.CharField()
@@ -89,7 +90,8 @@ class User(s.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ('uuid', 'username', 'nickname', 'birthday', 'address', 'sex', 'is_real', 'pain_areas', 'created_at')
+        fields = ('uuid', 'username', 'nickname', 'birthday', 'phone_no',
+                  'address', 'sex', 'is_real', 'pain_areas', 'created_at')
 
     def get_address(self, obj):
         qs = cm.Address.objects.filter(address_user_assoc__user=obj)
@@ -105,6 +107,7 @@ class User(s.ModelSerializer):
         user = model.objects.get(uuid=validated_data['uuid'])
         user.nickname = validated_data['nickname']
         user.birthday = validated_data['birthday']
+        user.phone_no = validated_data['phone_no']
         user.sex = validated_data['sex']
         self.save_address(user, validated_data['address'])
         self.save_address(user, validated_data['pain_area_user_assoc'])
