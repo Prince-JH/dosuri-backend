@@ -2,12 +2,14 @@ from rest_framework import serializers as s
 
 from dosuri.hospital import (
     models as hm,
-    model_managers as hmm
+    model_managers as hmm,
+    serializer_schemas as sch
 )
 from dosuri.common import models as cm
 from dosuri.community import (
     models as cmm,
 )
+from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
 
 
 class HospitalImage(s.ModelSerializer):
@@ -339,6 +341,7 @@ class GoodReviewHospital(s.ModelSerializer):
         exclude = ('id', 'created_at', 'code')
 
 
+@extend_schema_serializer(examples=sch.HOME_HOSPITAL_EXAMPLE)
 class HomeHospital(s.Serializer):
     top_hospitals: s.Field = s.ListField()
     new_hospitals: s.Field = s.ListField()
