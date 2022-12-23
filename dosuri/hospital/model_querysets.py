@@ -54,3 +54,7 @@ class HospitalQuerySet(QuerySet):
                 Article.objects.filter(article_type=cmc.ARTICLE_REVIEW, hospital=OuterRef('pk')).order_by(
                     '-created_at').values('created_at')[:1])
         )
+
+    def get_default_address_filtered_qs(self):
+        return self.filter(hospital_address_assoc__address__large_area='서울',
+                           hospital_address_assoc__address__small_area__in=['송파구', '서초구', '강남구']).distinct()
