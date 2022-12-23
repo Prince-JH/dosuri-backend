@@ -12,28 +12,36 @@ from dosuri.community import (
 )
 from dosuri.common import filters as f
 from rest_framework.response import Response
+from django.db.models import Count
 
 
 
-
-class ArticleList(g.ListAPIView):
+class ArticleList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Article.objects.all()
-    serializer_class = s.GetArticle
-    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
-    uuid_filter_params = ['hospital']
-    ordering_field = '__all__'
-
-
-class CreateArticle(g.CreateAPIView):
-    permission_classes = [p.AllowAny]
-    queryset = m.Article.objects.all()
+    queryset = m.Article.objects.all().annotate(comment_count=Count('article_comment'))
     serializer_class = s.Article
+    read_serializer_class = s.GetArticle
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
     uuid_filter_params = ['hospital']
     ordering_field = '__all__'
+    def get_serializer_class(self):
+        if self.request.method.lower() == "get":
+            return self.read_serializer_class
+
+        return self.serializer_class
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+# class CreateArticle(g.CreateAPIView):
+#     permission_classes = [p.AllowAny]
+#     queryset = m.Article.objects.all()
+#     serializer_class = s.Article
+#     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
+#     uuid_filter_params = ['hospital']
+#     ordering_field = '__all__'
+#     def perform_create(self, serializer):
+#         serializer.save(user=self.request.user)
 
 class ArticleAttachList(g.ListAPIView):
     permission_classes = [p.AllowAny]
@@ -59,7 +67,7 @@ class ArticleKeywordAssocList(g.ListAPIView):
     uuid_filter_params = ['hospital']
     ordering_field = '__all__'
 
-class ArticleDetail(g.RetrieveUpdateDestroyAPIView):
+class ArticleDetail(g.RetrieveAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.Article.objects.all()
     serializer_class = s.ArticleDetail

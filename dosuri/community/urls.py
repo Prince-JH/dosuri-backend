@@ -6,7 +6,7 @@ from dosuri.community import views as v
 urlpatterns = [
 
     path('v1/community/articles', v.ArticleList.as_view(), name='article'),
-    path('v1/community/articles', v.CreateArticle.as_view(), name='article'),
+    # path('v1/community/articles', v.CreateArticle.as_view(), name='article'),
     path('v1/community/articles/<uuid>', v.ArticleDetail.as_view(), name='article-detail'),
     # path('v1/community/article-attaches', v.ArticleAttachList.as_view(), name='article-attach'),
     # path('v1/community/article-detail', v.ArticleDetail.as_view(), name='article-detail'),

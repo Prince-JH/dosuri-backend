@@ -9,6 +9,13 @@ from dosuri.user import models as um
 from django.db import transaction
 
 
+class User(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    nickname: s.Field = s.CharField(read_only=True)
+    class Meta:
+        model = dosuri.user.models.User
+        fields = ['uuid', 'nickname']
+
 class AuthAttach(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     path: s.Field = s.CharField()
@@ -70,7 +77,7 @@ class ArticleKeywordAssoc(s.ModelSerializer):
         exclude = ('id', 'article')
 
 
-class ArticleDetail(s.ModelSerializer):
+class ArticleDetailSer(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     treatment_effect: s.Field = s.IntegerField(default=0)
     doctor_kindness: s.Field = s.IntegerField(default=0)
@@ -100,11 +107,7 @@ class ArticleDoctorAssoc(s.ModelSerializer):
 
 class ArticleThread(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)  
-    user: s.Field = s.SlugRelatedField(
-        read_only=True,
-        slug_field='uuid',
-        # queryset=um.User.objects.all()
-    )
+    user = User(read_only=True)
     up_count: s.Field = s.IntegerField(default=0, read_only=True)
     view_count: s.Field = s.IntegerField(default=0, read_only=True)
     content: s.Field = s.CharField()
@@ -120,11 +123,7 @@ class ArticleThread(s.ModelSerializer):
 
 class ArticleComment(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    user: s.Field = s.SlugRelatedField(
-        read_only=True,
-        slug_field='uuid',
-        # queryset=um.User.objects.all()
-    )
+    user = User(read_only=True)
     up_count: s.Field = s.IntegerField(default=0, read_only=True)
     view_count: s.Field = s.IntegerField(default=0, read_only=True)
     content: s.Field = s.CharField()
@@ -141,11 +140,7 @@ class ArticleComment(s.ModelSerializer):
 
 class Article(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    user: s.Field = s.SlugRelatedField(
-        read_only=True,
-        slug_field='nickname',
-        # queryset=um.User.objects.all()
-    )
+    user = User(read_only=True)
     article_type: s.Field = s.CharField()
     up_count: s.Field = s.IntegerField(default=0, read_only=True)
     view_count: s.Field = s.IntegerField(default=0, read_only=True)
@@ -158,7 +153,7 @@ class Article(s.ModelSerializer):
     content: s.Field = s.CharField(read_only=False)
     article_attach = ArticleAttach(many=True, required=False)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
-    article_detail = ArticleDetail(many=False, write_only=True, required=False)
+    article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
     article_auth = ArticleAuth(many=False, write_only=True, required=False)
     article_doctor_assoc = ArticleDoctorAssoc(many=True, write_only=True, required=False)
 
@@ -220,11 +215,8 @@ class Article(s.ModelSerializer):
 
 class GetArticle(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    user: s.Field = s.SlugRelatedField(
-        read_only=True,
-        slug_field='nickname',
-        # queryset=um.User.objects.all()
-    )
+    user = User(read_only=True)
+    comment_count: s.Field = s.IntegerField(default=0, read_only=True)
     article_type: s.Field = s.CharField()
     up_count: s.Field = s.IntegerField(default=0, read_only=True)
     view_count: s.Field = s.IntegerField(default=0, read_only=True)
@@ -237,7 +229,7 @@ class GetArticle(s.ModelSerializer):
     content: s.Field = s.CharField(read_only=False)
     article_attach = ArticleAttach(many=True, required=False)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
-    article_detail = ArticleDetail(many=False, write_only=True, required=False)
+    article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
     article_auth = ArticleAuth(many=False, write_only=True, required=False)
     article_doctor_assoc = ArticleDoctorAssoc(many=True, write_only=True, required=False)
 
@@ -247,11 +239,7 @@ class GetArticle(s.ModelSerializer):
 
 class ArticleDetail(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    user: s.Field = s.SlugRelatedField(
-        read_only=True,
-        slug_field='nickname',
-        # queryset=um.User.objects.all()
-    )
+    user = User(read_only=True)
     article_type: s.Field = s.CharField()
     up_count: s.Field = s.IntegerField(default=0, read_only=True)
     view_count: s.Field = s.IntegerField(default=0, read_only=True)
@@ -263,7 +251,7 @@ class ArticleDetail(s.ModelSerializer):
     content: s.Field = s.CharField(read_only=False)
     article_attach = ArticleAttach(many=True, required=False)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
-    article_detail = ArticleDetail(many=False, write_only=True, required=False)
+    article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
     article_auth = ArticleAuth(many=False, write_only=True, required=False)
     article_doctor_assoc = ArticleDoctorAssoc(many=True, write_only=True, required=False)
     article_comment = ArticleComment(many=True, read_only=True)
