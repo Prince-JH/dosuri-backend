@@ -13,8 +13,14 @@ from dosuri.community import (
 from dosuri.common import filters as f
 from rest_framework.response import Response
 from django.db.models import Count
+from datetime import datetime, timedelta
 
-
+class HotArticleList(g.ListAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = m.Article.objects.filter(created_at__gte=datetime.now()-timedelta(days=7)).annotate(comment_count=Count('article_comment')).order_by('-comment_count')[:3]
+    serializer_class = s.GetArticle
+    filter_backends = []
+    ordering_field = '__all__'
 
 class ArticleList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
