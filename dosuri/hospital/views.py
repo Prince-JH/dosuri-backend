@@ -229,6 +229,7 @@ class HospitalTreatmentList(g.ListCreateAPIView):
     serializer_class = s.HospitalTreatment
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
     ordering_field = '__all__'
+    ordering = ['price', 'price_per_hour', 'name']
     uuid_filter_params = ['hospital']
 
     def list(self, request, *args, **kwargs):
