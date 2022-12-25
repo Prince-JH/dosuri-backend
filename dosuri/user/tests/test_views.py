@@ -36,7 +36,8 @@ class TestKaKaoAuth:
 
     @pytest.mark.django_db
     @requests_mock.Mocker(kw='mock')
-    def test_auth_old_user_should_return_tokens_with_false_is_new(self, client, user_dummy, **kwargs):
+    def test_auth_old_user_should_return_tokens_with_false_is_new(self, client, user_dummy, assoc_address_수원_user_dummy,
+                                                                  **kwargs):
         kwargs['mock'].post(f'https://kauth.kakao.com/oauth/token', json=mo.access_token_data)
         kwargs['mock'].get(f'https://kapi.kakao.com/v2/user/me', json=mo.user_info_data)
         data = {
