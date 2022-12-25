@@ -1,5 +1,6 @@
 from django.apps import apps
 from django.contrib.auth import get_user_model
+from drf_spectacular.utils import extend_schema_serializer
 
 from rest_framework import serializers as s
 
@@ -7,7 +8,8 @@ from dosuri.user import (
     auth as a,
     views as v,
     models as um,
-    constants as c
+    constants as c,
+    serializer_schemas as sch
 )
 from dosuri.common import (
     models as cm,
@@ -76,6 +78,7 @@ class PainAreaUserAssoc(s.ModelSerializer):
         exclude = ('id', 'pain_area', 'user', 'created_at', 'uuid')
 
 
+@extend_schema_serializer(examples=sch.USER_DETAIL_EXAMPLE)
 class User(s.ModelSerializer):
     uuid: s.Field = s.CharField(write_only=True)
     username: s.Field = s.CharField(read_only=True)
