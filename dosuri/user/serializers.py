@@ -113,7 +113,7 @@ class User(s.ModelSerializer):
         user.phone_no = validated_data['phone_no']
         user.sex = validated_data['sex']
         self.save_address(user, validated_data['address'])
-        self.save_address(user, validated_data['pain_area_user_assoc'])
+        self.save_pain_areas(user, validated_data['pain_area_user_assoc'])
 
         user.save()
         return user
@@ -124,10 +124,11 @@ class User(s.ModelSerializer):
             address_qs = cm.Address.objects.filter(large_area=address['large_area'],
                                                    small_area=address['small_area'])
             if not address_qs.exists():
-                created_address = cm.Address.objects.create(large_area=address['large_area'],
-                                                            small_area=address['small_area'])
-            um.AddressUserAssoc.objects.create(user=user,
-                                               address=created_address)
+                address = cm.Address.objects.create(large_area=address['large_area'],
+                                                    small_area=address['small_area'])
+            else:
+                address = address_qs.first()
+            um.AddressUserAssoc.objects.create(user=user, address=address)
 
     def save_pain_areas(self, user, pain_area_user_assoc):
         for area in pain_area_user_assoc:
