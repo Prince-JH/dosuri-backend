@@ -72,7 +72,7 @@ class TestInsuranceUserAssoc:
             'content_type': 'application/json'
         }
         data = {
-            'insurance': insurance_A.uuid,
+            'insurance': insurance_A.pk,
             'user': user_dummy.uuid
         }
         response = client.post('/user/v1/insurance-user-assocs', data=data, **headers)
