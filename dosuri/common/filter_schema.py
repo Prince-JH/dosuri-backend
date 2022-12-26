@@ -100,3 +100,30 @@ class UuidSetFilter:
                 }
             }
         ]
+
+class ArticleTypeFilter:
+    def get_schema_fields(self, view):
+        return [
+            coreapi.Field(
+                name='article_type', location='query', required=False,
+                schema=coreschema.String(title=f'article_type',
+                                         description='article_type to query.<br>' \
+                                                     '<code>/?article_type=review</code> would return review articles.<br>' \
+                                                     '<code>/?article_type=question</code> would return question articles.<br>')
+            )
+        ]
+
+    def get_schema_operation_parameters(self, view):
+        return [
+            {
+                'name': 'article_type',
+                'in': 'query',
+                'required': False,
+                'description': 'article_type to query.<br>' \
+                               '<code>/?article_type=review</code> would return review articles.<br>' \
+                               '<code>/?article_type=question</code> would return question articles.<br>',
+                'schema': {
+                    'type': 'string',
+                }
+            }
+        ]
