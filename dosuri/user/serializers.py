@@ -143,13 +143,11 @@ class InsuranceUserAssoc(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     insurance: s.Field = s.SlugRelatedField(
         slug_field='uuid',
-        queryset=um.Insurance.objects.all(),
-        write_only=True
-    ),
+        queryset=um.Insurance.objects.all()
+    )
     user: s.Field = s.SlugRelatedField(
         slug_field='uuid',
-        queryset=get_user_model().objects.all(),
-        write_only=True
+        queryset=get_user_model().objects.all()
     )
 
     class Meta:
