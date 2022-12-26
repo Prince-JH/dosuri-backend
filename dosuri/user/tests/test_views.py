@@ -63,3 +63,18 @@ class TestUserNickname:
         response = client.get('/user/v1/users/nickname?nickname=dummy')
 
         assert response.status_code == 409
+
+
+class TestInsuranceUserAssoc:
+    @pytest.mark.django_db
+    def test_create(self, client, user_dummy, insurance_A):
+        headers = {
+            'content_type': 'application/json'
+        }
+        data = {
+            'insurance': insurance_A.uuid,
+            'user': user_dummy.uuid
+        }
+        response = client.post('/user/v1/insurance-user-assocs', data=data, **headers)
+
+        assert response.status_code == 201

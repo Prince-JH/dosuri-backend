@@ -293,3 +293,10 @@ def hospital_search_B_user_dummy(user_dummy):
         user=user_dummy,
         word='B'
     )
+
+
+@pytest.fixture
+def insurance_A():
+    return um.Insurance.objects.create(
+        name='A'
+    )

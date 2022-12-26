@@ -137,3 +137,21 @@ class User(s.ModelSerializer):
                                                     pain_area=pain_area)
             except um.PainArea.DoesNotExist:
                 pass
+
+
+class InsuranceUserAssoc(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    insurance: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=um.Insurance.objects.all(),
+        write_only=True
+    ),
+    user: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=get_user_model().objects.all(),
+        write_only=True
+    )
+
+    class Meta:
+        model = um.InsuranceUserAssoc
+        exclude = ('id', 'created_at')

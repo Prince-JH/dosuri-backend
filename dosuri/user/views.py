@@ -58,13 +58,20 @@ class UserNickname(g.RetrieveAPIView):
             return Response(data={}, status=status.HTTP_200_OK)
 
 
-
 class UserDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.IsAuthenticated]
-    queryset = um.User.objects.all()
+    queryset = get_user_model().objects.all()
     serializer_class = s.User
 
     def retrieve(self, request, *args, **kwargs):
         instance = request.user
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+
+class InsuranceUserAssocList(g.CreateAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = um.InsuranceUserAssoc.objects.all()
+    serializer_class = s.InsuranceUserAssoc
+    filter_backends = [rf.OrderingFilter]
+    ordering_field = '__all__'
