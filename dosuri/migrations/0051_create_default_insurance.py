@@ -19,7 +19,7 @@ def backward(app, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('dosuri', '0049_alter_user_options_remove_user_address_id'),
+        ('dosuri', '0050_insurance_insuranceuserassoc_delete_insurancelog'),
     ]
 
     operations = [
