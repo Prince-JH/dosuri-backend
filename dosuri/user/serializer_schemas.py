@@ -23,7 +23,6 @@ USER_DETAIL_EXAMPLE = [
                     "name": "그 외"
                 }
             ]
-        },
-        request_only=True,  # signal that example only applies to requests
+        }
     ),
 ]
