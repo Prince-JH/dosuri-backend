@@ -1,10 +1,7 @@
-import base64
-
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.expressions import ArraySubquery
 from django.db.models import OuterRef, Count, Subquery, Q, F, Avg
 from django.db.models.functions import Coalesce
-from requests_toolbelt.multipart import decoder
 from rest_framework.response import Response
 from rest_framework import (
     generics as g,
@@ -368,14 +365,3 @@ class HospitalSearchDetail(g.RetrieveUpdateDestroyAPIView):
     queryset = m.HospitalSearch.objects.all()
     serializer_class = s.HospitalSearch
     lookup_field = 'uuid'
-
-
-class TempAPI(g.RetrieveAPIView):
-    permission_classes = [p.AllowAny]
-
-    def retrieve(self, request, *args, **kwargs):
-        data = request.data
-        from django.core.files.uploadedfile import InMemoryUploadedFile
-        for key, value in data.items():
-            print('key:', key, 'value:', value, 'type:', value.content_type)
-        # decode = decoder.MultipartDecoder(body, content_type)
