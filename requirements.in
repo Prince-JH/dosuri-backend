@@ -9,3 +9,5 @@ pytest-django
 drf-social-oauth2
 requests-mock
 django-cors-headers
+boto3
+requests_toolbelt
