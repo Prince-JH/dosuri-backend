@@ -26,7 +26,6 @@ class HotArticleList(g.ListAPIView):
         now = datetime.now()
         date_format = "%Y-%m-%dT%H:%M:%S.%fZ"
         for item in response.data['results']:
-            print(item['created_at'])
             created_at = datetime.strptime(item['created_at'], date_format)
             total_seconds = (now-created_at).total_seconds()
             if total_seconds < 60:
