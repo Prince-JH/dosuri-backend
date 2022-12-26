@@ -38,7 +38,6 @@ class HotArticleList(g.ListAPIView):
             elif (total_seconds/3600)/24 < 30:
                 item['created_at'] = str(int((total_seconds/3600)/24))+ '일 전'
             elif ((total_seconds/3600)/24)/30 < 12:
-                print(total_seconds/86400)
                 item['created_at'] = str(int(((total_seconds/3600)/24)/30))+ '개월 전'
             else:
                 item['created_at'] = str(int((((total_seconds/3600)/24)/30)/12))+ '년 전'
@@ -75,7 +74,6 @@ class ArticleList(g.ListCreateAPIView):
             elif (total_seconds/3600)/24 < 30:
                 item['created_at'] = str(int((total_seconds/3600)/24))+ '일 전'
             elif ((total_seconds/3600)/24)/30 < 12:
-                print(total_seconds/86400)
                 item['created_at'] = str(int(((total_seconds/3600)/24)/30))+ '개월 전'
             else:
                 item['created_at'] = str(int((((total_seconds/3600)/24)/30)/12))+ '년 전'
