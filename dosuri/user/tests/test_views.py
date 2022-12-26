@@ -36,7 +36,8 @@ class TestKaKaoAuth:
 
     @pytest.mark.django_db
     @requests_mock.Mocker(kw='mock')
-    def test_auth_old_user_should_return_tokens_with_false_is_new(self, client, user_dummy, **kwargs):
+    def test_auth_old_user_should_return_tokens_with_false_is_new(self, client, user_dummy, assoc_address_수원_user_dummy,
+                                                                  **kwargs):
         kwargs['mock'].post(f'https://kauth.kakao.com/oauth/token', json=mo.access_token_data)
         kwargs['mock'].get(f'https://kapi.kakao.com/v2/user/me', json=mo.user_info_data)
         data = {
@@ -62,3 +63,18 @@ class TestUserNickname:
         response = client.get('/user/v1/users/nickname?nickname=dummy')
 
         assert response.status_code == 409
+
+
+class TestInsuranceUserAssoc:
+    @pytest.mark.django_db
+    def test_create(self, client, user_dummy, insurance_A):
+        headers = {
+            'content_type': 'application/json'
+        }
+        data = {
+            'insurance': insurance_A.pk,
+            'user': user_dummy.uuid
+        }
+        response = client.post('/user/v1/insurance-user-assocs', data=data, **headers)
+
+        assert response.status_code == 201

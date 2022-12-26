@@ -6,7 +6,8 @@ class DosuriUserManager(UserManager):
     def get_or_create_user(self, username):
         try:
             user = self.get(username=username)
-            is_new = False
+            qs = um.AddressUserAssoc.objects.filter(user=user)
+            is_new = False if qs.exists() else True
         except um.User.DoesNotExist:
             user = self.create_user(username=username)
             is_new = True

@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.auth import get_user_model
 
 from dosuri.common import models as cm
 from dosuri.hospital import (
@@ -10,12 +11,12 @@ from dosuri.community import (
     constants as cmc
 )
 from dosuri.user.auth import get_tokens_for_user
-from dosuri.user.models import User
+from dosuri.user import models as um
 
 
 @pytest.fixture
 def user_dummy():
-    return User.objects.create_user(
+    return get_user_model().objects.create_user(
         username='dummy@dummy.com',
         nickname='dummy'
     )
@@ -146,6 +147,12 @@ def assoc_hospital_B_address_수원(hospital_test_B, address_수원시_팔달구
         address=address_수원시_팔달구
     )
 
+@pytest.fixture
+def assoc_address_수원_user_dummy(address_수원시_팔달구, user_dummy):
+    return um.AddressUserAssoc.objects.create(
+        address=address_수원시_팔달구,
+        user=user_dummy
+    )
 
 @pytest.fixture
 def doctor_A_hospital_A(hospital_test_A):
@@ -285,4 +292,11 @@ def hospital_search_B_user_dummy(user_dummy):
     return hm.HospitalSearch.objects.create(
         user=user_dummy,
         word='B'
+    )
+
+
+@pytest.fixture
+def insurance_A():
+    return um.Insurance.objects.create(
+        name='A'
     )

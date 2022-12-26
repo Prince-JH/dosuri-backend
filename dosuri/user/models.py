@@ -29,13 +29,24 @@ class User(AbstractUser):
         ordering = ['-id']
 
 
-class InsuranceLog(models.Model):
+class Insurance(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='insurance_log')
+    name = models.CharField(max_length=64, default='')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'insurance_log'
+        db_table = 'insurance'
+        ordering = ['-id']
+
+
+class InsuranceUserAssoc(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    insurance = models.ForeignKey(Insurance, on_delete=models.CASCADE, related_name='insurance_user_assoc')
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='insurance_user_assoc')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'insurance_user_assoc'
         ordering = ['-id']
 
 
