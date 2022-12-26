@@ -134,7 +134,7 @@ class ArticleTypeFilter(fsc.ArticleTypeFilter, filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         # Used Django's GET variable to utilize multiple value feature which DRF doesn't provide.
         # note: https://docs.djangoproject.com/en/4.0/ref/request-response/#querydict-objects
-        article_type = request.data.get('article_type')
+        article_type = request.query_params.get('article_type', None)
 
         if not article_type:
             return queryset
