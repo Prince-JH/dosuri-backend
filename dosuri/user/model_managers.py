@@ -12,3 +12,6 @@ class DosuriUserManager(UserManager):
             user = self.create_user(username=username)
             is_new = True
         return user, is_new
+
+    def get_user_by_uuid(self, uuid):
+        return self.get(uuid=uuid)
