@@ -161,3 +161,5 @@ SITE_URL = os.environ.get('SITE_URL')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 KAKAO_REST_API_KEY = os.environ.get('KAKAO_REST_API_KEY')
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
