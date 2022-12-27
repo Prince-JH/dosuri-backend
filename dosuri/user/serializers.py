@@ -86,6 +86,7 @@ class User(s.ModelSerializer):
     uuid: s.Field = s.CharField(write_only=True)
     username: s.Field = s.CharField(read_only=True)
     nickname: s.Field = s.CharField()
+    name: s.Field = s.CharField(read_only=True)
     phone_no: s.Field = s.CharField()
     address: s.Field = cs.ReadWriteSerializerMethodField()
     birthday: s.Field = s.DateTimeField()
@@ -96,7 +97,7 @@ class User(s.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ('uuid', 'username', 'nickname', 'birthday', 'phone_no',
+        fields = ('uuid', 'username', 'nickname', 'birthday', 'phone_no', 'name',
                   'address', 'sex', 'is_real', 'pain_areas', 'created_at')
 
     def get_address(self, obj):
