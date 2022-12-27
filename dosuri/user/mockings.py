@@ -4,6 +4,7 @@ access_token_data = {
 
 user_info_data = {
     'kakao_account': {
-        'email': 'dummy@dummy.com'
+        'email': 'dummy@dummy.com',
+        'name': 'dummy'
     }
 }
