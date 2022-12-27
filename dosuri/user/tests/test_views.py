@@ -67,7 +67,7 @@ class TestUserNickname:
 
 class TestInsuranceUserAssoc:
     @pytest.mark.django_db
-    def test_create(self, client, user_dummy, insurance_A):
+    def test_create_without_address_info(self, client, user_dummy, insurance_A):
         headers = {
             'content_type': 'application/json'
         }
@@ -77,4 +77,4 @@ class TestInsuranceUserAssoc:
         }
         response = client.post('/user/v1/insurance-user-assocs', data=data, **headers)
 
-        assert response.status_code == 201
+        assert response.status_code == 400

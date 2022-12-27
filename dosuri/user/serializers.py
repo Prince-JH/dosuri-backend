@@ -9,11 +9,13 @@ from dosuri.user import (
     views as v,
     models as um,
     constants as c,
-    serializer_schemas as sch
+    serializer_schemas as sch,
+    exceptions as exc
 )
 from dosuri.common import (
     models as cm,
-    serializers as cs
+    serializers as cs,
+    utils as cu,
 )
 import requests
 
@@ -42,6 +44,7 @@ class Auth(s.Serializer):
         username = user_info['kakao_account']['email']
 
         user, is_new = um.User.objects.get_or_create_user(username)
+        user.save_name(user_info['kakao_account']['name'])
 
         tokens = a.get_tokens_for_user(user)
         validated_data['access_token'] = tokens['access']
@@ -154,3 +157,20 @@ class InsuranceUserAssoc(s.ModelSerializer):
     class Meta:
         model = um.InsuranceUserAssoc
         exclude = ('id', 'created_at')
+
+    def create(self, validated_data):
+        user = validated_data['user']
+        self.send_insurance_consult_sms(user)
+        return super().create(validated_data)
+
+    def send_insurance_consult_sms(self, user):
+        address_qs = cm.Address.objects.filter(address_user_assoc__user=user)
+        if not address_qs.exists():
+            raise exc.UserHasNoAddress()
+        address = address_qs.first()
+        message = f'{user.name}\n' \
+                  f'{user.phone_no}\n' \
+                  f'{user.birthday}\n' \
+                  f'{user.sex}\n' \
+                  f'{address.large_area} {address.small_area}'
+        cu.send_sms(message)
