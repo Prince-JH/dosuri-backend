@@ -22,3 +22,13 @@ class Address(s.ModelSerializer):
     class Meta:
         model = cm.Address
         exclude = ('id',)
+
+class Attachment(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    bucket_name: s.Field = s.CharField(allow_null=False)
+    path: s.Field = s.CharField(allow_null=False)
+    created_at: s.Field = s.DateTimeField(read_only=True)
+
+    class Meta:
+        model = cm.Attachment
+        exclude = ('id','ref_uuid')

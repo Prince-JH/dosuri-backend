@@ -24,3 +24,9 @@ class AddressDetail(g.RetrieveUpdateDestroyAPIView):
     queryset = cm.Address.objects.all()
     serializer_class = cs.Address
     lookup_field = 'uuid'
+
+class Attachment(g.CreateAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = cm.Attachment.objects.all()
+    serializer_class = cs.Attachment
+    lookup_field = 'uuid'
