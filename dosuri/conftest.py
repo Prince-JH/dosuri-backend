@@ -147,12 +147,14 @@ def assoc_hospital_B_address_수원(hospital_test_B, address_수원시_팔달구
         address=address_수원시_팔달구
     )
 
+
 @pytest.fixture
 def assoc_address_수원_user_dummy(address_수원시_팔달구, user_dummy):
     return um.AddressUserAssoc.objects.create(
         address=address_수원시_팔달구,
         user=user_dummy
     )
+
 
 @pytest.fixture
 def doctor_A_hospital_A(hospital_test_A):

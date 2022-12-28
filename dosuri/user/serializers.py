@@ -9,13 +9,14 @@ from dosuri.user import (
     views as v,
     models as um,
     constants as c,
-    serializer_schemas as sch
+    serializer_schemas as sch,
+    exceptions as exc
 )
 from dosuri.common import (
     models as cm,
-    serializers as cs
+    serializers as cs,
+    utils as cu,
 )
-import requests
 
 
 class Auth(s.Serializer):
@@ -42,6 +43,7 @@ class Auth(s.Serializer):
         username = user_info['kakao_account']['email']
 
         user, is_new = um.User.objects.get_or_create_user(username)
+        user.save_name(user_info['kakao_account'].get('name', ''))
 
         tokens = a.get_tokens_for_user(user)
         validated_data['access_token'] = tokens['access']
@@ -83,6 +85,7 @@ class User(s.ModelSerializer):
     uuid: s.Field = s.CharField(write_only=True)
     username: s.Field = s.CharField(read_only=True)
     nickname: s.Field = s.CharField()
+    name: s.Field = s.CharField(read_only=True)
     phone_no: s.Field = s.CharField()
     address: s.Field = cs.ReadWriteSerializerMethodField()
     birthday: s.Field = s.DateTimeField()
@@ -93,7 +96,7 @@ class User(s.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ('uuid', 'username', 'nickname', 'birthday', 'phone_no',
+        fields = ('uuid', 'username', 'nickname', 'birthday', 'phone_no', 'name',
                   'address', 'sex', 'is_real', 'pain_areas', 'created_at')
 
     def get_address(self, obj):
@@ -113,7 +116,7 @@ class User(s.ModelSerializer):
         user.phone_no = validated_data['phone_no']
         user.sex = validated_data['sex']
         self.save_address(user, validated_data['address'])
-        self.save_address(user, validated_data['pain_area_user_assoc'])
+        self.save_pain_areas(user, validated_data['pain_area_user_assoc'])
 
         user.save()
         return user
@@ -124,10 +127,11 @@ class User(s.ModelSerializer):
             address_qs = cm.Address.objects.filter(large_area=address['large_area'],
                                                    small_area=address['small_area'])
             if not address_qs.exists():
-                created_address = cm.Address.objects.create(large_area=address['large_area'],
-                                                            small_area=address['small_area'])
-            um.AddressUserAssoc.objects.create(user=user,
-                                               address=created_address)
+                address = cm.Address.objects.create(large_area=address['large_area'],
+                                                    small_area=address['small_area'])
+            else:
+                address = address_qs.first()
+            um.AddressUserAssoc.objects.create(user=user, address=address)
 
     def save_pain_areas(self, user, pain_area_user_assoc):
         for area in pain_area_user_assoc:
@@ -153,3 +157,20 @@ class InsuranceUserAssoc(s.ModelSerializer):
     class Meta:
         model = um.InsuranceUserAssoc
         exclude = ('id', 'created_at')
+
+    def create(self, validated_data):
+        user = validated_data['user']
+        self.send_insurance_consult_sms(user)
+        return super().create(validated_data)
+
+    def send_insurance_consult_sms(self, user):
+        address_qs = cm.Address.objects.filter(address_user_assoc__user=user)
+        if not address_qs.exists():
+            raise exc.UserHasNoAddress()
+        address = address_qs.first()
+        message = f'{user.name}\n' \
+                  f'{user.phone_no}\n' \
+                  f'{user.birthday}\n' \
+                  f'{user.sex}\n' \
+                  f'{address.large_area} {address.small_area}'
+        cu.send_sms(message)
