@@ -43,7 +43,7 @@ class Auth(s.Serializer):
         username = user_info['kakao_account']['email']
 
         user, is_new = um.User.objects.get_or_create_user(username)
-        user.save_name(user_info['kakao_account'].get('name'))
+        user.save_name(user_info['kakao_account'].get('name', ''))
 
         tokens = a.get_tokens_for_user(user)
         validated_data['access_token'] = tokens['access']
