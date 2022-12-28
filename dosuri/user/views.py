@@ -75,3 +75,10 @@ class InsuranceUserAssocList(g.CreateAPIView):
     serializer_class = s.InsuranceUserAssoc
     filter_backends = [rf.OrderingFilter]
     ordering_field = '__all__'
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(insurance=um.Insurance.objects.all().first(), user=request.user)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
