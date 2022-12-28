@@ -67,14 +67,20 @@ class TestUserNickname:
 
 class TestInsuranceUserAssoc:
     @pytest.mark.django_db
-    def test_create_without_address_info(self, client, user_dummy, insurance_A):
+    def test_create_without_address_info(self, client, tokens_user_dummy, insurance_A):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.post('/user/v1/insurance-user-assocs', **headers)
+
+        assert response.status_code == 400
+
+    @pytest.mark.django_db
+    def test_create_anonymous_user(self, client):
         headers = {
             'content_type': 'application/json'
         }
-        data = {
-            'insurance': insurance_A.uuid,
-            'user': user_dummy.uuid
-        }
-        response = client.post('/user/v1/insurance-user-assocs', data=data, **headers)
+        response = client.post('/user/v1/insurance-user-assocs', **headers)
 
-        assert response.status_code == 400
+        assert response.status_code == 401

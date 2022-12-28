@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import (
     generics as g,
@@ -70,8 +71,15 @@ class UserDetail(g.RetrieveUpdateDestroyAPIView):
 
 
 class InsuranceUserAssocList(g.CreateAPIView):
-    permission_classes = [p.AllowAny]
+    permission_classes = [p.IsAuthenticated]
     queryset = um.InsuranceUserAssoc.objects.all()
     serializer_class = s.InsuranceUserAssoc
     filter_backends = [rf.OrderingFilter]
     ordering_field = '__all__'
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(insurance=um.Insurance.objects.all().first(), user=request.user)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
