@@ -16,14 +16,14 @@ class User(s.ModelSerializer):
         model = dosuri.user.models.User
         fields = ['uuid', 'nickname']
 
-class AuthAttach(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
-    path: s.Field = s.CharField()
-    created_at: s.Field = s.DateTimeField(read_only=True)
+# class AuthAttach(s.ModelSerializer):
+#     uuid: s.Field = s.CharField(read_only=True)
+#     path: s.Field = s.CharField()
+#     created_at: s.Field = s.DateTimeField(read_only=True)
 
-    class Meta:
-        model = dosuri.community.models.AuthAttach
-        exclude = ('id', 'article_auth')
+#     class Meta:
+#         model = dosuri.community.models.AuthAttach
+#         exclude = ('id', 'article_auth')
 
 
 class ArticleAuth(s.ModelSerializer):
@@ -31,7 +31,7 @@ class ArticleAuth(s.ModelSerializer):
     sensitive_agreement: s.Field = s.BooleanField()
     personal_agreement: s.Field = s.BooleanField()
     status: s.Field = s.CharField(required=False)
-    auth_attach: s.Field = AuthAttach(many=True, write_only=True, required=True)
+    # auth_attach: s.Field = AuthAttach(many=True, write_only=True, required=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
@@ -49,14 +49,14 @@ class ArticleAuth(s.ModelSerializer):
         return instance
 
 
-class ArticleAttach(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
-    path: s.Field = s.CharField()
-    created_at: s.Field = s.DateTimeField(read_only=True)
+# class ArticleAttach(s.ModelSerializer):
+#     uuid: s.Field = s.CharField(read_only=True)
+#     path: s.Field = s.CharField()
+#     created_at: s.Field = s.DateTimeField(read_only=True)
 
-    class Meta:
-        model = dosuri.community.models.ArticleAttach
-        exclude = ('id', 'article')
+#     class Meta:
+#         model = dosuri.community.models.ArticleAttach
+#         exclude = ('id', 'article')
 
 
 class ArticleKeywordAssoc(s.ModelSerializer):
@@ -151,7 +151,7 @@ class Article(s.ModelSerializer):
         queryset=hm.Hospital.objects.all()
     )
     content: s.Field = s.CharField(read_only=False)
-    article_attach = ArticleAttach(many=True, required=False)
+    #article_attach = ArticleAttach(many=True, required=False)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
     article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
     article_auth = ArticleAuth(many=False, write_only=True, required=False)
@@ -192,9 +192,9 @@ class Article(s.ModelSerializer):
                 comm.ArticleKeywordAssoc.objects.bulk_create(article_keyword_assoc_data)
                 if article_detail_data:
                     comm.ArticleDetail.objects.create(**article_detail_data, article=article)
-                if article_attach_list:
-                    article_attach_data = [comm.ArticleAttach(**item, article=article) for item in article_attach_list]
-                    comm.ArticleAttach.objects.bulk_create(article_attach_data)
+                # if article_attach_list:
+                    # article_attach_data = [comm.ArticleAttach(**item, article=article) for item in article_attach_list]
+                    # comm.ArticleAttach.objects.bulk_create(article_attach_data)
 
                 if article_auth_data:
                     article_auth = comm.ArticleAuth.objects.create(**article_auth_data, article=article)
@@ -208,9 +208,9 @@ class Article(s.ModelSerializer):
             with transaction.atomic():
                 article = comm.Article.objects.create(**validated_data)
                 
-                if article_attach_list:
-                    article_attach_data = [comm.ArticleAttach(**item, article=article) for item in article_attach_list]
-                    comm.ArticleAttach.objects.bulk_create(article_attach_data)
+                # if article_attach_list:
+                #     article_attach_data = [comm.ArticleAttach(**item, article=article) for item in article_attach_list]
+                #     comm.ArticleAttach.objects.bulk_create(article_attach_data)
         return article
 
 class GetArticle(s.ModelSerializer):
@@ -227,7 +227,7 @@ class GetArticle(s.ModelSerializer):
         # queryset=hm.Hospital.objects.all()
     )
     content: s.Field = s.CharField(read_only=False)
-    article_attach = ArticleAttach(many=True, required=False)
+    # article_attach = ArticleAttach(many=True, required=False)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
     article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
     article_auth = ArticleAuth(many=False, write_only=True, required=False)
@@ -249,7 +249,7 @@ class ArticleDetail(s.ModelSerializer):
         queryset=hm.Hospital.objects.all()
     )
     content: s.Field = s.CharField(read_only=False)
-    article_attach = ArticleAttach(many=True, required=False)
+    # article_attach = ArticleAttach(many=True, required=False)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
     article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
     article_auth = ArticleAuth(many=False, write_only=True, required=False)

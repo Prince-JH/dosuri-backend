@@ -77,29 +77,6 @@ class ArticleAuth(models.Model):
         db_table = 'article_auth'
         ordering = ['-id']
 
-
-class AuthAttach(models.Model):
-    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    article_auth = models.ForeignKey(ArticleAuth, on_delete=models.CASCADE, related_name='auth_attach')
-    path = models.CharField(max_length=2000)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        db_table = 'auth_attach'
-        ordering = ['-id']
-
-
-class ArticleAttach(models.Model):
-    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_attach')
-    path = models.CharField(max_length=2000)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        db_table = 'article_attach'
-        ordering = ['-id']
-
-
 class ArticleDoctorAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_doctor_assoc')
