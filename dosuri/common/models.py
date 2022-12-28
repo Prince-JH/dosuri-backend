@@ -19,3 +19,14 @@ class Address(models.Model):
     class Meta:
         db_table = 'address'
         ordering = ['-id']
+
+class Attachment(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    bucket_name = models.CharField(max_length=32, null=False)  # Bucket Name
+    path = models.CharField(max_length=1024, null=False)  # 경로
+    ref_uuid = models.CharField(max_length=1024, null=True)  # Ref용 UUID
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'attachment'
+        ordering = ['-id']
