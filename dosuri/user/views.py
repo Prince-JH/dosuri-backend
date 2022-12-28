@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import (
     generics as g,
@@ -70,7 +71,7 @@ class UserDetail(g.RetrieveUpdateDestroyAPIView):
 
 
 class InsuranceUserAssocList(g.CreateAPIView):
-    permission_classes = [p.AllowAny]
+    permission_classes = [p.IsAuthenticated]
     queryset = um.InsuranceUserAssoc.objects.all()
     serializer_class = s.InsuranceUserAssoc
     filter_backends = [rf.OrderingFilter]
