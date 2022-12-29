@@ -31,4 +31,10 @@ class Attachment(s.ModelSerializer):
 
     class Meta:
         model = cm.Attachment
-        exclude = ('id','ref_uuid')
+        exclude = ('id',)
+
+class PutAttachment(s.ModelSerializer):
+    uuid: s.Field = s.CharField()
+    class Meta:
+        model = cm.Attachment
+        fields = ('uuid',)

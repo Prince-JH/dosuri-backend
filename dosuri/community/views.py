@@ -13,7 +13,9 @@ from dosuri.community import (
 from dosuri.common import filters as f
 from rest_framework.response import Response
 from django.db.models import Count
+
 from datetime import datetime, timedelta
+from django.contrib.postgres.aggregates import ArrayAgg
 
 class HotArticleList(g.ListAPIView):
     permission_classes = [p.AllowAny]

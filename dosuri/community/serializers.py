@@ -7,7 +7,7 @@ from dosuri.common import models as cm
 from dosuri.hospital import models as hm
 from dosuri.user import models as um
 from django.db import transaction
-from dosuri.common.serializers import Attachment
+from dosuri.common import serializers as cs
 
 
 class User(s.ModelSerializer):
@@ -140,19 +140,6 @@ class ArticleComment(s.ModelSerializer):
         exclude = ('id',)
 
 class Article(s.ModelSerializer):
-    attachment: s.Field = s.SlugRelatedField(
-        write_only=True,
-        slug_field='uuid',
-        queryset=cm.Attachment.objects.all(),
-        many=True
-    )
-    auth_attachment: s.Field = s.SlugRelatedField(
-        write_only=True,
-        required=False,
-        slug_field='uuid',
-        queryset=cm.Attachment.objects.all(),
-        many=True
-    )
     uuid: s.Field = s.CharField(read_only=True)
     user = User(read_only=True)
     article_type: s.Field = s.CharField()
@@ -164,6 +151,7 @@ class Article(s.ModelSerializer):
         slug_field='uuid',
         queryset=hm.Hospital.objects.all()
     )
+    attachment: s.Field = s.ListField(write_only=True, child=s.CharField())
     content: s.Field = s.CharField(read_only=False)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
     article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
@@ -174,8 +162,8 @@ class Article(s.ModelSerializer):
         model = dosuri.community.models.Article
         exclude = ('id', 'status')
     def create(self, validated_data):
-        if 'attachment_list' in validated_data:
-            attachment_list = validated_data.pop('attachment_list')
+        if 'attachment' in validated_data:
+            attachment_list = validated_data.pop('attachment')
         else:
             attachment_list = False
             
@@ -198,18 +186,19 @@ class Article(s.ModelSerializer):
         if validated_data['article_type'] == cc.ARTICLE_REVIEW:
             article_keyword_assoc_list = validated_data.pop('article_keyword_assoc')
             with transaction.atomic():
+                print(validated_data)
                 article = comm.Article.objects.create(**validated_data)
                 article_keyword_assoc_data = [comm.ArticleKeywordAssoc(**item, article=article) for item in
                                             article_keyword_assoc_list]
                 comm.ArticleKeywordAssoc.objects.bulk_create(article_keyword_assoc_data)
                 if article_detail_data:
                     comm.ArticleDetail.objects.create(**article_detail_data, article=article)
-                if attachment_list:
-                    cm.Attachment.objects.filter(uuid__in=attachment_list).update(ref_uuid=article.uuid)
+                # if attachment_list:
+                #     cm.Attachment.objects.filter(uuid__in=attachment_list).update(ref_uuid=article.uuid)
 
                 if article_auth_data:
                     article_auth = comm.ArticleAuth.objects.create(**article_auth_data, article=article)
-                    cm.Attachment.objects.filter(uuid__in=auth_attachment_list).update(ref_uuid=article_auth.uuid)
+                #     cm.Attachment.objects.filter(uuid__in=auth_attachment_list).update(ref_uuid=article_auth.uuid)
 
                 if article_doctor_assoc_list:
                     article_doctor_assoc_data = [comm.ArticleDoctorAssoc(**item, article=article) for item in article_doctor_assoc_list]
@@ -218,8 +207,9 @@ class Article(s.ModelSerializer):
             with transaction.atomic():
                 article = comm.Article.objects.create(**validated_data)
                 
-                if attachment_list:
-                    cm.Attachment.objects.filter(uuid__in=attachment_list).update(ref_uuid=article.uuid)
+                # if attachment_list:
+                #     cm.Attachment.objects.filter(uuid__in=attachment_list).update(ref_uuid=article.uuid)
+
         return article
 
 class GetArticle(s.ModelSerializer):
@@ -237,7 +227,7 @@ class GetArticle(s.ModelSerializer):
     )
     content: s.Field = s.CharField(read_only=False)
     # article_attach = ArticleAttach(many=True, required=False)
-    attachment: Attachment(read_only=True, many=True)
+    attachment: cs.PutAttachment(read_only=True, many=True)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
     article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
     article_auth = ArticleAuth(many=False, write_only=True, required=False)
