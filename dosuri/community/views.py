@@ -89,13 +89,6 @@ class ArticleList(g.ListCreateAPIView):
 #     def perform_create(self, serializer):
 #         serializer.save(user=self.request.user)
 
-class ArticleAttachList(g.ListAPIView):
-    permission_classes = [p.AllowAny]
-    queryset = m.ArticleAttach.objects.all()
-    serializer_class = s.ArticleAttach
-    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
-    uuid_filter_params = ['hospital']
-    ordering_field = '__all__'
 
 class ArticleDoctorAssocList(g.ListAPIView):
     permission_classes = [p.AllowAny]
@@ -127,13 +120,6 @@ class ArticleAuth(g.ListAPIView):
     uuid_filter_params = ['article']
     ordering_field = '__all__'
 
-class AuthAttach(g.ListAPIView):
-    permission_classes = [p.AllowAny]
-    queryset = m.AuthAttach.objects.all()
-    serializer_class = s.AuthAttach
-    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
-    uuid_filter_params = ['article_auth']
-    ordering_field = '__all__'
 
 class ArticleAuthDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]

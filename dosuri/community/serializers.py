@@ -7,6 +7,7 @@ from dosuri.common import models as cm
 from dosuri.hospital import models as hm
 from dosuri.user import models as um
 from django.db import transaction
+from dosuri.common.serializers import Attachment
 
 
 class User(s.ModelSerializer):
@@ -16,14 +17,14 @@ class User(s.ModelSerializer):
         model = dosuri.user.models.User
         fields = ['uuid', 'nickname']
 
-class AuthAttach(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
-    path: s.Field = s.CharField()
-    created_at: s.Field = s.DateTimeField(read_only=True)
+# class AuthAttach(s.ModelSerializer):
+#     uuid: s.Field = s.CharField(read_only=True)
+#     path: s.Field = s.CharField()
+#     created_at: s.Field = s.DateTimeField(read_only=True)
 
-    class Meta:
-        model = dosuri.community.models.AuthAttach
-        exclude = ('id', 'article_auth')
+#     class Meta:
+#         model = dosuri.community.models.AuthAttach
+#         exclude = ('id', 'article_auth')
 
 
 class ArticleAuth(s.ModelSerializer):
@@ -31,7 +32,7 @@ class ArticleAuth(s.ModelSerializer):
     sensitive_agreement: s.Field = s.BooleanField()
     personal_agreement: s.Field = s.BooleanField()
     status: s.Field = s.CharField(required=False)
-    auth_attach: s.Field = AuthAttach(many=True, write_only=True, required=True)
+    # auth_attach: s.Field = AuthAttach(many=True, write_only=True, required=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
@@ -49,14 +50,14 @@ class ArticleAuth(s.ModelSerializer):
         return instance
 
 
-class ArticleAttach(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
-    path: s.Field = s.CharField()
-    created_at: s.Field = s.DateTimeField(read_only=True)
+# class ArticleAttach(s.ModelSerializer):
+#     uuid: s.Field = s.CharField(read_only=True)
+#     path: s.Field = s.CharField()
+#     created_at: s.Field = s.DateTimeField(read_only=True)
 
-    class Meta:
-        model = dosuri.community.models.ArticleAttach
-        exclude = ('id', 'article')
+#     class Meta:
+#         model = dosuri.community.models.ArticleAttach
+#         exclude = ('id', 'article')
 
 
 class ArticleKeywordAssoc(s.ModelSerializer):
@@ -139,6 +140,19 @@ class ArticleComment(s.ModelSerializer):
         exclude = ('id',)
 
 class Article(s.ModelSerializer):
+    attachment: s.Field = s.SlugRelatedField(
+        write_only=True,
+        slug_field='uuid',
+        queryset=cm.Attachment.objects.all(),
+        many=True
+    )
+    auth_attachment: s.Field = s.SlugRelatedField(
+        write_only=True,
+        required=False,
+        slug_field='uuid',
+        queryset=cm.Attachment.objects.all(),
+        many=True
+    )
     uuid: s.Field = s.CharField(read_only=True)
     user = User(read_only=True)
     article_type: s.Field = s.CharField()
@@ -151,7 +165,6 @@ class Article(s.ModelSerializer):
         queryset=hm.Hospital.objects.all()
     )
     content: s.Field = s.CharField(read_only=False)
-    article_attach = ArticleAttach(many=True, required=False)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
     article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
     article_auth = ArticleAuth(many=False, write_only=True, required=False)
@@ -160,12 +173,11 @@ class Article(s.ModelSerializer):
     class Meta:
         model = dosuri.community.models.Article
         exclude = ('id', 'status')
-
     def create(self, validated_data):
-        if 'article_attach' in validated_data:
-            article_attach_list = validated_data.pop('article_attach')
+        if 'attachment_list' in validated_data:
+            attachment_list = validated_data.pop('attachment_list')
         else:
-            article_attach_list = False
+            attachment_list = False
             
         if "article_detail" in validated_data:
             article_detail_data = validated_data.pop('article_detail')
@@ -179,7 +191,7 @@ class Article(s.ModelSerializer):
         
         if 'article_auth' in validated_data:
             article_auth_data = validated_data.pop('article_auth')
-            auth_attach_list = article_auth_data.pop('auth_attach')
+            auth_attachment_list = article_auth_data.pop('auth_attachment_list')
         else:
             article_auth_data = False
             
@@ -192,14 +204,12 @@ class Article(s.ModelSerializer):
                 comm.ArticleKeywordAssoc.objects.bulk_create(article_keyword_assoc_data)
                 if article_detail_data:
                     comm.ArticleDetail.objects.create(**article_detail_data, article=article)
-                if article_attach_list:
-                    article_attach_data = [comm.ArticleAttach(**item, article=article) for item in article_attach_list]
-                    comm.ArticleAttach.objects.bulk_create(article_attach_data)
+                if attachment_list:
+                    cm.Attachment.objects.filter(uuid__in=attachment_list).update(ref_uuid=article.uuid)
 
                 if article_auth_data:
                     article_auth = comm.ArticleAuth.objects.create(**article_auth_data, article=article)
-                    auth_attach_data = [comm.AuthAttach(**item, article_auth=article_auth) for item in auth_attach_list]
-                    comm.AuthAttach.objects.bulk_create(auth_attach_data)
+                    cm.Attachment.objects.filter(uuid__in=auth_attachment_list).update(ref_uuid=article_auth.uuid)
 
                 if article_doctor_assoc_list:
                     article_doctor_assoc_data = [comm.ArticleDoctorAssoc(**item, article=article) for item in article_doctor_assoc_list]
@@ -208,9 +218,8 @@ class Article(s.ModelSerializer):
             with transaction.atomic():
                 article = comm.Article.objects.create(**validated_data)
                 
-                if article_attach_list:
-                    article_attach_data = [comm.ArticleAttach(**item, article=article) for item in article_attach_list]
-                    comm.ArticleAttach.objects.bulk_create(article_attach_data)
+                if attachment_list:
+                    cm.Attachment.objects.filter(uuid__in=attachment_list).update(ref_uuid=article.uuid)
         return article
 
 class GetArticle(s.ModelSerializer):
@@ -227,7 +236,8 @@ class GetArticle(s.ModelSerializer):
         # queryset=hm.Hospital.objects.all()
     )
     content: s.Field = s.CharField(read_only=False)
-    article_attach = ArticleAttach(many=True, required=False)
+    # article_attach = ArticleAttach(many=True, required=False)
+    attachment: Attachment(read_only=True, many=True)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
     article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
     article_auth = ArticleAuth(many=False, write_only=True, required=False)
@@ -249,7 +259,7 @@ class ArticleDetail(s.ModelSerializer):
         queryset=hm.Hospital.objects.all()
     )
     content: s.Field = s.CharField(read_only=False)
-    article_attach = ArticleAttach(many=True, required=False)
+    # article_attach = ArticleAttach(many=True, required=False)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
     article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
     article_auth = ArticleAuth(many=False, write_only=True, required=False)

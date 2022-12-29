@@ -35,7 +35,7 @@ def string_escape(s, encoding='utf-8'):
 def lambda_handler(event, context):
     content = ''
     headers = ''
-    
+
     body = base64.b64decode(event['body-json']) 
     
     if 'content-type' in event['params']['header']:
