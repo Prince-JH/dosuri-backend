@@ -6,7 +6,6 @@ USER_DETAIL_EXAMPLE = [
         summary='short summary',
         description='',
         value={
-            "uuid": "a1b38583f3c6441194b9530700517f09",
             "nickname": "한준호",
             "birthday": "2022-12-20",
             "phone_no": "010-1234-5678",

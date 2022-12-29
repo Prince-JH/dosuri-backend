@@ -82,7 +82,7 @@ class PainAreaUserAssoc(s.ModelSerializer):
 
 @extend_schema_serializer(examples=sch.USER_DETAIL_EXAMPLE)
 class User(s.ModelSerializer):
-    uuid: s.Field = s.CharField(write_only=True)
+    uuid: s.Field = s.CharField(read_only=True)
     username: s.Field = s.CharField(read_only=True)
     nickname: s.Field = s.CharField()
     name: s.Field = s.CharField(read_only=True)
@@ -109,8 +109,7 @@ class User(s.ModelSerializer):
         return {}
 
     def create(self, validated_data):
-        model = self.Meta.model
-        user = model.objects.get(uuid=validated_data['uuid'])
+        user = validated_data['user']
         user.nickname = validated_data['nickname']
         user.birthday = validated_data['birthday']
         user.phone_no = validated_data['phone_no']
