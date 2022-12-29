@@ -82,7 +82,7 @@ class PainAreaUserAssoc(s.ModelSerializer):
 
 @extend_schema_serializer(examples=sch.USER_DETAIL_EXAMPLE)
 class User(s.ModelSerializer):
-    uuid: s.Field = s.CharField(write_only=True)
+    uuid: s.Field = s.CharField(read_only=True)
     username: s.Field = s.CharField(read_only=True)
     nickname: s.Field = s.CharField()
     name: s.Field = s.CharField(read_only=True)
@@ -109,8 +109,7 @@ class User(s.ModelSerializer):
         return {}
 
     def create(self, validated_data):
-        model = self.Meta.model
-        user = model.objects.get(uuid=validated_data['uuid'])
+        user = validated_data['user']
         user.nickname = validated_data['nickname']
         user.birthday = validated_data['birthday']
         user.phone_no = validated_data['phone_no']
@@ -122,18 +121,19 @@ class User(s.ModelSerializer):
         return user
 
     def save_address(self, user, address):
-        address_user_assoc_qs = um.AddressUserAssoc.objects.filter(user=user)
-        if not address_user_assoc_qs.exists():
-            address_qs = cm.Address.objects.filter(large_area=address['large_area'],
-                                                   small_area=address['small_area'])
-            if not address_qs.exists():
-                address = cm.Address.objects.create(large_area=address['large_area'],
-                                                    small_area=address['small_area'])
-            else:
-                address = address_qs.first()
-            um.AddressUserAssoc.objects.create(user=user, address=address)
+        um.AddressUserAssoc.objects.filter(user=user).delete()
+
+        address_qs = cm.Address.objects.filter(large_area=address['large_area'],
+                                               small_area=address['small_area'])
+        if not address_qs.exists():
+            address = cm.Address.objects.create(large_area=address['large_area'],
+                                                small_area=address['small_area'])
+        else:
+            address = address_qs.first()
+        um.AddressUserAssoc.objects.create(user=user, address=address)
 
     def save_pain_areas(self, user, pain_area_user_assoc):
+        um.PainAreaUserAssoc.objects.filter(user=user).delete()
         for area in pain_area_user_assoc:
             try:
                 pain_area = um.PainArea.objects.get(name=area['pain_area']['name'])
