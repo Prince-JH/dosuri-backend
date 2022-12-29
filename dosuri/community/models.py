@@ -4,7 +4,7 @@ from django.db import models
 from dosuri.user.models import User
 from dosuri.hospital.models import Hospital, Doctor, HospitalTreatment
 from dosuri.community import constants as cc
-
+from dosuri.common.models import Attachment
 
 def generate_uuid():
     return uuid4().hex
@@ -35,6 +35,15 @@ class Article(models.Model):
         db_table = 'article'
         ordering = ['-id']
 
+class ArticleAttachmentAssoc(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_attachment_assoc')
+    attachment = models.ForeignKey(Attachment, on_delete=models.CASCADE, related_name='article_attachment_assoc')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'article_attachment_assoc'
+        ordering = ['-id']
 
 # class ArticleMeta(models.Model):
 #     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
