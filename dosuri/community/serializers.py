@@ -27,7 +27,7 @@ class User(s.ModelSerializer):
 #         exclude = ('id', 'article_auth')
 class GetArticleAttachmentAssoc(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    attachment: s.Field = cs.PutAttachment(read_only=True)
+    attachment: s.Field = cs.Attachment(read_only=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:

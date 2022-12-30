@@ -8,3 +8,5 @@ export RDS_PORT=5432
 export RDS_PASSWORD='dosuri-back'
 export RDS_USERNAME='postgres'
 export SITE_URL='http://dosuri-env.eba-igc5wtjb.ap-northeast-2.elasticbeanstalk.com'
+export AWS_ACCESS_KEY_ID='AKIAQLKLOTD7MFMOBQH5'
+export AWS_SECRET_ACCESS_KEY='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'

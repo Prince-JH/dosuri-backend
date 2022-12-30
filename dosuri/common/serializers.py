@@ -4,6 +4,13 @@ from dosuri.common import models as cm
 from django.conf import settings
 from drf_yasg.utils import swagger_serializer_method
 
+s3_client = boto3.client(
+    "s3",
+    aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+    region_name="ap-northeast-2"
+)
+
 class ReadWriteSerializerMethodField(s.SerializerMethodField):
     def __init__(self, method_name=None, **kwargs):
         self.method_name = method_name
@@ -37,10 +44,6 @@ class Attachment(s.ModelSerializer):
 
     @swagger_serializer_method(serializer_or_field=s.CharField)
     def get_signed_path(self, obj):
-        s3_client = boto3.client(
-            's3', config=getattr(settings, 'AWS_CONFIG', None),
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID, aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
-        )
         try:
             response = s3_client.generate_presigned_url('get_object',
                                                     Params={'Bucket': obj.bucket_name,
@@ -62,10 +65,6 @@ class PutAttachment(s.ModelSerializer):
     
     @swagger_serializer_method(serializer_or_field=s.CharField)
     def get_signed_path(self, obj):
-        s3_client = boto3.client(
-            's3', config=getattr(settings, 'AWS_CONFIG', None),
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID, aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
-        )
         try:
             response = s3_client.generate_presigned_url('get_object',
                                                     Params={'Bucket': obj.bucket_name,
