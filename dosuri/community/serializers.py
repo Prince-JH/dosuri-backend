@@ -26,13 +26,28 @@ class User(s.ModelSerializer):
 #         model = dosuri.community.models.AuthAttach
 #         exclude = ('id', 'article_auth')
 
+class ArticleAttachmentAssoc(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    attachment: s.Field = s.SlugRelatedField(
+        read_only=False,
+        slug_field='uuid',
+        queryset=cm.Attachment.objects.all()
+    )
+    created_at: s.Field = s.DateTimeField(read_only=True)
+
+    class Meta:
+        model = dosuri.community.models.ArticleAttachmentAssoc
+        exclude = ('id', 'article')
+    def to_representation(self, obj):
+        self.fields['attachment'] = cs.PutAttachment(read_only=True)
+        return super().to_representation(obj)
 
 class ArticleAuth(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     sensitive_agreement: s.Field = s.BooleanField()
     personal_agreement: s.Field = s.BooleanField()
     status: s.Field = s.CharField(required=False)
-    # auth_attach: s.Field = AuthAttach(many=True, write_only=True, required=True)
+    auth_attachment_assoc: s.Field = ArticleAttachmentAssoc(many=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
@@ -60,7 +75,7 @@ class ArticleAuth(s.ModelSerializer):
 #         exclude = ('id', 'article')
 
 
-class ArticleAttachmentAssoc(s.ModelSerializer):
+class AuthAttachmentAssoc(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     attachment: s.Field = s.SlugRelatedField(
         read_only=False,
@@ -70,8 +85,9 @@ class ArticleAttachmentAssoc(s.ModelSerializer):
     created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
-        model = dosuri.community.models.ArticleAttachmentAssoc
-        exclude = ('id', 'article')
+        model = dosuri.community.models.AuthAttachmentAssoc
+        exclude = ('id', 'article_auth')
+
     def to_representation(self, obj):
         self.fields['attachment'] = cs.PutAttachment(read_only=True)
         return super().to_representation(obj)
@@ -167,8 +183,8 @@ class Article(s.ModelSerializer):
         slug_field='uuid',
         queryset=hm.Hospital.objects.all()
     )
-    article_attachment_assoc: s.Field = ArticleAttachmentAssoc(many=True)
     content: s.Field = s.CharField(read_only=False)
+    article_attachment_assoc: s.Field = ArticleAttachmentAssoc(many=True)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
     article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
     article_auth = ArticleAuth(many=False, write_only=True, required=False)
@@ -195,14 +211,13 @@ class Article(s.ModelSerializer):
         
         if 'article_auth' in validated_data:
             article_auth_data = validated_data.pop('article_auth')
-            auth_attachment_list = article_auth_data.pop('auth_attachment_list')
+            auth_attachment_list = article_auth_data.pop('auth_attachment_assoc')
         else:
             article_auth_data = False
             
         if validated_data['article_type'] == cc.ARTICLE_REVIEW:
             article_keyword_assoc_list = validated_data.pop('article_keyword_assoc')
             with transaction.atomic():
-                print(validated_data)
                 article = comm.Article.objects.create(**validated_data)
                 article_keyword_assoc_data = [comm.ArticleKeywordAssoc(**item, article=article) for item in
                                             article_keyword_assoc_list]
@@ -214,7 +229,8 @@ class Article(s.ModelSerializer):
                     comm.ArticleAttachmentAssoc.objects.bulk_create(article_attachment_assoc_data)
                 if article_auth_data:
                     article_auth = comm.ArticleAuth.objects.create(**article_auth_data, article=article)
-                #     cm.Attachment.objects.filter(uuid__in=auth_attachment_list).update(ref_uuid=article_auth.uuid)
+                    auth_attachment_assoc_data = [comm.AuthAttachmentAssoc(**item, article_auth=article_auth) for item in auth_attachment_list]
+                    comm.AuthAttachmentAssoc.objects.bulk_create(auth_attachment_assoc_data)
 
                 if article_doctor_assoc_list:
                     article_doctor_assoc_data = [comm.ArticleDoctorAssoc(**item, article=article) for item in article_doctor_assoc_list]
@@ -222,9 +238,6 @@ class Article(s.ModelSerializer):
         if validated_data['article_type'] == cc.ARTICLE_QUESTION:
             with transaction.atomic():
                 article = comm.Article.objects.create(**validated_data)
-                
-                # if attachment_list:
-                #     cm.Attachment.objects.filter(uuid__in=attachment_list).update(ref_uuid=article.uuid)
 
         return article
 
@@ -242,7 +255,7 @@ class GetArticle(s.ModelSerializer):
         # queryset=hm.Hospital.objects.all()
     )
     content: s.Field = s.CharField(read_only=False)
-    # article_attach = ArticleAttach(many=True, required=False)
+    article_attachment_assoc: s.Field = ArticleAttachmentAssoc(many=True, read_only=True)
     attachment: cs.PutAttachment(read_only=True, many=True)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
     article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
