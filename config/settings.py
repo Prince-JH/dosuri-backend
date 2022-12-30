@@ -13,6 +13,7 @@ import json
 import os
 from datetime import datetime, timedelta
 from pathlib import Path
+from botocore.config import Config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -107,7 +108,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-DEBUG = False
+
+DEBUG = True
 if 'RDS_HOSTNAME' in os.environ:
     DATABASES = {
         'default': {
@@ -163,3 +165,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 KAKAO_REST_API_KEY = os.environ.get('KAKAO_REST_API_KEY')
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+
+AWS_CONFIG = Config(
+    region_name = 'ap-northeast-2',
+    signature_version = 'v4',
+    retries = {
+        'max_attempts': 3,
+        'mode': 'standard'
+    }
+)

@@ -60,6 +60,22 @@ class ArticleAuth(s.ModelSerializer):
 #         exclude = ('id', 'article')
 
 
+class ArticleAttachmentAssoc(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    attachment: s.Field = s.SlugRelatedField(
+        read_only=False,
+        slug_field='uuid',
+        queryset=cm.Attachment.objects.all()
+    )
+    created_at: s.Field = s.DateTimeField(read_only=True)
+
+    class Meta:
+        model = dosuri.community.models.ArticleAttachmentAssoc
+        exclude = ('id', 'article')
+    def to_representation(self, obj):
+        self.fields['attachment'] = cs.PutAttachment(read_only=True)
+        return super().to_representation(obj)
+
 class ArticleKeywordAssoc(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     keyword: s.Field = s.CharField(
@@ -151,7 +167,7 @@ class Article(s.ModelSerializer):
         slug_field='uuid',
         queryset=hm.Hospital.objects.all()
     )
-    attachment: s.Field = s.ListField(write_only=True, child=s.CharField())
+    article_attachment_assoc: s.Field = ArticleAttachmentAssoc(many=True)
     content: s.Field = s.CharField(read_only=False)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
     article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
@@ -162,10 +178,10 @@ class Article(s.ModelSerializer):
         model = dosuri.community.models.Article
         exclude = ('id', 'status')
     def create(self, validated_data):
-        if 'attachment' in validated_data:
-            attachment_list = validated_data.pop('attachment')
+        if 'article_attachment_assoc' in validated_data:
+            attachment_assoc_list = validated_data.pop('article_attachment_assoc')
         else:
-            attachment_list = False
+            attachment_assoc_list = False
             
         if "article_detail" in validated_data:
             article_detail_data = validated_data.pop('article_detail')
@@ -193,9 +209,9 @@ class Article(s.ModelSerializer):
                 comm.ArticleKeywordAssoc.objects.bulk_create(article_keyword_assoc_data)
                 if article_detail_data:
                     comm.ArticleDetail.objects.create(**article_detail_data, article=article)
-                # if attachment_list:
-                #     cm.Attachment.objects.filter(uuid__in=attachment_list).update(ref_uuid=article.uuid)
-
+                if attachment_assoc_list:
+                    article_attachment_assoc_data = [comm.ArticleAttachmentAssoc(**item, article=article) for item in attachment_assoc_list]
+                    comm.ArticleAttachmentAssoc.objects.bulk_create(article_attachment_assoc_data)
                 if article_auth_data:
                     article_auth = comm.ArticleAuth.objects.create(**article_auth_data, article=article)
                 #     cm.Attachment.objects.filter(uuid__in=auth_attachment_list).update(ref_uuid=article_auth.uuid)

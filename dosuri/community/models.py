@@ -86,6 +86,16 @@ class ArticleAuth(models.Model):
         db_table = 'article_auth'
         ordering = ['-id']
 
+class AuthAttachmentAssoc(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    article_auth = models.ForeignKey(ArticleAuth, on_delete=models.CASCADE, related_name='auth_attachment_assoc')
+    attachment = models.ForeignKey(Attachment, on_delete=models.CASCADE, related_name='auth_attachment_assoc')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'auth_attachment_assoc'
+        ordering = ['-id']
+
 class ArticleDoctorAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_doctor_assoc')
