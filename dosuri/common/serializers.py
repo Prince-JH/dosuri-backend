@@ -2,6 +2,7 @@ from rest_framework import serializers as s
 import boto3
 from dosuri.common import models as cm
 from django.conf import settings
+from drf_yasg.utils import swagger_serializer_method
 
 class ReadWriteSerializerMethodField(s.SerializerMethodField):
     def __init__(self, method_name=None, **kwargs):
@@ -33,6 +34,8 @@ class Attachment(s.ModelSerializer):
     class Meta:
         model = cm.Attachment
         exclude = ('id',)
+
+    @swagger_serializer_method(serializer_or_field=s.CharField)
     def get_signed_path(self, obj):
         s3_client = boto3.client(
             's3', config=getattr(settings, 'AWS_CONFIG', None),
@@ -56,7 +59,8 @@ class PutAttachment(s.ModelSerializer):
     class Meta:
         model = cm.Attachment
         fields = ('uuid','signed_path')
-
+    
+    @swagger_serializer_method(serializer_or_field=s.CharField)
     def get_signed_path(self, obj):
         s3_client = boto3.client(
             's3', config=getattr(settings, 'AWS_CONFIG', None),

@@ -25,6 +25,14 @@ class User(s.ModelSerializer):
 #     class Meta:
 #         model = dosuri.community.models.AuthAttach
 #         exclude = ('id', 'article_auth')
+class GetArticleAttachmentAssoc(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    attachment: s.Field = cs.PutAttachment(read_only=True)
+    created_at: s.Field = s.DateTimeField(read_only=True)
+
+    class Meta:
+        model = dosuri.community.models.ArticleAttachmentAssoc
+        exclude = ('id', 'article')
 
 class ArticleAttachmentAssoc(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
@@ -184,7 +192,7 @@ class Article(s.ModelSerializer):
         queryset=hm.Hospital.objects.all()
     )
     content: s.Field = s.CharField(read_only=False)
-    article_attachment_assoc: s.Field = ArticleAttachmentAssoc(many=True)
+    article_attachment_assoc: s.Field = ArticleAttachmentAssoc(many=True, write_only=True)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
     article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
     article_auth = ArticleAuth(many=False, write_only=True, required=False)
@@ -255,7 +263,7 @@ class GetArticle(s.ModelSerializer):
         # queryset=hm.Hospital.objects.all()
     )
     content: s.Field = s.CharField(read_only=False)
-    article_attachment_assoc: s.Field = ArticleAttachmentAssoc(many=True, read_only=True)
+    article_attachment_assoc: s.Field = GetArticleAttachmentAssoc(many=True, read_only=True)
     attachment: cs.PutAttachment(read_only=True, many=True)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
     article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
@@ -278,7 +286,7 @@ class ArticleDetail(s.ModelSerializer):
         queryset=hm.Hospital.objects.all()
     )
     content: s.Field = s.CharField(read_only=False)
-    article_attachment_assoc: s.Field = ArticleAttachmentAssoc(many=True, read_only=True)
+    article_attachment_assoc: s.Field = GetArticleAttachmentAssoc(many=True, read_only=True)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
     article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
     article_auth = ArticleAuth(many=False, write_only=True, required=False)
