@@ -23,9 +23,13 @@ cffi==1.15.1
 charset-normalizer==2.1.1
     # via requests
 coreapi==2.3.3
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   drf-yasg
 coreschema==0.0.4
-    # via coreapi
+    # via
+    #   coreapi
+    #   drf-yasg
 cryptography==38.0.3
     # via
     #   jwcrypto
@@ -45,6 +49,7 @@ django==4.1.2
     #   djangorestframework
     #   djangorestframework-simplejwt
     #   drf-spectacular
+    #   drf-yasg
 django-cors-headers==3.13.0
     # via -r requirements.in
 django-oauth-toolkit==2.2.0
@@ -55,18 +60,23 @@ djangorestframework==3.14.0
     #   djangorestframework-simplejwt
     #   drf-social-oauth2
     #   drf-spectacular
+    #   drf-yasg
 djangorestframework-simplejwt==5.2.1
     # via -r requirements.in
 drf-social-oauth2==1.2.1
     # via -r requirements.in
 drf-spectacular==0.24.2
     # via -r requirements.in
+drf-yasg==1.21.4
+    # via -r requirements.in
 ecdsa==0.18.0
     # via python-jose
 idna==3.4
     # via requests
 inflection==0.5.1
-    # via drf-spectacular
+    # via
+    #   drf-spectacular
+    #   drf-yasg
 iniconfig==1.1.1
     # via pytest
 itypes==1.2.0
@@ -89,7 +99,9 @@ oauthlib==3.2.2
     #   requests-oauthlib
     #   social-auth-core
 packaging==21.3
-    # via pytest
+    # via
+    #   drf-yasg
+    #   pytest
 pluggy==1.0.0
     # via pytest
 psycopg2-binary==2.9.4
@@ -123,7 +135,9 @@ python-jose[cryptography]==3.3.0
 python3-openid==3.2.0
     # via social-auth-core
 pytz==2022.4
-    # via djangorestframework
+    # via
+    #   djangorestframework
+    #   drf-yasg
 pyyaml==6.0
     # via drf-spectacular
 requests==2.28.1
@@ -142,6 +156,10 @@ requests-toolbelt==0.10.1
     # via -r requirements.in
 rsa==4.9
     # via python-jose
+ruamel-yaml==0.17.21
+    # via drf-yasg
+ruamel-yaml-clib==0.2.7
+    # via ruamel-yaml
 s3transfer==0.6.0
     # via boto3
 six==1.16.0
@@ -161,6 +179,7 @@ uritemplate==4.1.1
     # via
     #   coreapi
     #   drf-spectacular
+    #   drf-yasg
 urllib3==1.26.12
     # via
     #   botocore
