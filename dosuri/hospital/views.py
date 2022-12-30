@@ -77,25 +77,6 @@ class HospitalCalendarDetail(g.RetrieveUpdateDestroyAPIView):
     lookup_field = 'uuid'
 
 
-class HospitalImageList(g.ListCreateAPIView):
-    permission_classes = [p.AllowAny]
-    pagination_class = None
-    queryset = m.HospitalImage.objects.select_related('hospital').all()
-    serializer_class = s.HospitalImage
-    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, f.ForeignUuidBodyFilter]
-    ordering_field = '__all__'
-    ordering = 'hospital'
-    uuid_filter_params = ['hospital']
-    uuid_filter_body_params = ['hospital']
-
-
-class HospitalImageDetail(g.RetrieveUpdateDestroyAPIView):
-    permission_classes = [p.AllowAny]
-    queryset = m.HospitalImage.objects.all()
-    serializer_class = s.HospitalImage
-    lookup_field = 'uuid'
-
-
 class HospitalAddressAssocList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.HospitalAddressAssoc.objects.select_related('hospital', 'address').all()

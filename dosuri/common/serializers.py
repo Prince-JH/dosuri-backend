@@ -11,6 +11,7 @@ s3_client = boto3.client(
     region_name="ap-northeast-2"
 )
 
+
 class ReadWriteSerializerMethodField(s.SerializerMethodField):
     def __init__(self, method_name=None, **kwargs):
         self.method_name = method_name
@@ -31,6 +32,7 @@ class Address(s.ModelSerializer):
         model = cm.Address
         exclude = ('id',)
 
+
 class Attachment(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     bucket_name: s.Field = s.CharField(write_only=True, allow_null=False)
@@ -46,14 +48,15 @@ class Attachment(s.ModelSerializer):
     def get_signed_path(self, obj):
         try:
             response = s3_client.generate_presigned_url('get_object',
-                                                    Params={'Bucket': obj.bucket_name,
-                                                            'Key': obj.path},
-                                                    ExpiresIn=3600)
+                                                        Params={'Bucket': obj.bucket_name,
+                                                                'Key': obj.path},
+                                                        ExpiresIn=3600)
             return response
         except ClientError as e:
             logging.error(e)
             return None
         return response
+
 
 class PutAttachment(s.ModelSerializer):
     uuid: s.Field = s.CharField()
@@ -61,18 +64,17 @@ class PutAttachment(s.ModelSerializer):
 
     class Meta:
         model = cm.Attachment
-        fields = ('uuid','signed_path')
-    
+        fields = ('uuid', 'signed_path')
+
     @swagger_serializer_method(serializer_or_field=s.CharField)
     def get_signed_path(self, obj):
         try:
             response = s3_client.generate_presigned_url('get_object',
-                                                    Params={'Bucket': obj.bucket_name,
-                                                            'Key': obj.path},
-                                                    ExpiresIn=3600)
+                                                        Params={'Bucket': obj.bucket_name,
+                                                                'Key': obj.path},
+                                                        ExpiresIn=3600)
             return response
         except ClientError as e:
             logging.error(e)
             return None
         return response
-        

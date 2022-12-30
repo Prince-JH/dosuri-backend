@@ -19,6 +19,7 @@ class Address(models.Model):
         db_table = 'address'
         ordering = ['-id']
 
+
 class Attachment(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     bucket_name = models.CharField(max_length=32, null=False)  # Bucket Name

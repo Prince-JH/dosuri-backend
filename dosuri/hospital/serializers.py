@@ -5,24 +5,35 @@ from dosuri.hospital import (
     model_managers as hmm,
     serializer_schemas as sch
 )
-from dosuri.common import models as cm
+from dosuri.common import (
+    models as cm,
+    utils as u
+)
 from dosuri.community import (
     models as cmm,
 )
 from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
 
 
-class HospitalImage(s.ModelSerializer):
+class HospitalAttachmentAssoc(s.ModelSerializer):
     hospital: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=hm.Hospital.objects.all(),
         write_only=True
     )
-    url: s.Field = s.CharField()
+    attachment: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=cm.Attachment.objects.all(),
+        write_only=True
+    )
+    signed_path: s.Field = s.SerializerMethodField()
 
     class Meta:
-        model = hm.HospitalImage
-        exclude = ('uuid', 'id', 'title', 'created_at')
+        model = hm.HospitalAttachmentAssoc
+        exclude = ('uuid', 'id', 'created_at')
+
+    def get_signed_path(self, obj):
+        return u.generate_presigned_url(obj.bucket_name, obj.path)
 
 
 class Hospital(s.ModelSerializer):
@@ -40,7 +51,7 @@ class Hospital(s.ModelSerializer):
     is_partner: s.Field = s.BooleanField(write_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
-    images = HospitalImage(many=True, source='hospital_image')
+    attachment = HospitalAttachmentAssoc(many=True)
     latitude: s.Field = s.FloatField(write_only=True)
     longitude: s.Field = s.FloatField(write_only=True)
 
@@ -103,7 +114,7 @@ class HospitalDetail(s.ModelSerializer):
     opened_at: s.Field = s.DateTimeField(write_only=True, allow_null=True)
     calendar: s.Field = HospitalCalendar(source='hospital_calendar')
     keywords: s.Field = HospitalKeywordAssoc(many=True, source='hospital_keyword_assoc')
-    images = HospitalImage(many=True, source='hospital_image')
+    attachment = HospitalAttachmentAssoc(many=True)
     latitude: s.Field = s.FloatField(write_only=True)
     longitude: s.Field = s.FloatField(write_only=True)
     is_up: s.Field = s.BooleanField(read_only=True)
@@ -166,13 +177,34 @@ class DoctorDescription(s.ModelSerializer):
         fields = ('doctor', 'description')
 
 
+class DoctorAttachmentAssoc(s.ModelSerializer):
+    doctor: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=hm.Doctor.objects.all(),
+        write_only=True
+    )
+    attachment: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=cm.Attachment.objects.all(),
+        write_only=True
+    )
+    signed_path: s.Field = s.SerializerMethodField()
+
+    class Meta:
+        model = hm.DoctorAttachmentAssoc
+        exclude = ('uuid', 'id', 'created_at')
+
+    def get_signed_path(self, obj):
+        return u.generate_presigned_url(obj.bucket_name, obj.path)
+
+
 class Doctor(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     hospital: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=hm.Hospital.objects.all()
     )
-    thumbnail_url: s.Field = s.CharField(allow_null=True)
+    attachment: s.Field = DoctorAttachmentAssoc(many=True)
     name: s.Field = s.CharField()
     title: s.Field = s.CharField(allow_null=True)
     subtitle: s.Field = s.CharField(allow_null=True)
@@ -198,22 +230,6 @@ class HospitalTreatment(s.ModelSerializer):
 
     class Meta:
         model = hm.HospitalTreatment
-        exclude = ('id', 'created_at')
-
-
-class HomeHospital(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
-    address: s.Field = s.CharField()
-    name: s.Field = s.CharField()
-    introduction: s.Field = s.CharField(allow_null=True)
-    phone_no: s.Field = s.CharField(allow_null=True)
-    up_count: s.Field = s.IntegerField(read_only=True)
-    view_count: s.Field = s.IntegerField(read_only=True)
-    is_partner: s.Field = s.BooleanField()
-    opened_at: s.Field = s.DateTimeField(allow_null=True)
-
-    class Meta:
-        model = hm.Hospital
         exclude = ('id', 'created_at')
 
 
@@ -260,7 +276,7 @@ class AroundHospital(s.ModelSerializer):
     is_partner: s.Field = s.BooleanField(write_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
-    images = HospitalImage(many=True, source='hospital_image')
+    attachment = HospitalAttachmentAssoc(many=True)
     latitude: s.Field = s.FloatField(write_only=True)
     longitude: s.Field = s.FloatField(write_only=True)
 
@@ -284,7 +300,7 @@ class NewHospital(s.ModelSerializer):
     is_partner: s.Field = s.BooleanField(write_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
-    images = HospitalImage(many=True, source='hospital_image')
+    attachment = HospitalAttachmentAssoc(many=True)
     latitude: s.Field = s.FloatField(write_only=True)
     longitude: s.Field = s.FloatField(write_only=True)
 
@@ -308,7 +324,7 @@ class GoodPriceHospital(s.ModelSerializer):
     is_partner: s.Field = s.BooleanField(write_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
-    images = HospitalImage(many=True, source='hospital_image')
+    attachment = HospitalAttachmentAssoc(many=True)
     latitude: s.Field = s.FloatField(write_only=True)
     longitude: s.Field = s.FloatField(write_only=True)
 
@@ -332,7 +348,7 @@ class GoodReviewHospital(s.ModelSerializer):
     is_partner: s.Field = s.BooleanField(write_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
-    images = HospitalImage(many=True, source='hospital_image')
+    attachment = HospitalAttachmentAssoc(many=True)
     latitude: s.Field = s.FloatField(write_only=True)
     longitude: s.Field = s.FloatField(write_only=True)
 

@@ -7,7 +7,6 @@ from dosuri.hospital import models as hm
 
 admin.site.register(cm.Address)
 admin.site.register(hm.Hospital)
-admin.site.register(hm.HospitalImage)
 admin.site.register(hm.HospitalTreatment)
 admin.site.register(hm.HospitalCalendar)
 admin.site.register(hm.HospitalKeyword)
