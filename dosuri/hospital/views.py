@@ -26,7 +26,8 @@ from dosuri.common import filters as f
 
 class HospitalList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all().prefetch_related('hospital_image').annotate_extra_fields()
+    queryset = m.Hospital.objects.all().prefetch_related('hospital_attachment_assoc',
+                                                         'hospital_attachment_assoc__attachment').annotate_extra_fields()
     serializer_class = s.Hospital
     filter_backends = [rf.OrderingFilter, rf.SearchFilter, hf.HospitalDistanceOrderingFilter]
     ordering_field = '__all__'
@@ -39,7 +40,8 @@ class HospitalList(g.ListCreateAPIView):
 class HospitalDetail(g.CreateAPIView, g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.Hospital.objects.all().prefetch_related('hospital_keyword_assoc', 'hospital_keyword_assoc__keyword',
-                                                         'hospital_image')
+                                                         'hospital_attachment_assoc',
+                                                         'hospital_attachment_assoc__attachment')
     serializer_class = s.HospitalDetail
     lookup_field = 'uuid'
 
@@ -97,7 +99,9 @@ class DoctorList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.Doctor.objects.select_related('hospital').all().prefetch_related('doctor_detail',
                                                                                   'doctor_keyword_assoc',
-                                                                                  'doctor_keyword_assoc__keyword').annotate(
+                                                                                  'doctor_keyword_assoc__keyword',
+                                                                                  'doctor_attachment_assoc',
+                                                                                  'doctor_attachment_assoc__attachment').annotate(
         keywords=ArraySubquery(
             m.DoctorKeywordAssoc.objects.filter(doctor=OuterRef('pk')).values_list('keyword__name', flat=True))
     )
@@ -109,7 +113,7 @@ class DoctorList(g.ListCreateAPIView):
 
 class DoctorDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Doctor.objects.all()
+    queryset = m.Doctor.objects.all().prefetch_related('doctor_attachment_assoc')
     serializer_class = s.Doctor
     lookup_field = 'uuid'
 
