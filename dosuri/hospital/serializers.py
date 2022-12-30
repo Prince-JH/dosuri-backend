@@ -33,7 +33,7 @@ class HospitalAttachmentAssoc(s.ModelSerializer):
         exclude = ('uuid', 'id', 'created_at')
 
     def get_signed_path(self, obj):
-        return u.generate_presigned_url(obj.bucket_name, obj.path)
+        return u.generate_presigned_url(obj.attachment.bucket_name, obj.attachment.path)
 
 
 class Hospital(s.ModelSerializer):
@@ -51,7 +51,7 @@ class Hospital(s.ModelSerializer):
     is_partner: s.Field = s.BooleanField(write_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
-    attachment = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
+    attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
     latitude: s.Field = s.FloatField(write_only=True)
     longitude: s.Field = s.FloatField(write_only=True)
 
@@ -114,7 +114,7 @@ class HospitalDetail(s.ModelSerializer):
     opened_at: s.Field = s.DateTimeField(write_only=True, allow_null=True)
     calendar: s.Field = HospitalCalendar(source='hospital_calendar')
     keywords: s.Field = HospitalKeywordAssoc(many=True, source='hospital_keyword_assoc')
-    attachment = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
+    attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
     latitude: s.Field = s.FloatField(write_only=True)
     longitude: s.Field = s.FloatField(write_only=True)
     is_up: s.Field = s.BooleanField(read_only=True)
@@ -195,7 +195,7 @@ class DoctorAttachmentAssoc(s.ModelSerializer):
         exclude = ('uuid', 'id', 'created_at')
 
     def get_signed_path(self, obj):
-        return u.generate_presigned_url(obj.bucket_name, obj.path)
+        return u.generate_presigned_url(obj.attachment.bucket_name, obj.attachment.path)
 
 
 class Doctor(s.ModelSerializer):
@@ -204,7 +204,7 @@ class Doctor(s.ModelSerializer):
         slug_field='uuid',
         queryset=hm.Hospital.objects.all()
     )
-    attachment: s.Field = DoctorAttachmentAssoc(many=True, source='doctor_attachment_assoc')
+    attachments: s.Field = DoctorAttachmentAssoc(many=True, source='doctor_attachment_assoc')
     name: s.Field = s.CharField()
     title: s.Field = s.CharField(allow_null=True)
     subtitle: s.Field = s.CharField(allow_null=True)
@@ -276,7 +276,7 @@ class AroundHospital(s.ModelSerializer):
     is_partner: s.Field = s.BooleanField(write_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
-    attachment = HospitalAttachmentAssoc(many=True)
+    attachments: s.Field = HospitalAttachmentAssoc(many=True)
     latitude: s.Field = s.FloatField(write_only=True)
     longitude: s.Field = s.FloatField(write_only=True)
 
@@ -300,7 +300,7 @@ class NewHospital(s.ModelSerializer):
     is_partner: s.Field = s.BooleanField(write_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
-    attachment = HospitalAttachmentAssoc(many=True)
+    attachments: s.Field = HospitalAttachmentAssoc(many=True)
     latitude: s.Field = s.FloatField(write_only=True)
     longitude: s.Field = s.FloatField(write_only=True)
 
@@ -324,7 +324,7 @@ class GoodPriceHospital(s.ModelSerializer):
     is_partner: s.Field = s.BooleanField(write_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
-    attachment = HospitalAttachmentAssoc(many=True)
+    attachments: s.Field = HospitalAttachmentAssoc(many=True)
     latitude: s.Field = s.FloatField(write_only=True)
     longitude: s.Field = s.FloatField(write_only=True)
 
@@ -348,7 +348,7 @@ class GoodReviewHospital(s.ModelSerializer):
     is_partner: s.Field = s.BooleanField(write_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
-    attachment = HospitalAttachmentAssoc(many=True)
+    attachments: s.Field = HospitalAttachmentAssoc(many=True)
     latitude: s.Field = s.FloatField(write_only=True)
     longitude: s.Field = s.FloatField(write_only=True)
 
