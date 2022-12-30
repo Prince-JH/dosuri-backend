@@ -278,7 +278,7 @@ class ArticleDetail(s.ModelSerializer):
         queryset=hm.Hospital.objects.all()
     )
     content: s.Field = s.CharField(read_only=False)
-    # article_attach = ArticleAttach(many=True, required=False)
+    article_attachment_assoc: s.Field = ArticleAttachmentAssoc(many=True, read_only=True)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
     article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
     article_auth = ArticleAuth(many=False, write_only=True, required=False)
