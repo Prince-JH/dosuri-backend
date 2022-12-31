@@ -28,4 +28,4 @@ DEBUG = True
 
 SITE_URL = 'http://localhost:3000'
 
-KAKAO_REST_API_KEY = '784d5eb4b69acdedc342cab868befa1a'
+KAKAO_REST_API_KEY = 'dfda6b442a118074034d51dbc685ff4a'
