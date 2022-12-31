@@ -195,6 +195,8 @@ class HospitalSearch(models.Model):
     word = models.CharField(max_length=64)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    objects = hmm.HospitalSearchManager()
+
     class Meta:
         db_table = 'hospital_search'
         ordering = ['-id']
