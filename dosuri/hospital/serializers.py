@@ -276,7 +276,7 @@ class AroundHospital(s.ModelSerializer):
     is_partner: s.Field = s.BooleanField(write_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
-    attachments: s.Field = HospitalAttachmentAssoc(many=True)
+    attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
     latitude: s.Field = s.FloatField(write_only=True)
     longitude: s.Field = s.FloatField(write_only=True)
 
@@ -300,7 +300,7 @@ class NewHospital(s.ModelSerializer):
     is_partner: s.Field = s.BooleanField(write_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
-    attachments: s.Field = HospitalAttachmentAssoc(many=True)
+    attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
     latitude: s.Field = s.FloatField(write_only=True)
     longitude: s.Field = s.FloatField(write_only=True)
 
@@ -324,7 +324,7 @@ class GoodPriceHospital(s.ModelSerializer):
     is_partner: s.Field = s.BooleanField(write_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
-    attachments: s.Field = HospitalAttachmentAssoc(many=True)
+    attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
     latitude: s.Field = s.FloatField(write_only=True)
     longitude: s.Field = s.FloatField(write_only=True)
 
@@ -348,7 +348,7 @@ class GoodReviewHospital(s.ModelSerializer):
     is_partner: s.Field = s.BooleanField(write_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
-    attachments: s.Field = HospitalAttachmentAssoc(many=True)
+    attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
     latitude: s.Field = s.FloatField(write_only=True)
     longitude: s.Field = s.FloatField(write_only=True)
 

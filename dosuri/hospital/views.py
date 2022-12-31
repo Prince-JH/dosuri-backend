@@ -257,7 +257,8 @@ class HomeHospitalList(g.ListAPIView):
     serializer_class = s.HomeHospital
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset()).prefetch_related('hospital_image')
+        queryset = self.filter_queryset(self.get_queryset()).prefetch_related('hospital_attachment_assoc',
+                                                                              'hospital_attachment_assoc__attachment')
 
         address_filtered_queryset = self.get_address_filtered_queryset(request, queryset)
 
