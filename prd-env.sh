@@ -1,6 +1,6 @@
 #!/bin/bash
 export DJANGO_SETTINGS_MODULE='config.settings'
-export KAKAO_REST_API_KEY='784d5eb4b69acdedc342cab868befa1a'
+export KAKAO_REST_API_KEY='dfda6b442a118074034d51dbc685ff4a'
 # export PYTHONPATH='/var/app/current:$PYTHONPATH'
 export RDS_DB_NAME='ebdb'
 export RDS_HOSTNAME='localhost'
