@@ -6,6 +6,7 @@ USER_DETAIL_EXAMPLE = [
         summary='short summary',
         description='',
         value={
+            "username": "igoman2@naver.com",
             "nickname": "한준호",
             "birthday": "2022-12-20",
             "phone_no": "010-1234-5678",
