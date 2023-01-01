@@ -298,7 +298,9 @@ class HomeHospitalList(g.ListAPIView):
 
     def get_good_price_hospital_queryset(self, queryset):
         count = queryset.count()
-        if count * 0.3 >= 3:
+        if count == 0:
+            return queryset.none()
+        elif count * 0.3 >= 3:
             count = int(count * 0.3)
         avg_price_per_hour = queryset.annotate(avg_price_per_hour=Coalesce(Subquery(
             m.HospitalTreatment.objects.filter(price_per_hour__isnull=False, hospital=OuterRef('pk')).annotate(
@@ -312,7 +314,9 @@ class HomeHospitalList(g.ListAPIView):
 
     def get_good_review_hospital_queryset(self, queryset):
         count = queryset.count()
-        if count // 2 >= 3:
+        if count == 0:
+            return queryset.none()
+        elif count // 2 >= 3:
             count //= 2
         article_count = queryset.annotate_article_count()[count - 1].article_count
         return queryset.annotate_extra_fields().filter(article_count__gte=article_count).order_by('?')[:3]
