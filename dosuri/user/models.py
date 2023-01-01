@@ -16,9 +16,9 @@ class User(AbstractUser):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     nickname = models.CharField(max_length=32, unique=True, null=True)
     birthday = models.DateTimeField(null=True)
-    sex = models.CharField(max_length=16, default='', blank=True)
-    name = models.CharField(max_length=16, default='', blank=True)
-    phone_no = models.CharField(max_length=32, default='', blank=True)
+    sex = models.CharField(max_length=16, null=True)
+    name = models.CharField(max_length=16, null=True)
+    phone_no = models.CharField(max_length=32, null=True)
     is_real = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -28,10 +28,6 @@ class User(AbstractUser):
         db_table = 'user'
         app_label = 'dosuri'
         ordering = ['-id']
-
-    def save_name(self, name):
-        self.name = name
-        self.save()
 
 
 class Insurance(models.Model):
