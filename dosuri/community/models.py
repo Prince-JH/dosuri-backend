@@ -21,7 +21,7 @@ class TreatmentCategory(models.Model):
 class TreatmentKeyword(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     keyword = models.CharField(max_length=15, null=False)
-    category = models.ForeignKey(TreatmentCategory, on_delete=models.CASCADE, related_name='treatmeny_keyword')
+    category = models.ForeignKey(TreatmentCategory, on_delete=models.CASCADE, related_name='treatmeny_keyword', null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -130,7 +130,7 @@ class ArticleKeywordAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='treatment_keyword_assoc')
     treatment_keyword = models.ForeignKey(TreatmentKeyword, on_delete=models.CASCADE,
-                                        related_name='treatment_keyword_assoc')
+                                        related_name='treatment_keyword_assoc', null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
