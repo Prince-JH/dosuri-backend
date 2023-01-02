@@ -26,5 +26,5 @@ def hospital_test_A():
     )
     
 @pytest.fixture
-def article_keyword_A():
-    return cmm.ArticleKeyword.objects.create(keyword="도수치료")
+def treatmeny_keyword_A():
+    return cmm.TreatmentKeyword.objects.create(keyword="도수치료")

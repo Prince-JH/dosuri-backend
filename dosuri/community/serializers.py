@@ -103,13 +103,13 @@ class AuthAttachmentAssoc(s.ModelSerializer):
 class ArticleKeywordAssoc(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     keyword: s.Field = s.CharField(
-        source='article_keyword.keyword',
+        source='treatment_keyword.keyword',
         read_only=True
     )
-    article_keyword: s.Field = s.SlugRelatedField(
+    treatment_keyword: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         write_only=True,
-        queryset=comm.ArticleKeyword.objects.all()
+        queryset=comm.TreatmentKeyword.objects.all()
     )
     created_at: s.Field = s.DateTimeField(read_only=True)
 

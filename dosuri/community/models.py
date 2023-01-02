@@ -9,14 +9,23 @@ from dosuri.common.models import Attachment
 def generate_uuid():
     return uuid4().hex
 
-
-class ArticleKeyword(models.Model):
+class TreatmentCategory(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    keyword = models.CharField(max_length=15, null=False)
+    category = models.CharField(max_length=15, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'article_keyword'
+        db_table = 'treatment_category'
+        ordering = ['-id']
+
+class TreatmentKeyword(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    keyword = models.CharField(max_length=15, null=False)
+    category = models.ForeignKey(TreatmentCategory, on_delete=models.CASCADE, related_name='treatmeny_keyword')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'treatment_keyword'
         ordering = ['-id']
 
 
@@ -119,9 +128,9 @@ class ArticleDoctorAssoc(models.Model):
 
 class ArticleKeywordAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_keyword_assoc')
-    article_keyword = models.ForeignKey(ArticleKeyword, on_delete=models.CASCADE,
-                                        related_name='article_keyword_assoc')
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='treatment_keyword_assoc')
+    treatment_keyword = models.ForeignKey(TreatmentKeyword, on_delete=models.CASCADE,
+                                        related_name='treatment_keyword_assoc')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
