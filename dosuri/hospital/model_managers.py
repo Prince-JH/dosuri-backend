@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AnonymousUser
 from django.db.models import Manager
 from dosuri.hospital import model_querysets as mqs
 
@@ -14,3 +15,13 @@ class HospitalUserAssocManager(Manager):
 class HospitalManager(Manager):
     def get_queryset(self):
         return mqs.HospitalQuerySet(self.model, using=self._db)
+
+
+class HospitalSearchManager(Manager):
+    def save_search(self, user, word):
+        if isinstance(user, AnonymousUser):
+            return
+        return self.create(
+            user=user,
+            word=word
+        )

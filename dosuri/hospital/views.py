@@ -26,9 +26,10 @@ from dosuri.common import filters as f
 
 class HospitalList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all().prefetch_related('hospital_image').annotate_extra_fields()
+    queryset = m.Hospital.objects.all().prefetch_related('hospital_attachment_assoc',
+                                                         'hospital_attachment_assoc__attachment').annotate_extra_fields()
     serializer_class = s.Hospital
-    filter_backends = [rf.OrderingFilter, rf.SearchFilter, hf.HospitalDistanceOrderingFilter]
+    filter_backends = [rf.OrderingFilter, hf.HospitalSearchFilter, hf.HospitalDistanceOrderingFilter]
     ordering_field = '__all__'
     ordering = ['view_count']
     search_fields = ['name']
@@ -39,7 +40,8 @@ class HospitalList(g.ListCreateAPIView):
 class HospitalDetail(g.CreateAPIView, g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.Hospital.objects.all().prefetch_related('hospital_keyword_assoc', 'hospital_keyword_assoc__keyword',
-                                                         'hospital_image')
+                                                         'hospital_attachment_assoc',
+                                                         'hospital_attachment_assoc__attachment')
     serializer_class = s.HospitalDetail
     lookup_field = 'uuid'
 
@@ -77,25 +79,6 @@ class HospitalCalendarDetail(g.RetrieveUpdateDestroyAPIView):
     lookup_field = 'uuid'
 
 
-class HospitalImageList(g.ListCreateAPIView):
-    permission_classes = [p.AllowAny]
-    pagination_class = None
-    queryset = m.HospitalImage.objects.select_related('hospital').all()
-    serializer_class = s.HospitalImage
-    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, f.ForeignUuidBodyFilter]
-    ordering_field = '__all__'
-    ordering = 'hospital'
-    uuid_filter_params = ['hospital']
-    uuid_filter_body_params = ['hospital']
-
-
-class HospitalImageDetail(g.RetrieveUpdateDestroyAPIView):
-    permission_classes = [p.AllowAny]
-    queryset = m.HospitalImage.objects.all()
-    serializer_class = s.HospitalImage
-    lookup_field = 'uuid'
-
-
 class HospitalAddressAssocList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.HospitalAddressAssoc.objects.select_related('hospital', 'address').all()
@@ -116,7 +99,9 @@ class DoctorList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.Doctor.objects.select_related('hospital').all().prefetch_related('doctor_detail',
                                                                                   'doctor_keyword_assoc',
-                                                                                  'doctor_keyword_assoc__keyword').annotate(
+                                                                                  'doctor_keyword_assoc__keyword',
+                                                                                  'doctor_attachment_assoc',
+                                                                                  'doctor_attachment_assoc__attachment').annotate(
         keywords=ArraySubquery(
             m.DoctorKeywordAssoc.objects.filter(doctor=OuterRef('pk')).values_list('keyword__name', flat=True))
     )
@@ -128,7 +113,7 @@ class DoctorList(g.ListCreateAPIView):
 
 class DoctorDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Doctor.objects.all()
+    queryset = m.Doctor.objects.all().prefetch_related('doctor_attachment_assoc')
     serializer_class = s.Doctor
     lookup_field = 'uuid'
 
@@ -272,7 +257,8 @@ class HomeHospitalList(g.ListAPIView):
     serializer_class = s.HomeHospital
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset()).prefetch_related('hospital_image')
+        queryset = self.filter_queryset(self.get_queryset()).prefetch_related('hospital_attachment_assoc',
+                                                                              'hospital_attachment_assoc__attachment')
 
         address_filtered_queryset = self.get_address_filtered_queryset(request, queryset)
 
@@ -312,7 +298,9 @@ class HomeHospitalList(g.ListAPIView):
 
     def get_good_price_hospital_queryset(self, queryset):
         count = queryset.count()
-        if count * 0.3 >= 3:
+        if count == 0:
+            return queryset.none()
+        elif count * 0.3 >= 3:
             count = int(count * 0.3)
         avg_price_per_hour = queryset.annotate(avg_price_per_hour=Coalesce(Subquery(
             m.HospitalTreatment.objects.filter(price_per_hour__isnull=False, hospital=OuterRef('pk')).annotate(
@@ -326,7 +314,9 @@ class HomeHospitalList(g.ListAPIView):
 
     def get_good_review_hospital_queryset(self, queryset):
         count = queryset.count()
-        if count // 2 >= 3:
+        if count == 0:
+            return queryset.none()
+        elif count // 2 >= 3:
             count //= 2
         article_count = queryset.annotate_article_count()[count - 1].article_count
         return queryset.annotate_extra_fields().filter(article_count__gte=article_count).order_by('?')[:3]

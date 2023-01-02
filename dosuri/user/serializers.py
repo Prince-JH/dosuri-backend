@@ -1,3 +1,5 @@
+import datetime
+
 from django.apps import apps
 from django.contrib.auth import get_user_model
 from drf_spectacular.utils import extend_schema_serializer
@@ -39,11 +41,12 @@ class Auth(s.Serializer):
 
         if auth_domain == c.SOCIAL_KAKAO:
             auth_factory = a.KaKaoAuth(token, redirect_uri)
-        user_info = auth_factory.authenticate()
-        username = user_info['kakao_account']['email']
+        kakao_user_info = auth_factory.authenticate()
+        username = kakao_user_info['kakao_account']['email']
 
         user, is_new = um.User.objects.get_or_create_user(username)
-        user.save_name(user_info['kakao_account'].get('name', ''))
+        user_info = self.get_user_info_from_kakao(kakao_user_info)
+        um.User.objects.update_user_info(user, user_info)
 
         tokens = a.get_tokens_for_user(user)
         validated_data['access_token'] = tokens['access']
@@ -51,6 +54,24 @@ class Auth(s.Serializer):
         validated_data['is_new'] = is_new
         validated_data['user_uuid'] = user.uuid
         return validated_data
+
+    def get_user_info_from_kakao(self, kakao_user_info):
+        name = kakao_user_info['kakao_account'].get('name')
+        sex = kakao_user_info['kakao_account'].get('gender')
+        if sex == 'male':
+            sex = '남자'
+        elif sex == 'female':
+            sex = '여자'
+        phone_no = kakao_user_info['kakao_account'].get('phone_number')
+        if phone_no:
+            country_code, phone_no = phone_no.split(' ')[0], phone_no.split(' ')[1]
+            if country_code != '+82':
+                phone_no = None
+        birth_year = kakao_user_info['kakao_account'].get('birthyear')
+        birthday = kakao_user_info['kakao_account'].get('birthday')
+        if birth_year and birthday:
+            birthday = datetime.datetime.strptime(f'{birth_year}-{birthday}', '%Y-%m%d')
+        return {'name': name, 'phone_no': phone_no, 'sex': sex, 'birthday': birthday}
 
 
 class AddressUserAssoc(s.ModelSerializer):

@@ -11,3 +11,4 @@ requests-mock
 django-cors-headers
 boto3
 requests_toolbelt
+drf_yasg

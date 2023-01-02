@@ -2,7 +2,10 @@ from rest_framework import filters
 from django.db.models import Count, Case, When
 from rest_framework.settings import api_settings
 
-from dosuri.hospital import filter_schema as fsc
+from dosuri.hospital import (
+    filter_schema as fsc,
+    models as hm
+)
 from dosuri.community import (
     models as cmm,
     constants as cmc,
@@ -144,3 +147,12 @@ class DoctorPositionFilter(fsc.DoctorPositionFilterSchema, filters.BaseFilterBac
         if not position:
             return queryset
         return queryset.filter(position=position)
+
+
+class HospitalSearchFilter(filters.SearchFilter):
+    def filter_queryset(self, request, queryset, view):
+        word = request.GET.get('search')
+        if word:
+            hm.HospitalSearch.objects.save_search(request.user, word)
+
+        return super().filter_queryset(request, queryset, view)

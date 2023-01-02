@@ -39,15 +39,14 @@ class Hospital(models.Model):
             self.save()
 
 
-class HospitalImage(models.Model):
+class HospitalAttachmentAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    title = models.CharField(max_length=64, default='')
-    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_image')
-    url = models.CharField(max_length=512)
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_attachment_assoc')
+    attachment = models.ForeignKey(cm.Attachment, on_delete=models.CASCADE, related_name='hospital_attachment_assoc')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'hospital_image'
+        db_table = 'hospital_attachment_assoc'
         ordering = ['-id']
 
 
@@ -104,7 +103,6 @@ class HospitalKeywordAssoc(models.Model):
 class Doctor(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='doctor')
-    thumbnail_url = models.CharField(max_length=512, null=True)
     name = models.CharField(max_length=64)
     title = models.CharField(max_length=64)
     subtitle = models.CharField(max_length=64)
@@ -113,6 +111,17 @@ class Doctor(models.Model):
 
     class Meta:
         db_table = 'doctor'
+        ordering = ['-id']
+
+
+class DoctorAttachmentAssoc(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='doctor_attachment_assoc')
+    attachment = models.ForeignKey(cm.Attachment, on_delete=models.CASCADE, related_name='doctor_attachment_assoc')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'doctor_attachment_assoc'
         ordering = ['-id']
 
 
@@ -185,6 +194,8 @@ class HospitalSearch(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='hospital_search')
     word = models.CharField(max_length=64)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = hmm.HospitalSearchManager()
 
     class Meta:
         db_table = 'hospital_search'

@@ -93,46 +93,6 @@ def hospital_calendar_test_B(hospital_test_B):
 
 
 @pytest.fixture
-def hospital_image_1_test_A(hospital_test_A):
-    return hm.HospitalImage.objects.create(
-        hospital=hospital_test_A,
-        url='url_1'
-    )
-
-
-@pytest.fixture
-def hospital_image_2_test_A(hospital_test_A):
-    return hm.HospitalImage.objects.create(
-        hospital=hospital_test_A,
-        url='url_2'
-    )
-
-
-@pytest.fixture
-def hospital_image_3_test_B(hospital_test_B):
-    return hm.HospitalImage.objects.create(
-        hospital=hospital_test_B,
-        url='url_3'
-    )
-
-
-@pytest.fixture
-def hospital_image_4_test_B(hospital_test_B):
-    return hm.HospitalImage.objects.create(
-        hospital=hospital_test_B,
-        url='url_4'
-    )
-
-
-@pytest.fixture
-def hospital_image_5_test_C(hospital_test_C):
-    return hm.HospitalImage.objects.create(
-        hospital=hospital_test_C,
-        url='url_5'
-    )
-
-
-@pytest.fixture
 def assoc_hospital_A_address_강남(hospital_test_A, address_서울시_강남구):
     return hm.HospitalAddressAssoc.objects.create(
         hospital=hospital_test_A,

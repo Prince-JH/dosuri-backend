@@ -25,11 +25,12 @@ USER_DETAIL_EXAMPLE = [
         },
         request_only=True
     ),
-OpenApiExample(
+    OpenApiExample(
         'Valid example 1',
         summary='short summary',
         description='',
         value={
+            "username": "igoman2@naver.com",
             "uuid": "a1b38583f3c6441194b9530700517f09",
             "nickname": "한준호",
             "name": "한준호",

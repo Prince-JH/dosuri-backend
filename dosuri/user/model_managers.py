@@ -15,3 +15,6 @@ class DosuriUserManager(UserManager):
 
     def get_user_by_uuid(self, uuid):
         return self.get(uuid=uuid)
+
+    def update_user_info(self, user, user_info):
+        self.filter(pk=user.pk).update(**user_info)
