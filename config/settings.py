@@ -19,10 +19,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 secret_file = os.path.join(f'{BASE_DIR}/config', 'secret.json')
 
-DOSURI_IMAGE_PUBLIC_KEY_ID = os.environ['DOSURI_IMAGE_PUBLIC_KEY_ID']
-DOSURI_IMAGE_PRIVATE_KEY_PATH = os.environ['DOSURI_IMAGE_PRIVATE_KEY_PATH'] 
+DOSURI_IMAGE_PUBLIC_KEY_ID = os.environ.get('DOSURI_IMAGE_PUBLIC_KEY_ID')
+DOSURI_IMAGE_PRIVATE_KEY_PATH = os.environ.get('DOSURI_IMAGE_PRIVATE_KEY_PATH')
 
-HOST_DOMAIN = os.environ['HOST_DOMAIN'] 
+HOST_DOMAIN = os.environ.get('HOST_DOMAIN')
 # SECURITY WARNING: keep the secret key used in production secret!
 with open(secret_file, encoding='utf-8') as fin:
     secrets = json.loads(fin.read())
