@@ -3,6 +3,15 @@ import boto3
 from dosuri.common import models as cm
 from django.conf import settings
 from drf_yasg.utils import swagger_serializer_method
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import padding
+from botocore.signers import CloudFrontSigner
+from datetime import datetime, timedelta
+from urllib import parse
+import rsa
+
 
 s3_client = boto3.client(
     "s3",
@@ -10,7 +19,20 @@ s3_client = boto3.client(
     aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
     region_name="ap-northeast-2"
 )
+private_key_path= settings.DOSURI_IMAGE_PRIVATE_KEY_PATH
+key_id = settings.DOSURI_IMAGE_PUBLIC_KEY_ID
+host_domain = settings.HOST_DOMAIN
 
+def rsa_signer(message):
+    with open(private_key_path, 'rb') as key_file:
+        private_key = serialization.load_pem_private_key(
+            key_file.read(),
+            password=None,
+            backend=default_backend()
+        )
+    return private_key.sign(message, padding.PKCS1v15(), hashes.SHA1())
+
+cloudfront_signer = CloudFrontSigner(key_id, rsa_signer)
 
 class ReadWriteSerializerMethodField(s.SerializerMethodField):
     def __init__(self, method_name=None, **kwargs):
@@ -47,15 +69,17 @@ class Attachment(s.ModelSerializer):
     @swagger_serializer_method(serializer_or_field=s.CharField)
     def get_signed_path(self, obj):
         try:
-            response = s3_client.generate_presigned_url('get_object',
-                                                        Params={'Bucket': obj.bucket_name,
-                                                                'Key': obj.path},
-                                                        ExpiresIn=3600)
-            return response
-        except ClientError as e:
-            logging.error(e)
+            url = 'http://'+obj.bucket_name + '.' + host_domain + '/' + parse.quote(obj.path)
+            expire_date = datetime.now() + timedelta(days=1)
+
+            signed_url = cloudfront_signer.generate_presigned_url(
+                url, date_less_than=expire_date)
+            return signed_url
+        except:
+            import traceback
+            traceback.print_exc()
             return None
-        return response
+        return signed_url
 
 
 class PutAttachment(s.ModelSerializer):
@@ -69,12 +93,14 @@ class PutAttachment(s.ModelSerializer):
     @swagger_serializer_method(serializer_or_field=s.CharField)
     def get_signed_path(self, obj):
         try:
-            response = s3_client.generate_presigned_url('get_object',
-                                                        Params={'Bucket': obj.bucket_name,
-                                                                'Key': obj.path},
-                                                        ExpiresIn=3600)
-            return response
-        except ClientError as e:
-            logging.error(e)
+            url = 'http://'+obj.bucket_name + '.' + host_domain + '/' + obj.path
+            expire_date = datetime.now() + timedelta(days=1)
+
+            signed_url = cloudfront_signer.generate_presigned_url(
+                url, date_less_than=expire_date)
+            return signed_url
+        except:
+            import traceback
+            traceback.print_exc()
             return None
-        return response
+        return signed_url
