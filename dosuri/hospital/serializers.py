@@ -7,10 +7,11 @@ from dosuri.hospital import (
 )
 from dosuri.common import (
     models as cm,
-    utils as u
+    utils as cu
 )
 from dosuri.community import (
     models as cmm,
+
 )
 from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
 
@@ -33,7 +34,8 @@ class HospitalAttachmentAssoc(s.ModelSerializer):
         exclude = ('uuid', 'id', 'created_at')
 
     def get_signed_path(self, obj):
-        return u.generate_presigned_url(obj.attachment.bucket_name, obj.attachment.path)
+        return cu.generate_signed_path(obj.attachment)
+
 
 
 class Hospital(s.ModelSerializer):
@@ -195,7 +197,7 @@ class DoctorAttachmentAssoc(s.ModelSerializer):
         exclude = ('uuid', 'id', 'created_at')
 
     def get_signed_path(self, obj):
-        return u.generate_presigned_url(obj.attachment.bucket_name, obj.attachment.path)
+        return cu.generate_signed_path(obj.attachment)
 
 
 class Doctor(s.ModelSerializer):
