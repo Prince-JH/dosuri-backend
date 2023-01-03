@@ -67,8 +67,12 @@ class ArticleList(g.ListCreateAPIView):
         response = super().list(request, *args, **kwargs)
         now = datetime.now()
         date_format = "%Y-%m-%dT%H:%M:%S.%fZ"
+        date_format_sec = "%Y-%m-%dT%H:%M:%SZ"
         for item in response.data['results']:
-            created_at = datetime.strptime(item['created_at'], date_format)
+            try:
+                created_at = datetime.strptime(item['created_at'], date_format)
+            except:
+                created_at = datetime.strptime(item['created_at'], date_format_sec)
             total_seconds = (now-created_at).total_seconds()
             if total_seconds < 60:
                 item['created_at'] = str(int(total_seconds))+ '초 전'
