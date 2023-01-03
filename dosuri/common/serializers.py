@@ -1,5 +1,4 @@
 from rest_framework import serializers as s
-import boto3
 from dosuri.common import models as cm
 from django.conf import settings
 from drf_yasg.utils import swagger_serializer_method
@@ -13,12 +12,6 @@ from urllib import parse
 import rsa
 
 
-s3_client = boto3.client(
-    "s3",
-    aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-    aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-    region_name="ap-northeast-2"
-)
 private_key_path= settings.DOSURI_IMAGE_PRIVATE_KEY_PATH
 key_id = settings.DOSURI_IMAGE_PUBLIC_KEY_ID
 host_domain = settings.HOST_DOMAIN
