@@ -81,3 +81,28 @@ class PainAreaUserAssoc(models.Model):
     class Meta:
         db_table = 'pain_area_user_assoc'
         ordering = ['-id']
+
+
+class UserPointHistory(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='user_point_history')
+    modify_point = models.IntegerField(default=0)
+    total_point = models.IntegerField(default=0)
+    content = models.CharField(max_length=128, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'user_point_history'
+        ordering = ['-id']
+
+
+class UserNotification(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='user_notification')
+    content = models.CharField(max_length=128, default='')
+    is_new = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'user_notification'
+        ordering = ['-id']
