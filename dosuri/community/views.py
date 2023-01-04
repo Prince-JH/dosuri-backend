@@ -23,30 +23,6 @@ class HotArticleList(g.ListAPIView):
     serializer_class = s.GetArticle
     filter_backends = []
     ordering_field = '__all__'
-    def list(self, request, *args, **kwargs): ## 준호님 요청에 의해 시간 표기 로직을 백엔드에서 수행, 추후 프론트에서 작업시 해당 함수 제거 요망
-        response = super().list(request, *args, **kwargs)
-        now = datetime.now()
-        date_format = "%Y-%m-%dT%H:%M:%S.%fZ"
-        date_format_sec = "%Y-%m-%dT%H:%M:%SZ"
-        for item in response.data['results']:
-            try:
-                created_at = datetime.strptime(item['created_at'], date_format)
-            except:
-                created_at = datetime.strptime(item['created_at'], date_format_sec)
-            total_seconds = (now-created_at).total_seconds()
-            if total_seconds < 60:
-                item['created_at'] = str(int(total_seconds))+ '초 전'
-            elif total_seconds/60 < 60:
-                item['created_at'] = str(int(total_seconds/60))+ '분 전'
-            elif total_seconds/3600 < 24:
-                item['created_at'] = str(int(total_seconds/3600))+ '시간 전'
-            elif (total_seconds/3600)/24 < 30:
-                item['created_at'] = str(int((total_seconds/3600)/24))+ '일 전'
-            elif ((total_seconds/3600)/24)/30 < 12:
-                item['created_at'] = str(int(((total_seconds/3600)/24)/30))+ '개월 전'
-            else:
-                item['created_at'] = str(int((((total_seconds/3600)/24)/30)/12))+ '년 전'
-        return response
 
 class ArticleList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
