@@ -130,7 +130,7 @@ class ArticleComment(g.CreateAPIView):
 class ArticleThread(g.CreateAPIView):
     permission_classes = [p.IsAuthenticated]
     queryset = m.ArticleThread.objects.all()
-    serializer_class = s.ArticleThread
+    serializer_class = s.PostArticleThread
     lookup_field = 'uuid'
 
     def create(self, request, *args, **kwargs):
