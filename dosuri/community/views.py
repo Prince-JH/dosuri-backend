@@ -54,7 +54,7 @@ class ArticleList(g.ListCreateAPIView):
     serializer_class = s.Article
     read_serializer_class = s.GetArticle
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, f.ArticleTypeFilter]
-    uuid_filter_params = ['hospital']
+    uuid_filter_params = ['hospital', 'user']
     ordering_field = '__all__'
     def get_serializer_class(self):
         if self.request.method.lower() == "get":
