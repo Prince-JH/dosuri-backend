@@ -8,6 +8,7 @@ from dosuri.hospital import models as hm
 from dosuri.user import models as um
 from django.db import transaction
 from dosuri.common import serializers as cs
+from datetime import datetime
 
 
 class User(s.ModelSerializer):
@@ -157,10 +158,29 @@ class ArticleThread(s.ModelSerializer):
         slug_field='uuid',
         queryset=comm.ArticleComment.objects.all()
     )
-
+    # created_at: s.Field = s.DateTimeField(read_only=True)
+    created_at: s.Field = s.SerializerMethodField()
+    
     class Meta:
         model = dosuri.community.models.ArticleThread
         exclude = ('id',)
+    def get_created_at(self, instance): ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
+        now = datetime.now().astimezone()
+        created_at = instance.created_at
+        total_seconds = (now-created_at).total_seconds()
+        if total_seconds < 60:
+            created_at = str(int(total_seconds))+ '초 전'
+        elif total_seconds/60 < 60:
+            created_at = str(int(total_seconds/60))+ '분 전'
+        elif total_seconds/3600 < 24:
+            created_at = str(int(total_seconds/3600))+ '시간 전'
+        elif (total_seconds/3600)/24 < 30:
+            created_at = str(int((total_seconds/3600)/24))+ '일 전'
+        elif ((total_seconds/3600)/24)/30 < 12:
+            created_at = str(int(((total_seconds/3600)/24)/30))+ '개월 전'
+        else:
+            created_at = str(int((((total_seconds/3600)/24)/30)/12))+ '년 전'
+        return created_at
 
 class ArticleComment(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
@@ -174,10 +194,29 @@ class ArticleComment(s.ModelSerializer):
         slug_field='uuid',
         queryset=comm.Article.objects.all()
     )
+    # created_at: s.Field = s.DateTimeField(read_only=True)
+    created_at: s.Field = s.SerializerMethodField()
 
     class Meta:
         model = dosuri.community.models.ArticleComment
         exclude = ('id',)
+    def get_created_at(self, instance): ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
+        now = datetime.now().astimezone()
+        created_at = instance.created_at
+        total_seconds = (now-created_at).total_seconds()
+        if total_seconds < 60:
+            created_at = str(int(total_seconds))+ '초 전'
+        elif total_seconds/60 < 60:
+            created_at = str(int(total_seconds/60))+ '분 전'
+        elif total_seconds/3600 < 24:
+            created_at = str(int(total_seconds/3600))+ '시간 전'
+        elif (total_seconds/3600)/24 < 30:
+            created_at = str(int((total_seconds/3600)/24))+ '일 전'
+        elif ((total_seconds/3600)/24)/30 < 12:
+            created_at = str(int(((total_seconds/3600)/24)/30))+ '개월 전'
+        else:
+            created_at = str(int((((total_seconds/3600)/24)/30)/12))+ '년 전'
+        return created_at
 
 class Article(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
@@ -256,7 +295,8 @@ class GetArticle(s.ModelSerializer):
     article_type: s.Field = s.CharField()
     up_count: s.Field = s.IntegerField(default=0, read_only=True)
     view_count: s.Field = s.IntegerField(default=0, read_only=True)
-    created_at: s.Field = s.DateTimeField(read_only=True)
+    # created_at: s.Field = s.DateTimeField(read_only=True)
+    created_at: s.Field = s.SerializerMethodField()
     hospital: s.Field = s.SlugRelatedField(
         read_only=True,
         slug_field='name',
@@ -273,6 +313,23 @@ class GetArticle(s.ModelSerializer):
     class Meta:
         model = dosuri.community.models.Article
         exclude = ('id', 'status')
+    def get_created_at(self, instance): ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
+        now = datetime.now().astimezone()
+        created_at = instance.created_at
+        total_seconds = (now-created_at).total_seconds()
+        if total_seconds < 60:
+            created_at = str(int(total_seconds))+ '초 전'
+        elif total_seconds/60 < 60:
+            created_at = str(int(total_seconds/60))+ '분 전'
+        elif total_seconds/3600 < 24:
+            created_at = str(int(total_seconds/3600))+ '시간 전'
+        elif (total_seconds/3600)/24 < 30:
+            created_at = str(int((total_seconds/3600)/24))+ '일 전'
+        elif ((total_seconds/3600)/24)/30 < 12:
+            created_at = str(int(((total_seconds/3600)/24)/30))+ '개월 전'
+        else:
+            created_at = str(int((((total_seconds/3600)/24)/30)/12))+ '년 전'
+        return created_at
 
 class ArticleDetail(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
@@ -280,7 +337,8 @@ class ArticleDetail(s.ModelSerializer):
     article_type: s.Field = s.CharField()
     up_count: s.Field = s.IntegerField(default=0, read_only=True)
     view_count: s.Field = s.IntegerField(default=0, read_only=True)
-    created_at: s.Field = s.DateTimeField(read_only=True)
+    # created_at: s.Field = s.DateTimeField(read_only=True)
+    created_at: s.Field = s.SerializerMethodField()
     hospital: s.Field = s.SlugRelatedField(
         slug_field='name',
         queryset=hm.Hospital.objects.all()
@@ -296,3 +354,21 @@ class ArticleDetail(s.ModelSerializer):
     class Meta:
         model = dosuri.community.models.Article
         exclude = ('id', 'status')
+    
+    def get_created_at(self, instance): ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
+        now = datetime.now().astimezone()
+        created_at = instance.created_at
+        total_seconds = (now-created_at).total_seconds()
+        if total_seconds < 60:
+            created_at = str(int(total_seconds))+ '초 전'
+        elif total_seconds/60 < 60:
+            created_at = str(int(total_seconds/60))+ '분 전'
+        elif total_seconds/3600 < 24:
+            created_at = str(int(total_seconds/3600))+ '시간 전'
+        elif (total_seconds/3600)/24 < 30:
+            created_at = str(int((total_seconds/3600)/24))+ '일 전'
+        elif ((total_seconds/3600)/24)/30 < 12:
+            created_at = str(int(((total_seconds/3600)/24)/30))+ '개월 전'
+        else:
+            created_at = str(int((((total_seconds/3600)/24)/30)/12))+ '년 전'
+        return created_at

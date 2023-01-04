@@ -149,7 +149,8 @@ class ArticleComment(models.Model):
 
     class Meta:
         db_table = 'article_comment'
-        ordering = ['-id']
+        ordering = ['created_at']
+        # ordering = ['-id']
 
 
 class ArticleThread(models.Model):
@@ -160,7 +161,8 @@ class ArticleThread(models.Model):
     view_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     content = models.CharField(max_length=1200)  ## 댓글 최대글자 한글은 3 bytes (최대 400글자)
+    mention = models.ForeignKey(User, on_delete=models.CASCADE, related_name='article_comment', null=True, default=None)
 
     class Meta:
         db_table = 'article_thread'
-        ordering = ['-id']
+        ordering = ['created_at']
