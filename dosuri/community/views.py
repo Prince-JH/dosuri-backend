@@ -23,30 +23,6 @@ class HotArticleList(g.ListAPIView):
     serializer_class = s.GetArticle
     filter_backends = []
     ordering_field = '__all__'
-    def list(self, request, *args, **kwargs): ## 준호님 요청에 의해 시간 표기 로직을 백엔드에서 수행, 추후 프론트에서 작업시 해당 함수 제거 요망
-        response = super().list(request, *args, **kwargs)
-        now = datetime.now()
-        date_format = "%Y-%m-%dT%H:%M:%S.%fZ"
-        date_format_sec = "%Y-%m-%dT%H:%M:%SZ"
-        for item in response.data['results']:
-            try:
-                created_at = datetime.strptime(item['created_at'], date_format)
-            except:
-                created_at = datetime.strptime(item['created_at'], date_format_sec)
-            total_seconds = (now-created_at).total_seconds()
-            if total_seconds < 60:
-                item['created_at'] = str(int(total_seconds))+ '초 전'
-            elif total_seconds/60 < 60:
-                item['created_at'] = str(int(total_seconds/60))+ '분 전'
-            elif total_seconds/3600 < 24:
-                item['created_at'] = str(int(total_seconds/3600))+ '시간 전'
-            elif (total_seconds/3600)/24 < 30:
-                item['created_at'] = str(int((total_seconds/3600)/24))+ '일 전'
-            elif ((total_seconds/3600)/24)/30 < 12:
-                item['created_at'] = str(int(((total_seconds/3600)/24)/30))+ '개월 전'
-            else:
-                item['created_at'] = str(int((((total_seconds/3600)/24)/30)/12))+ '년 전'
-        return response
 
 class ArticleList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
@@ -54,7 +30,7 @@ class ArticleList(g.ListCreateAPIView):
     serializer_class = s.Article
     read_serializer_class = s.GetArticle
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, f.ArticleTypeFilter]
-    uuid_filter_params = ['hospital']
+    uuid_filter_params = ['hospital', 'user']
     ordering_field = '__all__'
     def get_serializer_class(self):
         if self.request.method.lower() == "get":
@@ -63,30 +39,6 @@ class ArticleList(g.ListCreateAPIView):
         return self.serializer_class
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-    def list(self, request, *args, **kwargs): ## 준호님 요청에 의해 시간 표기 로직을 백엔드에서 수행, 추후 프론트에서 작업시 해당 함수 제거 요망
-        response = super().list(request, *args, **kwargs)
-        now = datetime.now()
-        date_format = "%Y-%m-%dT%H:%M:%S.%fZ"
-        date_format_sec = "%Y-%m-%dT%H:%M:%SZ"
-        for item in response.data['results']:
-            try:
-                created_at = datetime.strptime(item['created_at'], date_format)
-            except:
-                created_at = datetime.strptime(item['created_at'], date_format_sec)
-            total_seconds = (now-created_at).total_seconds()
-            if total_seconds < 60:
-                item['created_at'] = str(int(total_seconds))+ '초 전'
-            elif total_seconds/60 < 60:
-                item['created_at'] = str(int(total_seconds/60))+ '분 전'
-            elif total_seconds/3600 < 24:
-                item['created_at'] = str(int(total_seconds/3600))+ '시간 전'
-            elif (total_seconds/3600)/24 < 30:
-                item['created_at'] = str(int((total_seconds/3600)/24))+ '일 전'
-            elif ((total_seconds/3600)/24)/30 < 12:
-                item['created_at'] = str(int(((total_seconds/3600)/24)/30))+ '개월 전'
-            else:
-                item['created_at'] = str(int((((total_seconds/3600)/24)/30)/12))+ '년 전'
-        return response
 
 
 # class CreateArticle(g.CreateAPIView):
@@ -118,7 +70,9 @@ class ArticleKeywordAssocList(g.ListAPIView):
 
 class ArticleDetail(g.RetrieveAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Article.objects.all()
+    queryset = m.Article.objects.prefetch_related(
+        'article_comment',
+        'article_comment__article_thread').all()
     serializer_class = s.ArticleDetail
     lookup_field = 'uuid'
 
@@ -152,7 +106,7 @@ class ArticleComment(g.CreateAPIView):
 class ArticleThread(g.CreateAPIView):
     permission_classes = [p.IsAuthenticated]
     queryset = m.ArticleThread.objects.all()
-    serializer_class = s.ArticleThread
+    serializer_class = s.PostArticleThread
     lookup_field = 'uuid'
 
     def create(self, request, *args, **kwargs):
