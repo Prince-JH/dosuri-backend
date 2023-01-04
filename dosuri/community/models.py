@@ -161,7 +161,7 @@ class ArticleThread(models.Model):
     view_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     content = models.CharField(max_length=1200)  ## 댓글 최대글자 한글은 3 bytes (최대 400글자)
-    mention_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='article_thread_mention_user', null=True, default=None)
+    mention_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='article_thread_mention_user', null=False)
 
     class Meta:
         db_table = 'article_thread'

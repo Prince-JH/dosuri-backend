@@ -147,6 +147,28 @@ class ArticleDoctorAssoc(s.ModelSerializer):
         model = dosuri.community.models.ArticleDoctorAssoc
         exclude = ('id', 'article')
 
+class PostArticleThread(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)  
+    user = User(read_only=True)
+    up_count: s.Field = s.IntegerField(default=0, read_only=True)
+    view_count: s.Field = s.IntegerField(default=0, read_only=True)
+    content: s.Field = s.CharField()
+    article_comment: s.Field = s.SlugRelatedField(
+        write_only=True,
+        slug_field='uuid',
+        queryset=comm.ArticleComment.objects.all()
+    )
+    # created_at: s.Field = s.DateTimeField(read_only=True)
+    created_at: s.Field = s.SerializerMethodField()
+    mention_user: s.Field = s.SlugRelatedField(
+        read_only=False,
+        slug_field='uuid',
+        queryset=um.User.objects.all()
+    )
+    
+    class Meta:
+        model = dosuri.community.models.ArticleThread
+        exclude = ('id',)
 class ArticleThread(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)  
     user = User(read_only=True)
@@ -160,11 +182,16 @@ class ArticleThread(s.ModelSerializer):
     )
     # created_at: s.Field = s.DateTimeField(read_only=True)
     created_at: s.Field = s.SerializerMethodField()
+    mention_user: s.Field = User(read_only=True)
     
     class Meta:
         model = dosuri.community.models.ArticleThread
         exclude = ('id',)
     def get_created_at(self, instance): ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
+        threads=comm.ArticleThread.objects.all()
+        for thread in threads:
+            thread.mention_user_id = thread.article_comment.user_id
+            thread.save()
         now = datetime.now().astimezone()
         created_at = instance.created_at
         total_seconds = (now-created_at).total_seconds()
