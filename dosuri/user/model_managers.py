@@ -34,6 +34,10 @@ class UserPointHistoryManager(UserManager):
             content=content
         )
 
+    def get_total_point(self, user):
+        qs = self.filter(user=user)
+        return qs.order_by('-created_at').first().total_point if qs.exists() else 0
+
 
 class UserNotificationManager(UserManager):
     def create_notification(self, user, content):
