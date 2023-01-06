@@ -127,3 +127,30 @@ class ArticleTypeFilter:
                 }
             }
         ]
+
+class ArticleSearchFilter:
+    def get_schema_fields(self, view):
+        return [
+            coreapi.Field(
+                name='search', location='query', required=False,
+                schema=coreschema.String(title=f'search',
+                                         description='search to query.<br>' \
+                                                     '<code>/?search=Good</code> would return articles with search.<br>' \
+                                                     '<code>/?article_type=question</code> would return articles with search.<br>')
+            )
+        ]
+
+    def get_schema_operation_parameters(self, view):
+        return [
+            {
+                'name': 'search',
+                'in': 'query',
+                'required': False,
+                'description': 'search to query.<br>' \
+                               '<code>/?search=Good</code> would return articles with search.<br>' \
+                               '<code>/?article_type=question</code> would return articles with search.<br>',
+                'schema': {
+                    'type': 'string',
+                }
+            }
+        ]
