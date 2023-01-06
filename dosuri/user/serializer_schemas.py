@@ -41,7 +41,6 @@ USER_DETAIL_EXAMPLE = [
                 "small_area": "강남구"
             },
             "sex": "남자",
-            "total_point": "2000",
             "pain_areas": [
                 {
                     "name": "목"
@@ -50,6 +49,19 @@ USER_DETAIL_EXAMPLE = [
                     "name": "그 외"
                 }
             ]
+        },
+        response_only=True
+    )
+]
+
+
+TOTAL_POINT_EXAMPLE = [
+    OpenApiExample(
+        'Valid example 1',
+        summary='short summary',
+        description='',
+        value={
+            "total_point": 2000
         },
         response_only=True
     )
