@@ -56,5 +56,5 @@ class HospitalQuerySet(QuerySet):
         )
 
     def get_default_address_filtered_qs(self):
-        return self.filter(hospital_address_assoc__address__large_area='서울',
+        return self.filter(hospital_address_assoc__address__large_area='서울특별시',
                            hospital_address_assoc__address__small_area__in=['송파구', '서초구', '강남구']).distinct()
