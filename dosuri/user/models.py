@@ -91,6 +91,8 @@ class UserPointHistory(models.Model):
     content = models.CharField(max_length=128, default='')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    objects = umm.UserPointHistoryManager()
+
     class Meta:
         db_table = 'user_point_history'
         ordering = ['-id']
@@ -102,6 +104,8 @@ class UserNotification(models.Model):
     content = models.CharField(max_length=128, default='')
     is_new = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = umm.UserNotificationManager()
 
     class Meta:
         db_table = 'user_notification'
