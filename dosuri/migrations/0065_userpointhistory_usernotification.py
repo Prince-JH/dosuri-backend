@@ -9,7 +9,7 @@ import dosuri.user.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dosuri', '0061_treatmentcategory_treatmentkeyword_and_more'),
+        ('dosuri', '0064_alter_articlethread_mention_user'),
     ]
 
     operations = [
