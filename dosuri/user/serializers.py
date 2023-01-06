@@ -195,3 +195,34 @@ class InsuranceUserAssoc(s.ModelSerializer):
                   f'{user.sex}\n' \
                   f'{address.large_area} {address.small_area}'
         cu.send_sms(message)
+
+
+class UserPointHistory(s.ModelSerializer):
+    user: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=get_user_model().objects.all(),
+        write_only=True
+    )
+    modify_point: s.Field = s.IntegerField()
+    total_point: s.Field = s.IntegerField()
+    content: s.Field = s.CharField()
+    created_at: s.Field = s.DateTimeField()
+
+    class Meta:
+        model = um.UserPointHistory
+        exclude = ('id', 'uuid')
+
+
+class UserNotification(s.ModelSerializer):
+    user: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=get_user_model().objects.all(),
+        write_only=True
+    )
+    content: s.Field = s.IntegerField()
+    is_new: s.Field = s.BooleanField()
+    created_at: s.Field = s.DateTimeField()
+
+    class Meta:
+        model = um.UserPointHistory
+        exclude = ('id', 'uuid')
