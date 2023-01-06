@@ -6,7 +6,10 @@ from rest_framework import (
 from rest_framework.response import Response
 
 
-class UserAuthListAPIView(g.ListAPIView):
+class UserAuthListAPIView(g.ListCreateAPIView):
+    def get_queryset(self, user):
+        return self.queryset.filter(user=user)
+
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset(request.user))
         page = self.paginate_queryset(queryset)
