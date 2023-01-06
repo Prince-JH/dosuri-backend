@@ -1,6 +1,6 @@
 from rest_framework import filters
 from dosuri.common import filter_schema as fsc
-
+from django.db.models import Q
 
 # class AddressFilter(fsc.TimeRangeFilter, filters.BaseFilterBackend):
 #     def filter_queryset(self, request, queryset, view, now=None):
@@ -140,3 +140,13 @@ class ArticleTypeFilter(fsc.ArticleTypeFilter, filters.BaseFilterBackend):
             return queryset
 
         return queryset.filter(article_type=article_type)
+
+class ArticleSearchFilter(fsc.ArticleSearchFilter, filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        # Used Django's GET variable to utilize multiple value feature which DRF doesn't provide.
+        # note: https://docs.djangoproject.com/en/4.0/ref/request-response/#querydict-objects
+        search = request.query_params.get('search', None)
+
+        if not search:
+            return queryset
+        return queryset.filter(Q(hospital__name__contains=search) | Q(content__contains=search)).order_by('-created_at')

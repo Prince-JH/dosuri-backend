@@ -29,7 +29,7 @@ class ArticleList(g.ListCreateAPIView):
     queryset = m.Article.objects.all().annotate(comment_count=Count('article_comment'))
     serializer_class = s.Article
     read_serializer_class = s.GetArticle
-    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, f.ArticleTypeFilter]
+    filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, f.ArticleTypeFilter, f.ArticleSearchFilter]
     uuid_filter_params = ['hospital', 'user']
     ordering_field = '__all__'
     def get_serializer_class(self):
