@@ -41,6 +41,7 @@ USER_DETAIL_EXAMPLE = [
                 "small_area": "강남구"
             },
             "sex": "남자",
+            "total_point": "2000",
             "pain_areas": [
                 {
                     "name": "목"
