@@ -112,13 +112,12 @@ class User(s.ModelSerializer):
     birthday: s.Field = s.DateTimeField()
     sex: s.Field = s.CharField()
     pain_areas: s.Field = PainAreaUserAssoc(many=True, source='pain_area_user_assoc')
-    total_point: s.Field = s.SerializerMethodField()
     is_real: s.Field = s.BooleanField(read_only=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
         model = get_user_model()
-        fields = ('uuid', 'username', 'nickname', 'birthday', 'phone_no', 'name', 'total_point',
+        fields = ('uuid', 'username', 'nickname', 'birthday', 'phone_no', 'name',
                   'address', 'sex', 'is_real', 'pain_areas', 'created_at')
 
     def get_address(self, obj):
@@ -129,12 +128,6 @@ class User(s.ModelSerializer):
                 'small_area': qs.first().small_area
             }
         return {}
-
-    def get_total_point(self, obj):
-        qs = um.UserPointHistory.objects.filter(user=obj)
-        if not qs.exists():
-            return 0
-        return qs.order_by('-created_at').first().total_point
 
     def create(self, validated_data):
         user = validated_data['user']
@@ -204,6 +197,11 @@ class InsuranceUserAssoc(s.ModelSerializer):
         cu.send_sms(message)
 
 
+@extend_schema_serializer(examples=sch.TOTAL_POINT_EXAMPLE)
+class UserTotalPoint(s.Serializer):
+    total_point: s.Field = s.IntegerField()
+
+
 class UserPointHistory(s.ModelSerializer):
     user: s.Field = s.SlugRelatedField(
         slug_field='uuid',
@@ -211,13 +209,12 @@ class UserPointHistory(s.ModelSerializer):
         write_only=True
     )
     modify_point: s.Field = s.IntegerField()
-    total_point: s.Field = s.IntegerField()
     content: s.Field = s.CharField()
     created_at: s.Field = s.DateTimeField()
 
     class Meta:
         model = um.UserPointHistory
-        exclude = ('id', 'uuid')
+        exclude = ('id', 'total_point', 'uuid')
 
 
 class UserNotification(s.ModelSerializer):

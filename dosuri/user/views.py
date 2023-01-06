@@ -111,6 +111,17 @@ class UserPointHistoryDetail(g.RetrieveUpdateDestroyAPIView):
     serializer_class = s.UserPointHistory
 
 
+class UserTotalPoint(g.RetrieveAPIView):
+    permission_classes = [p.IsAuthenticated]
+    serializer_class = s.UserTotalPoint
+
+    def retrieve(self, request, *args, **kwargs):
+        total_point = um.UserPointHistory.objects.get_total_point(user=request.user)
+        serializer = self.serializer_class(data={'total_point': total_point})
+        serializer.is_valid()
+        return Response(serializer.data)
+
+
 class UserNotificationList(cg.UserAuthListAPIView):
     permission_classes = [p.IsAuthenticated]
     queryset = um.UserNotification.objects.all()

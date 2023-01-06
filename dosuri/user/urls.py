@@ -21,6 +21,7 @@ urlpatterns = [
     path('v1/users/me', v.UserDetail.as_view(), name='user-detail'),
     path('v1/users/me/point-histories', v.UserPointHistoryList.as_view(), name='user-point-history'),
     path('v1/users/me/point-histories/<uuid>', v.UserPointHistoryDetail.as_view(), name='user-point-history'),
+    path('v1/users/me/point/', v.UserTotalPoint.as_view(), name='user-total-point'),
     path('v1/users/me/notifications', v.UserNotificationList.as_view(), name='user-notification'),
     path('v1/users/me/notifications/<uuid>', v.UserNotificationDetail.as_view(), name='user-notification'),
 
