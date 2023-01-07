@@ -110,3 +110,13 @@ class UserNotification(models.Model):
     class Meta:
         db_table = 'user_notification'
         ordering = ['-id']
+
+
+class UserResignHistory(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    username = models.CharField(max_length=150)
+    reason = models.CharField(max_length=256, default='')
+
+    class Meta:
+        db_table = 'user_resign_history'
+        ordering = ['-id']
