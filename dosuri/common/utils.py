@@ -9,6 +9,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from botocore.signers import CloudFrontSigner
+from urllib import parse
 
 # Create an SNS client
 sns_client = boto3.client(
@@ -41,7 +42,7 @@ cloudfront_signer = CloudFrontSigner(settings.DOSURI_IMAGE_PUBLIC_KEY_ID, rsa_si
 
 def generate_signed_path(obj):
     try:
-        url = f'http://{obj.bucket_name}.{settings.HOST_DOMAIN}/{obj.path}'
+        url = f'http://{obj.bucket_name}.{settings.HOST_DOMAIN}/{parse.quote(obj.path)}'
         expire_date = datetime.now() + timedelta(days=1)
 
         signed_url = cloudfront_signer.generate_presigned_url(
