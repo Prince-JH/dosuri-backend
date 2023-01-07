@@ -29,6 +29,9 @@ class User(AbstractUser):
         app_label = 'dosuri'
         ordering = ['-id']
 
+    def resign(self):
+        self.delete()
+
 
 class Insurance(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
