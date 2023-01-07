@@ -25,5 +25,7 @@ urlpatterns = [
     path('v1/users/me/notifications', v.UserNotificationList.as_view(), name='user-notification'),
     path('v1/users/me/notifications/<uuid>', v.UserNotificationDetail.as_view(), name='user-notification'),
 
+    path('v1/users/me/resign', v.UserResignHistoryList.as_view(), name='user-resign'),
+
     path('v1/insurance-user-assocs', v.InsuranceUserAssocList.as_view(), name='insurance-user-assoc'),
 ]

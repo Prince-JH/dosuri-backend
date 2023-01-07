@@ -97,7 +97,7 @@ class InsuranceUserAssocList(g.CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-class UserPointHistoryList(cg.UserAuthListAPIView):
+class UserPointHistoryList(cg.UserAuthListCreateAPIView):
     permission_classes = [p.IsAuthenticated]
     queryset = um.UserPointHistory.objects.all()
     serializer_class = s.UserPointHistory
@@ -122,7 +122,7 @@ class UserTotalPoint(g.RetrieveAPIView):
         return Response(serializer.data)
 
 
-class UserNotificationList(cg.UserAuthListAPIView):
+class UserNotificationList(cg.UserAuthListCreateAPIView):
     permission_classes = [p.IsAuthenticated]
     queryset = um.UserNotification.objects.all()
     serializer_class = s.UserNotification
@@ -140,3 +140,9 @@ class UserNotificationDetail(g.RetrieveUpdateDestroyAPIView):
         um.UserNotification.objects.check_notification(instance.uuid)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+
+class UserResignHistoryList(cg.UserAuthListCreateAPIView):
+    permission_classes = [p.IsAuthenticated]
+    queryset = um.UserResignHistory.objects.all()
+    serializer_class = s.UserResignHistory
