@@ -6,7 +6,7 @@ from rest_framework import (
 from rest_framework.response import Response
 
 
-class UserAuthListAPIView(g.ListCreateAPIView):
+class UserAuthListCreateAPIView(g.ListCreateAPIView):
     def get_queryset(self, user):
         return self.queryset.filter(user=user)
 
