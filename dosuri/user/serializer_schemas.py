@@ -53,3 +53,16 @@ USER_DETAIL_EXAMPLE = [
         response_only=True
     )
 ]
+
+
+TOTAL_POINT_EXAMPLE = [
+    OpenApiExample(
+        'Valid example 1',
+        summary='short summary',
+        description='',
+        value={
+            "total_point": 2000
+        },
+        response_only=True
+    )
+]

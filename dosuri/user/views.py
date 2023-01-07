@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
+from django.db.models import Subquery, OuterRef
+from django.db.models.functions import Coalesce
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import (
     generics as g,
@@ -14,6 +16,9 @@ from dosuri.user import (
     auth as a,
     exceptions as uexc,
 )
+from dosuri.common import (
+    generics as cg
+)
 
 
 class Auth(g.CreateAPIView):
@@ -26,7 +31,6 @@ class SuperUserAuth(g.RetrieveAPIView):
     serializer_class = s.Auth
 
     def get(self, request, *args, **kwargs):
-        
         user = um.User.objects.get(username="dosuri")
         tokens = a.get_tokens_for_user(user)
         return Response(tokens)
@@ -91,3 +95,54 @@ class InsuranceUserAssocList(g.CreateAPIView):
         serializer.save(insurance=um.Insurance.objects.all().first(), user=request.user)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class UserPointHistoryList(cg.UserAuthListCreateAPIView):
+    permission_classes = [p.IsAuthenticated]
+    queryset = um.UserPointHistory.objects.all()
+    serializer_class = s.UserPointHistory
+    filter_backends = [rf.OrderingFilter]
+    ordering_field = '__all__'
+
+
+class UserPointHistoryDetail(g.RetrieveUpdateDestroyAPIView):
+    permission_classes = [p.IsAuthenticated]
+    queryset = um.UserPointHistory.objects.all()
+    serializer_class = s.UserPointHistory
+
+
+class UserTotalPoint(g.RetrieveAPIView):
+    permission_classes = [p.IsAuthenticated]
+    serializer_class = s.UserTotalPoint
+
+    def retrieve(self, request, *args, **kwargs):
+        total_point = um.UserPointHistory.objects.get_total_point(user=request.user)
+        serializer = self.serializer_class(data={'total_point': total_point})
+        serializer.is_valid()
+        return Response(serializer.data)
+
+
+class UserNotificationList(cg.UserAuthListCreateAPIView):
+    permission_classes = [p.IsAuthenticated]
+    queryset = um.UserNotification.objects.all()
+    serializer_class = s.UserNotification
+    filter_backends = [rf.OrderingFilter]
+    ordering_field = '__all__'
+
+
+class UserNotificationDetail(g.RetrieveUpdateDestroyAPIView):
+    permission_classes = [p.IsAuthenticated]
+    queryset = um.UserNotification.objects.all()
+    serializer_class = s.UserNotification
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        um.UserNotification.objects.check_notification(instance.uuid)
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+
+class UserResignHistoryList(cg.UserAuthListCreateAPIView):
+    permission_classes = [p.IsAuthenticated]
+    queryset = um.UserResignHistory.objects.all()
+    serializer_class = s.UserResignHistory

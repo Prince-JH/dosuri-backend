@@ -29,6 +29,9 @@ class User(AbstractUser):
         app_label = 'dosuri'
         ordering = ['-id']
 
+    def resign(self):
+        self.delete()
+
 
 class Insurance(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
@@ -91,6 +94,8 @@ class UserPointHistory(models.Model):
     content = models.CharField(max_length=128, default='')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    objects = umm.UserPointHistoryManager()
+
     class Meta:
         db_table = 'user_point_history'
         ordering = ['-id']
@@ -103,6 +108,18 @@ class UserNotification(models.Model):
     is_new = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    objects = umm.UserNotificationManager()
+
     class Meta:
         db_table = 'user_notification'
+        ordering = ['-id']
+
+
+class UserResignHistory(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    username = models.CharField(max_length=150)
+    reason = models.CharField(max_length=256, default='')
+
+    class Meta:
+        db_table = 'user_resign_history'
         ordering = ['-id']

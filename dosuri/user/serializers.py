@@ -197,6 +197,11 @@ class InsuranceUserAssoc(s.ModelSerializer):
         cu.send_sms(message)
 
 
+@extend_schema_serializer(examples=sch.TOTAL_POINT_EXAMPLE)
+class UserTotalPoint(s.Serializer):
+    total_point: s.Field = s.IntegerField()
+
+
 class UserPointHistory(s.ModelSerializer):
     user: s.Field = s.SlugRelatedField(
         slug_field='uuid',
@@ -204,13 +209,12 @@ class UserPointHistory(s.ModelSerializer):
         write_only=True
     )
     modify_point: s.Field = s.IntegerField()
-    total_point: s.Field = s.IntegerField()
     content: s.Field = s.CharField()
     created_at: s.Field = s.DateTimeField()
 
     class Meta:
         model = um.UserPointHistory
-        exclude = ('id', 'uuid')
+        exclude = ('id', 'total_point', 'uuid')
 
 
 class UserNotification(s.ModelSerializer):
@@ -219,10 +223,29 @@ class UserNotification(s.ModelSerializer):
         queryset=get_user_model().objects.all(),
         write_only=True
     )
-    content: s.Field = s.IntegerField()
+    content: s.Field = s.CharField()
     is_new: s.Field = s.BooleanField()
     created_at: s.Field = s.DateTimeField()
 
     class Meta:
         model = um.UserPointHistory
         exclude = ('id', 'uuid')
+
+
+class UserResignHistory(s.ModelSerializer):
+    content: s.Field = s.CharField()
+    created_at: s.Field = s.DateTimeField()
+
+    class Meta:
+        model = um.UserResignHistory
+        exclude = ('id', 'username', 'uuid')
+
+    def create(self, validated_data):
+        user = validated_data['user']
+        username = user.username
+        instance = self.Meta.model.objects.save(username=username, content=validated_data['content'])
+        user.resign()
+
+        return instance
+
+
