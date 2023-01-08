@@ -81,6 +81,11 @@ class UserDetail(g.RetrieveUpdateDestroyAPIView):
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
+    def destroy(self, request, *args, **kwargs):
+        instance = request.user
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class InsuranceUserAssocList(g.CreateAPIView):
     permission_classes = [p.IsAuthenticated]
