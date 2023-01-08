@@ -157,7 +157,10 @@ class UserNotificationDetail(g.RetrieveUpdateDestroyAPIView):
         return Response(serializer.data)
 
 
-class UserResignHistoryList(cg.UserAuthListCreateAPIView):
+class UserResignHistoryList(g.CreateAPIView):
     permission_classes = [p.IsAuthenticated]
     queryset = um.UserResignHistory.objects.all()
     serializer_class = s.UserResignHistory
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

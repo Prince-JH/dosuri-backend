@@ -234,8 +234,8 @@ class UserNotification(s.ModelSerializer):
 
 
 class UserResignHistory(s.ModelSerializer):
-    content: s.Field = s.CharField()
-    created_at: s.Field = s.DateTimeField()
+    reason: s.Field = s.CharField()
+    created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
         model = um.UserResignHistory
@@ -244,7 +244,7 @@ class UserResignHistory(s.ModelSerializer):
     def create(self, validated_data):
         user = validated_data['user']
         username = user.username
-        instance = self.Meta.model.objects.save(username=username, content=validated_data['content'])
+        instance = self.Meta.model.objects.create(username=username, reason=validated_data['reason'])
         user.resign()
 
         return instance
