@@ -36,6 +36,16 @@ class SuperUserAuth(g.RetrieveAPIView):
         return Response(tokens)
 
 
+class UserToken(g.CreateAPIView):
+    permission_classes = [p.AllowAny]
+    serializer_class = s.Auth
+
+    def create(self, request, *args, **kwargs):
+        user = um.User.objects.get(username=request.data.get('username'))
+        tokens = a.get_tokens_for_user(user)
+        return Response(tokens)
+
+
 class UserList(g.CreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = get_user_model().objects.all()
@@ -80,6 +90,11 @@ class UserDetail(g.RetrieveUpdateDestroyAPIView):
         instance = request.user
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = request.user
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class InsuranceUserAssocList(g.CreateAPIView):
@@ -142,7 +157,10 @@ class UserNotificationDetail(g.RetrieveUpdateDestroyAPIView):
         return Response(serializer.data)
 
 
-class UserResignHistoryList(cg.UserAuthListCreateAPIView):
+class UserResignHistoryList(g.CreateAPIView):
     permission_classes = [p.IsAuthenticated]
     queryset = um.UserResignHistory.objects.all()
     serializer_class = s.UserResignHistory
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

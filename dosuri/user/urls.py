@@ -15,13 +15,14 @@ urlpatterns = [
 
     path('v1/auth', v.Auth.as_view(), name='kakao-auth'),
     path('v1/users', v.UserList.as_view(), name='user'),
+    path('v1/users/token', v.UserToken.as_view(), name='user'),
     path('v1/users/nickname', v.UserNickname.as_view(), name='user-nickname'),
     path('v1/auth/superuser', v.SuperUserAuth.as_view(), name='superuser-auth'),
 
     path('v1/users/me', v.UserDetail.as_view(), name='user-detail'),
     path('v1/users/me/point-histories', v.UserPointHistoryList.as_view(), name='user-point-history'),
     path('v1/users/me/point-histories/<uuid>', v.UserPointHistoryDetail.as_view(), name='user-point-history'),
-    path('v1/users/me/point/', v.UserTotalPoint.as_view(), name='user-total-point'),
+    path('v1/users/me/point', v.UserTotalPoint.as_view(), name='user-total-point'),
     path('v1/users/me/notifications', v.UserNotificationList.as_view(), name='user-notification'),
     path('v1/users/me/notifications/<uuid>', v.UserNotificationDetail.as_view(), name='user-notification'),
 
