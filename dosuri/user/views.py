@@ -36,6 +36,16 @@ class SuperUserAuth(g.RetrieveAPIView):
         return Response(tokens)
 
 
+class UserToken(g.CreateAPIView):
+    permission_classes = [p.AllowAny]
+    serializer_class = s.Auth
+
+    def create(self, request, *args, **kwargs):
+        user = um.User.objects.get(username=request.data.get('username'))
+        tokens = a.get_tokens_for_user(user)
+        return Response(tokens)
+
+
 class UserList(g.CreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = get_user_model().objects.all()

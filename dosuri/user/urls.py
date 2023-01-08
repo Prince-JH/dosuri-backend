@@ -15,6 +15,7 @@ urlpatterns = [
 
     path('v1/auth', v.Auth.as_view(), name='kakao-auth'),
     path('v1/users', v.UserList.as_view(), name='user'),
+    path('v1/users/token', v.UserToken.as_view(), name='user'),
     path('v1/users/nickname', v.UserNickname.as_view(), name='user-nickname'),
     path('v1/auth/superuser', v.SuperUserAuth.as_view(), name='superuser-auth'),
 
