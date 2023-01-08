@@ -44,11 +44,12 @@ class Auth(s.Serializer):
         kakao_user_info = auth_factory.authenticate()
         username = kakao_user_info['kakao_account']['email']
 
-        user, is_new = um.User.objects.get_or_create_user(username)
+        user = um.User.objects.get_or_create(username=username)[0]
+        is_new = user.is_new()
         user_info = self.get_user_info_from_kakao(kakao_user_info)
         um.User.objects.update_user_info(user, user_info)
-
         tokens = a.get_tokens_for_user(user)
+
         validated_data['access_token'] = tokens['access']
         validated_data['refresh_token'] = tokens['refresh']
         validated_data['is_new'] = is_new

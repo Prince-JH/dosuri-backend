@@ -29,6 +29,10 @@ class User(AbstractUser):
         app_label = 'dosuri'
         ordering = ['-id']
 
+    def is_new(self):
+        qs = AddressUserAssoc.objects.filter(user=self)
+        return False if qs.exists() else True
+
     def resign(self):
         self.delete()
 
