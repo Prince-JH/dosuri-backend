@@ -9,6 +9,18 @@ jobs:
   buildAndTest:
     name: CI Pipeline
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: dosuri
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     strategy:
       matrix:
         python-version: [ 3.8 ]
@@ -26,6 +38,12 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Install Psql Client
+        run: sudo apt-get install -y libpq-dev postgresql-client
+
+      - name: Create Psql
+        run: PGPASSWORD=dosuri psql -U postgres -h localhost -c 'CREATE DATABASE "dosuri-test"'
 
       - name: Run Tests
         run: make test
