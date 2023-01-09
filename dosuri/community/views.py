@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import (
     generics as g,
     filters as rf,
@@ -19,7 +20,7 @@ from django.contrib.postgres.aggregates import ArrayAgg
 
 class HotArticleList(g.ListAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Article.objects.filter(created_at__gte=datetime.now()-timedelta(days=7)).annotate(comment_count=Count('article_comment')).order_by('-comment_count')[:3]
+    queryset = m.Article.objects.filter(created_at__gte=timezone.now()-timedelta(days=7)).annotate(comment_count=Count('article_comment')).order_by('-comment_count')[:3]
     serializer_class = s.GetArticle
     filter_backends = []
     ordering_field = '__all__'

@@ -12,6 +12,8 @@ from botocore.signers import CloudFrontSigner
 from urllib import parse
 
 # Create an SNS client
+from django.utils import timezone
+
 sns_client = boto3.client(
     "sns",
     aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
@@ -43,7 +45,7 @@ cloudfront_signer = CloudFrontSigner(settings.DOSURI_IMAGE_PUBLIC_KEY_ID, rsa_si
 def generate_signed_path(obj):
     try:
         url = f'http://{obj.bucket_name}.{settings.HOST_DOMAIN}/{parse.quote(obj.path)}'
-        expire_date = datetime.now() + timedelta(days=1)
+        expire_date = timezone.now() + timedelta(days=1)
 
         signed_url = cloudfront_signer.generate_presigned_url(
             url, date_less_than=expire_date)
