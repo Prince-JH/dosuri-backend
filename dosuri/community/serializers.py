@@ -414,3 +414,11 @@ class ArticleDetail(s.ModelSerializer):
         else:
             created_at = str(int((((total_seconds/3600)/24)/30)/12))+ '년 전'
         return created_at
+
+class TreatmentKeyword(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    keyword: s.Field = s.CharField(read_only=True)
+
+    class Meta:
+        model = dosuri.community.models.TreatmentKeyword
+        exclude = ('id', 'created_at', 'category')

@@ -24,6 +24,13 @@ class HotArticleList(g.ListAPIView):
     filter_backends = []
     ordering_field = '__all__'
 
+class TreatmentKeywordList(g.ListAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = m.TreatmentKeyword.objects.all()
+    serializer_class = s.TreatmentKeyword
+    filter_backends = []
+    ordering_field = '__all__'
+
 class ArticleList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.Article.objects.all().annotate(comment_count=Count('article_comment'))

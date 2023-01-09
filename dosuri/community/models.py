@@ -138,6 +138,17 @@ class ArticleKeywordAssoc(models.Model):
         ordering = ['-id']
 
 
+class ArticleLike(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_like')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='article_like')
+    is_like = models.BooleanField(default=True)  #### 추후 있을 싫어요 기능을 위한 bool field
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'article_like'
+        ordering = ['-id']
+
 class ArticleComment(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='article_comment')
