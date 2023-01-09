@@ -9,6 +9,8 @@ from dosuri.user import models as um
 from django.db import transaction
 from dosuri.common import serializers as cs
 from datetime import datetime
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 
 
 class User(s.ModelSerializer):
@@ -170,6 +172,7 @@ class PostArticleThread(s.ModelSerializer):
         model = dosuri.community.models.ArticleThread
         exclude = ('id',)
         
+    @extend_schema_field(OpenApiTypes.STR)
     def get_created_at(self, instance): ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
         now = datetime.now().astimezone()
         created_at = instance.created_at
@@ -206,6 +209,8 @@ class ArticleThread(s.ModelSerializer):
     class Meta:
         model = dosuri.community.models.ArticleThread
         exclude = ('id',)
+
+    @extend_schema_field(OpenApiTypes.STR)
     def get_created_at(self, instance): ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
         now = datetime.now().astimezone()
         created_at = instance.created_at
@@ -242,6 +247,8 @@ class ArticleComment(s.ModelSerializer):
     class Meta:
         model = dosuri.community.models.ArticleComment
         exclude = ('id',)
+
+    @extend_schema_field(OpenApiTypes.STR)
     def get_created_at(self, instance): ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
         now = datetime.now().astimezone()
         created_at = instance.created_at
@@ -278,6 +285,7 @@ class Article(s.ModelSerializer):
     article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
     article_auth = ArticleAuth(many=False, write_only=True, required=False)
     article_doctor_assoc = ArticleDoctorAssoc(many=True, write_only=True, required=False)
+    is_like: s.Field = s.SerializerMethodField(read_only=True)
 
     class Meta:
         model = dosuri.community.models.Article
@@ -330,6 +338,11 @@ class Article(s.ModelSerializer):
 
         return article
 
+    @extend_schema_field(OpenApiTypes.BOOL)
+    def get_is_like(self, instance): 
+        return comm.ArticleLike.objects.filter(article=instance,
+            user=self.context['request'].user
+        ).exists()
 class GetArticle(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     user = User(read_only=True)
@@ -351,10 +364,13 @@ class GetArticle(s.ModelSerializer):
     article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
     article_auth = ArticleAuth(many=False, write_only=True, required=False)
     article_doctor_assoc = ArticleDoctorAssoc(many=True, write_only=True, required=False)
+    is_like: s.Field = s.SerializerMethodField()
 
     class Meta:
         model = dosuri.community.models.Article
         exclude = ('id', 'status')
+
+    @extend_schema_field(OpenApiTypes.STR)
     def get_created_at(self, instance): ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
         now = datetime.now().astimezone()
         created_at = instance.created_at
@@ -372,6 +388,12 @@ class GetArticle(s.ModelSerializer):
         else:
             created_at = str(int((((total_seconds/3600)/24)/30)/12))+ '년 전'
         return created_at
+
+    @extend_schema_field(OpenApiTypes.BOOL)
+    def get_is_like(self, instance): 
+        return comm.ArticleLike.objects.filter(article=instance,
+            user=self.context['request'].user
+        ).exists()
 
 class ArticleDetail(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
@@ -397,6 +419,7 @@ class ArticleDetail(s.ModelSerializer):
         model = dosuri.community.models.Article
         exclude = ('id', 'status')
     
+    @extend_schema_field(OpenApiTypes.STR)
     def get_created_at(self, instance): ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
         now = datetime.now().astimezone()
         created_at = instance.created_at
@@ -422,3 +445,38 @@ class TreatmentKeyword(s.ModelSerializer):
     class Meta:
         model = dosuri.community.models.TreatmentKeyword
         exclude = ('id', 'created_at', 'category')
+
+class ArticleLike(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    article: s.Field = s.SlugRelatedField(
+        write_only=True,
+        slug_field='uuid',
+        queryset=comm.Article.objects.all()
+    )
+    user = User(read_only=True)
+    is_like: s.Field = s.SerializerMethodField()
+    created_at: s.Field = s.DateTimeField(read_only=True)
+    class Meta:
+        model = dosuri.community.models.ArticleLike
+        exclude = ('id',)
+
+    @extend_schema_field(OpenApiTypes.BOOL)
+    def get_is_like(self, instance):
+        return comm.ArticleLike.objects.filter(article=instance.article,
+            user=self.instance.user
+        ).exists()
+
+    def create(self, validated_data):
+        try:
+            exist_article_like = comm.ArticleLike.objects.get(**validated_data)
+        except:
+            exist_article_like = False
+        if exist_article_like:
+            exist_article_like.article.up_count = exist_article_like.article.up_count - 1
+            exist_article_like.article.save()
+            exist_article_like.delete()
+            return exist_article_like
+        article_like = comm.ArticleLike.objects.create(**validated_data)
+        article_like.article.up_count = article_like.article.up_count + 1
+        article_like.article.save()
+        return article_like

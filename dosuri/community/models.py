@@ -26,7 +26,7 @@ class TreatmentKeyword(models.Model):
 
     class Meta:
         db_table = 'treatment_keyword'
-        ordering = ['-id']
+        ordering = ['id']
 
 
 class Article(models.Model):
@@ -148,6 +148,9 @@ class ArticleLike(models.Model):
     class Meta:
         db_table = 'article_like'
         ordering = ['-id']
+        constraints = [
+            models.UniqueConstraint(fields=['article', 'user'], name='One like by article')
+        ]
 
 class ArticleComment(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)

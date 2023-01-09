@@ -8,6 +8,7 @@ urlpatterns = [
     path('v1/community/articles', v.ArticleList.as_view(), name='article'),
     # path('v1/community/articles', v.CreateArticle.as_view(), name='article'),
     path('v1/community/articles/<uuid>', v.ArticleDetail.as_view(), name='article-detail'),
+    path('v1/community/articles-like', v.ArticleLike.as_view(), name='article-like'),
     # path('v1/community/article-attaches', v.ArticleAttachList.as_view(), name='article-attach'),
     # path('v1/community/article-detail', v.ArticleDetail.as_view(), name='article-detail'),
     # path('v1/community/doctor-assoc', v.ArticleDoctorAssocList.as_view(), name='doctor'),

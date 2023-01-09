@@ -32,7 +32,7 @@ class TreatmentKeywordList(g.ListAPIView):
     ordering_field = '__all__'
 
 class ArticleList(g.ListCreateAPIView):
-    permission_classes = [p.AllowAny]
+    permission_classes = [p.IsAuthenticated]
     queryset = m.Article.objects.all().annotate(comment_count=Count('article_comment'))
     serializer_class = s.Article
     read_serializer_class = s.GetArticle
@@ -115,6 +115,17 @@ class ArticleThread(g.CreateAPIView):
     queryset = m.ArticleThread.objects.all()
     serializer_class = s.PostArticleThread
     lookup_field = 'uuid'
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user)
+        return Response(status=status.HTTP_201_CREATED, data=serializer.data)
+
+class ArticleLike(g.CreateAPIView):
+    permission_classes = [p.IsAuthenticated]
+    queryset = m.ArticleLike.objects.all()
+    serializer_class = s.ArticleLike
 
     def create(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
