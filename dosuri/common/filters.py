@@ -1,6 +1,9 @@
 from rest_framework import filters
+from rest_framework.filters import OrderingFilter
+
 from dosuri.common import filter_schema as fsc
-from django.db.models import Q
+from django.db.models import Q, F
+
 
 # class AddressFilter(fsc.TimeRangeFilter, filters.BaseFilterBackend):
 #     def filter_queryset(self, request, queryset, view, now=None):
@@ -115,6 +118,7 @@ class UuidSetBodyFilter(filters.BaseFilterBackend):
 
         return queryset.filter(uuid__in=uuid_list)
 
+
 class CompleteStatusFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         # Used Django's GET variable to utilize multiple value feature which DRF doesn't provide.
@@ -130,6 +134,7 @@ class InCompleteStatusFilter(filters.BaseFilterBackend):
 
         return queryset.filter(status="InComplete")
 
+
 class ArticleTypeFilter(fsc.ArticleTypeFilter, filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         # Used Django's GET variable to utilize multiple value feature which DRF doesn't provide.
@@ -141,6 +146,7 @@ class ArticleTypeFilter(fsc.ArticleTypeFilter, filters.BaseFilterBackend):
 
         return queryset.filter(article_type=article_type)
 
+
 class ArticleSearchFilter(fsc.ArticleSearchFilter, filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         # Used Django's GET variable to utilize multiple value feature which DRF doesn't provide.
@@ -150,3 +156,17 @@ class ArticleSearchFilter(fsc.ArticleSearchFilter, filters.BaseFilterBackend):
         if not search:
             return queryset
         return queryset.filter(Q(hospital__name__contains=search) | Q(content__contains=search)).order_by('-created_at')
+
+
+class NullLastOrderingFilter(OrderingFilter):
+    def filter_queryset(self, request, queryset, view):
+        ordering = self.get_ordering(request, queryset, view)
+
+        def make_f_object(x):
+            return F(x[1:]).desc(nulls_last=True) if x[0] == '-' else F(x).asc(nulls_last=True)
+
+        if ordering:
+            ordering = map(make_f_object, ordering)
+            queryset = queryset.order_by(*ordering)
+
+        return queryset
