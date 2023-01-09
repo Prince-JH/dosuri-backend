@@ -8,6 +8,7 @@ urlpatterns = [
     path('v1/community/articles', v.ArticleList.as_view(), name='article'),
     # path('v1/community/articles', v.CreateArticle.as_view(), name='article'),
     path('v1/community/articles/<uuid>', v.ArticleDetail.as_view(), name='article-detail'),
+    path('v1/community/articles-like', v.ArticleLike.as_view(), name='article-like'),
     # path('v1/community/article-attaches', v.ArticleAttachList.as_view(), name='article-attach'),
     # path('v1/community/article-detail', v.ArticleDetail.as_view(), name='article-detail'),
     # path('v1/community/doctor-assoc', v.ArticleDoctorAssocList.as_view(), name='doctor'),
@@ -18,5 +19,6 @@ urlpatterns = [
     path('v1/community/article_thread', v.ArticleThread.as_view(), name='article-thread'),
     path('v1/community/article-auth/<uuid>', v.ArticleAuthDetail.as_view(), name='auth-update'),
     path('v1/community/hot-articles', v.HotArticleList.as_view(), name='article'),
+    path('v1/community/treatment-keywords', v.TreatmentKeywordList.as_view(), name='treatment-keyword'),
 
 ]

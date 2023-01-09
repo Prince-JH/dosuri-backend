@@ -26,7 +26,7 @@ class TreatmentKeyword(models.Model):
 
     class Meta:
         db_table = 'treatment_keyword'
-        ordering = ['-id']
+        ordering = ['id']
 
 
 class Article(models.Model):
@@ -137,6 +137,20 @@ class ArticleKeywordAssoc(models.Model):
         db_table = 'article_keyword_assoc'
         ordering = ['-id']
 
+
+class ArticleLike(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_like')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='article_like')
+    is_like = models.BooleanField(default=True)  #### 추후 있을 싫어요 기능을 위한 bool field
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'article_like'
+        ordering = ['-id']
+        constraints = [
+            models.UniqueConstraint(fields=['article', 'user'], name='One like by article')
+        ]
 
 class ArticleComment(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)

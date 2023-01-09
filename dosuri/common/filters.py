@@ -1,7 +1,7 @@
 from rest_framework import filters
 from rest_framework.filters import OrderingFilter
-
 from dosuri.common import filter_schema as fsc
+from dosuri.community import constants as cc
 from django.db.models import Q, F
 
 
@@ -141,7 +141,7 @@ class ArticleTypeFilter(fsc.ArticleTypeFilter, filters.BaseFilterBackend):
         # note: https://docs.djangoproject.com/en/4.0/ref/request-response/#querydict-objects
         article_type = request.query_params.get('article_type', None)
 
-        if not article_type:
+        if not article_type or article_type == cc.ARTICLE_ALL:
             return queryset
 
         return queryset.filter(article_type=article_type)
