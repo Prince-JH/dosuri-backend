@@ -391,6 +391,9 @@ class GetArticle(s.ModelSerializer):
 
     @extend_schema_field(OpenApiTypes.BOOL)
     def get_is_like(self, instance): 
+        if self.context['request'].user.is_anonymous:
+            return False
+        # if self.context['request'].user 
         return comm.ArticleLike.objects.filter(article=instance,
             user=self.context['request'].user
         ).exists()
