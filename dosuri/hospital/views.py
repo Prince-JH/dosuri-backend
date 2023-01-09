@@ -29,7 +29,7 @@ class HospitalList(g.ListCreateAPIView):
     queryset = m.Hospital.objects.all().prefetch_related('hospital_attachment_assoc',
                                                          'hospital_attachment_assoc__attachment').annotate_extra_fields()
     serializer_class = s.Hospital
-    filter_backends = [rf.OrderingFilter, rf.SearchFilter, hf.HospitalDistanceOrderingFilter]
+    filter_backends = [f.NullLastOrderingFilter, rf.SearchFilter, hf.HospitalDistanceOrderingFilter]
     ordering_field = '__all__'
     ordering = ['view_count']
     search_fields = ['name']
