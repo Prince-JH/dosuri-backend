@@ -212,3 +212,15 @@ class TestHospitalSearch:
 
         assert len(content['results']) == 2
         assert content['results'][0]['word'] == 'B'
+
+    @pytest.mark.django_db
+    def test_delete_hospital_searches(self, client, tokens_user_dummy, hospital_search_A_user_dummy,
+                                    hospital_search_B_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.delete('/hospital/v1/hospital-searches', **headers)
+
+        assert response.status_code == 204
+        assert hm.HospitalSearch.objects.all().count() == 0

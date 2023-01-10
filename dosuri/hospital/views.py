@@ -349,6 +349,11 @@ class HospitalSearch(g.ListCreateAPIView):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+    def delete(self, request, *args, **kwargs):
+        queryset = self.get_queryset(request.user)
+        queryset.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class HospitalSearchDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
