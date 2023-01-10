@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.db.models import QuerySet, Count, Subquery, OuterRef
 from django.db.models.functions import Coalesce
 
@@ -19,9 +21,9 @@ class HospitalQuerySet(QuerySet):
             latest_article=Subquery(
                 Article.objects.filter(article_type=cmc.ARTICLE_REVIEW, hospital=OuterRef('pk')).order_by(
                     '-created_at').values('content')[:1]),
-            latest_article_created_at=Subquery(
+            latest_article_created_at=Coalesce(Subquery(
                 Article.objects.filter(article_type=cmc.ARTICLE_REVIEW, hospital=OuterRef('pk')).order_by(
-                    '-created_at').values('created_at')[:1])
+                    '-created_at').values('created_at')[:1]), date.min)
         )
 
     def annotate_article_count(self):
