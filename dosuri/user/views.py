@@ -38,11 +38,13 @@ class SuperUserAuth(g.RetrieveAPIView):
 
 class UserToken(g.CreateAPIView):
     permission_classes = [p.AllowAny]
-    serializer_class = s.Auth
+    serializer_class = s.UserToken
 
     def create(self, request, *args, **kwargs):
-        user = um.User.objects.get(username=request.data.get('username'))
-        tokens = a.get_tokens_for_user(user)
+        qs = um.User.objects.filter(username=request.data.get('username'))
+        if not qs.exists():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        tokens = a.get_tokens_for_user(qs.first())
         return Response(tokens)
 
 

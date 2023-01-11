@@ -165,6 +165,12 @@ class User(s.ModelSerializer):
                 pass
 
 
+class UserToken(s.Serializer):
+    username: s.Field = s.CharField(write_only=True)
+    access: s.Field = s.CharField(read_only=True)
+    refresh: s.Field = s.CharField(read_only=True)
+
+
 class InsuranceUserAssoc(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     insurance: s.Field = s.SlugRelatedField(
@@ -248,5 +254,3 @@ class UserResignHistory(s.ModelSerializer):
         user.resign()
 
         return instance
-
-
