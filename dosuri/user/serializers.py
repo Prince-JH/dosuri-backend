@@ -210,18 +210,13 @@ class UserTotalPoint(s.Serializer):
 
 
 class UserPointHistory(s.ModelSerializer):
-    user: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=get_user_model().objects.all(),
-        write_only=True
-    )
     modify_point: s.Field = s.IntegerField()
     content: s.Field = s.CharField()
-    created_at: s.Field = s.DateTimeField()
+    created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
         model = um.UserPointHistory
-        exclude = ('id', 'total_point', 'uuid')
+        exclude = ('id', 'user', 'total_point', 'uuid')
 
 
 class UserNotification(s.ModelSerializer):
