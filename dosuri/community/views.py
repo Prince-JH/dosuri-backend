@@ -23,14 +23,14 @@ class HotArticleList(g.ListAPIView):
     queryset = m.Article.objects.filter(created_at__gte=timezone.now()-timedelta(days=7)).annotate(comment_count=Count('article_comment')).order_by('-comment_count')[:3]
     serializer_class = s.GetArticle
     filter_backends = []
-    ordering_field = '__all__'
+    ordering_fields = '__all__'
 
 class TreatmentKeywordList(g.ListAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.TreatmentKeyword.objects.all()
     serializer_class = s.TreatmentKeyword
     filter_backends = []
-    ordering_field = '__all__'
+    ordering_fields = '__all__'
 
 class ArticleList(g.ListCreateAPIView):
     permission_classes = [p.IsAuthenticated]
@@ -39,7 +39,7 @@ class ArticleList(g.ListCreateAPIView):
     read_serializer_class = s.GetArticle
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter, f.ArticleTypeFilter, f.ArticleSearchFilter]
     uuid_filter_params = ['hospital', 'user']
-    ordering_field = '__all__'
+    ordering_fields = '__all__'
     def get_serializer_class(self):
         if self.request.method.lower() == "get":
             return self.read_serializer_class
@@ -66,7 +66,7 @@ class ArticleDoctorAssocList(g.ListAPIView):
     serializer_class = s.ArticleDoctorAssoc
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
     uuid_filter_params = ['hospital']
-    ordering_field = '__all__'
+    ordering_fields = '__all__'
 
 class ArticleKeywordAssocList(g.ListAPIView):
     permission_classes = [p.AllowAny]
@@ -74,7 +74,7 @@ class ArticleKeywordAssocList(g.ListAPIView):
     serializer_class = s.ArticleKeywordAssoc
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
     uuid_filter_params = ['hospital']
-    ordering_field = '__all__'
+    ordering_fields = '__all__'
 
 class ArticleDetail(g.RetrieveAPIView):
     permission_classes = [p.AllowAny]
@@ -90,7 +90,7 @@ class ArticleAuth(g.ListAPIView):
     serializer_class = s.ArticleAuth
     filter_backends = [rf.OrderingFilter, f.ForeignUuidFilter]
     uuid_filter_params = ['article']
-    ordering_field = '__all__'
+    ordering_fields = '__all__'
 
 
 class ArticleAuthDetail(g.RetrieveUpdateDestroyAPIView):
