@@ -21,6 +21,7 @@ class User(AbstractUser):
     phone_no = models.CharField(max_length=32, null=True)
     is_real = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    tmp_review_username = models.CharField(max_length=128, null=True)
 
     objects = umm.DosuriUserManager()
 
