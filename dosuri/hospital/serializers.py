@@ -13,7 +13,8 @@ from dosuri.community import (
     models as cmm,
 
 )
-from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
+from drf_spectacular.utils import extend_schema_serializer, OpenApiExample, extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 
 
 class HospitalAttachmentAssoc(s.ModelSerializer):
@@ -33,6 +34,7 @@ class HospitalAttachmentAssoc(s.ModelSerializer):
         model = hm.HospitalAttachmentAssoc
         exclude = ('uuid', 'id', 'created_at')
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_signed_path(self, obj):
         return cu.generate_signed_path(obj.attachment)
 
@@ -196,6 +198,7 @@ class DoctorAttachmentAssoc(s.ModelSerializer):
         model = hm.DoctorAttachmentAssoc
         exclude = ('uuid', 'id', 'created_at')
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_signed_path(self, obj):
         return cu.generate_signed_path(obj.attachment)
 
