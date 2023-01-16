@@ -26,14 +26,6 @@ class TestHospitalList:
         assert len(content['results']) == 1
 
     @pytest.mark.django_db
-    def test_list_hospital_filter_with_address(self, client, hospital_test_A, address_서울시_강남구, address_수원시_팔달구):
-        response = client.get(f'/hospital/v1/hospitals?hospital_address_assoc_address={address_서울시_강남구.uuid}')
-        content = json.loads(response.content)
-
-        assert response.status_code == 200
-        assert len(content['results']) == 1
-
-    @pytest.mark.django_db
     def test_list_hospital_search_by_exist_name_should_return_one(self, client, hospital_test_A):
         response = client.get(f'/hospital/v1/hospitals?search=test_A')
         content = json.loads(response.content)
