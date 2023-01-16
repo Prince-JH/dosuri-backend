@@ -39,7 +39,6 @@ class HospitalAttachmentAssoc(s.ModelSerializer):
         return cu.generate_signed_path(obj.attachment)
 
 
-
 class Hospital(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     address: s.Field = s.CharField()
@@ -62,6 +61,23 @@ class Hospital(s.ModelSerializer):
     class Meta:
         model = hm.Hospital
         exclude = ('id', 'created_at', 'code')
+
+    def create(self, validated_data):
+        extra_data = {}
+        extra_data['hospital_attachment_assoc'] = validated_data.pop('hospital_attachment_assoc')
+        hospital = super().create(validated_data)
+        self.save_extra(hospital, **extra_data)
+        return hospital
+
+    def save_extra(self, hospital, **kwargs):
+        if 'hospital_attachment_assoc' in kwargs:
+            self.save_attachment(hospital, kwargs.pop('hospital_attachment_assoc'))
+        return kwargs
+
+    def save_attachment(self, hospital, assocs):
+        hm.HospitalAttachmentAssoc.objects.filter(hospital=hospital).delete()
+        for assoc in assocs:
+            hm.HospitalAttachmentAssoc.objects.create(hospital=assoc['hospital'], attachemnt=assoc['attachment'])
 
 
 class HospitalCalendar(s.ModelSerializer):
