@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from django.utils import timezone
 
 from dosuri.hospital import (
     models as hm,
@@ -93,34 +94,34 @@ class TestHospitalDetail:
         assert content['name'] == hospital_test_A.name
 
 
+class TestDoctor:
+    @pytest.mark.django_db
+    def test_doctor_list_by_position(
+            self, client, doctor_A_hospital_A, therapist_A_hospital_A):
+        response = client.get('/hospital/v1/doctors?position=doctor', content_type='application/json')
+        content = json.loads(response.content)
+        assert len(content['results']) == 1
+        assert content['results'][0]['position'] == 'doctor'
 
-# class TestDoctor:
+        response = client.get('/hospital/v1/doctors?position=therapist', content_type='application/json')
+        content = json.loads(response.content)
+        assert len(content['results']) == 1
+        assert content['results'][0]['position'] == 'therapist'
+
     # @pytest.mark.django_db
-    # def test_doctor_list_by_position(
-    #         self, client, doctor_A_hospital_A, therapist_A_hospital_A):
-    #     response = client.get('/hospital/v1/doctors?position=doctor', content_type='application/json')
-    #     content = json.loads(response.content)
-    #     assert len(content['results']) == 1
-    #     assert content['results'][0]['position'] == 'doctor'
+    # def test_create_doctor(self, client, hospital_test_A):
+    #     data = {
+    #         'hospital': hospital_test_A.uuid,
+    #         'name': 'test doctor',
+    #         'thumbnail_url': None,
+    #         'title': 'chief',
+    #         'subtitle': 'chief',
+    #         'position': 'therapist',
+    #     }
+    #     response = client.post('/hospital/v1/doctors', data=data, content_type='application/json')
     #
-    #     response = client.get('/hospital/v1/doctors?position=therapist', content_type='application/json')
-    #     content = json.loads(response.content)
-    #     assert len(content['results']) == 1
-    #     assert content['results'][0]['position'] == 'therapist'
-#     @pytest.mark.django_db
-#     def test_create_doctor(self, client, hospital_test_A):
-#         data = {
-#             'hospital': hospital_test_A.uuid,
-#             'name': 'test doctor',
-#             'thumbnail_url': None,
-#             'title': 'chief',
-#             'subtitle': 'chief',
-#             'position': 'therapist',
-#         }
-#         response = client.post('/hospital/v1/doctors', data=data, content_type='application/json')
-#
-#         assert response.status_code == 201
-#         assert hm.Hospital.objects.all().count() == 1
+    #     assert response.status_code == 201
+    #     assert hm.Doctor.objects.all().count() == 1
 
 
 class TestHospitalTreatment:
