@@ -49,21 +49,24 @@ class TestHospitalList:
         assert response.status_code == 200
         assert len(content['results']) == 0
 
-    # @pytest.mark.django_db
-    # def test_create_hospital(self, client, address_서울시_강남구):
-    #     data = {
-    #         'address': address_서울시_강남구.uuid,
-    #         'name': 'test hospital',
-    #         'introduction': None,
-    #         'phone_no': None,
-    #         'is_partner': False,
-    #         'opened_at': None,
-    #         'area': None
-    #     }
-    #     response = client.post('/hospital/v1/hospitals', data=data, content_type='application/json')
-    #
-    #     assert response.status_code == 201
-    #     assert hm.Hospital.objects.all().count() == 1
+    @pytest.mark.django_db
+    def test_create_hospital(self, client):
+        data = {
+            'address': '서울시 강남구 삼성동 106',
+            'name': '풍림아파트',
+            'introduction': '안녕하세요',
+            'phone_no': '02-516-2674',
+            'is_partner': False,
+            'opened_at': timezone.now(),
+            'area': '강남구',
+            'latitude': 1,
+            'longitude': 2,
+            'attachments': [],
+        }
+        response = client.post('/hospital/v1/hospitals', data=data, content_type='application/json')
+
+        assert response.status_code == 201
+        assert hm.Hospital.objects.all().count() == 1
 
     @pytest.mark.django_db
     def test_hospital_list_order_by_review_count(
