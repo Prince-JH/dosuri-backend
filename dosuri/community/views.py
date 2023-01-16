@@ -77,7 +77,7 @@ class ArticleKeywordAssocList(g.ListAPIView):
     ordering_fields = '__all__'
 
 class ArticleDetail(g.RetrieveAPIView):
-    permission_classes = [p.AllowAny]
+    permission_classes = [p.IsAuthenticated]
     queryset = m.Article.objects.prefetch_related(
         'article_comment',
         'article_comment__article_thread').all()

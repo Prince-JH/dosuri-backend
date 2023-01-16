@@ -417,10 +417,18 @@ class ArticleDetail(s.ModelSerializer):
     article_auth = ArticleAuth(many=False, write_only=True, required=False)
     article_doctor_assoc = ArticleDoctorAssoc(many=True, write_only=True, required=False)
     article_comment = ArticleComment(many=True, read_only=True)
+    is_like: s.Field = s.SerializerMethodField()
+    
 
     class Meta:
         model = dosuri.community.models.Article
         exclude = ('id', 'status')
+
+    @extend_schema_field(OpenApiTypes.BOOL)
+    def get_is_like(self, instance): 
+        return comm.ArticleLike.objects.filter(article=instance,
+            user=self.context['request'].user
+        ).exists()
     
     @extend_schema_field(OpenApiTypes.STR)
     def get_created_at(self, instance): ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
