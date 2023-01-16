@@ -33,19 +33,19 @@ class TestToken:
         response = client.post('/user/v1/token/verify', {'token': 'invalid_token'})
         assert response.status_code == 401
 
-    # @pytest.mark.django_db
-    # def test_refresh_with_valid_token(self, client, dummy_user):
-    #     data = {
-    #         "username": dummy_user.username
-    #     }
-    #     response = client.post('/user/v1/token', data)
-    #     content = json.loads(response.content)
-    #     assert response.status_code == 200
-    #
-    #     response = client.post('/user/v1/token/refresh', {'refresh': content['refresh']})
-    #     assert response.status_code == 200
-    #     content = json.loads(response.content)
-    #     assert content['access']
+    @pytest.mark.django_db
+    def test_refresh_with_valid_token(self, client, user_dummy):
+        data = {
+            "username": user_dummy.username
+        }
+        response = client.post('/user/v1/users/token', data)
+        content = json.loads(response.content)
+        assert response.status_code == 200
+
+        response = client.post('/user/v1/token/refresh', {'refresh': content['refresh']})
+        assert response.status_code == 200
+        content = json.loads(response.content)
+        assert content['access']
 
     @pytest.mark.django_db
     def test_refresh_with_invalid_token(self, client):
