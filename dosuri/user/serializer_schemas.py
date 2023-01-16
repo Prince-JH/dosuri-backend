@@ -6,7 +6,8 @@ USER_DETAIL_EXAMPLE = [
         summary='short summary',
         description='',
         value={
-            "nickname": "한준호",
+            "name": "한준호",
+            "nickname": "아이고맨",
             "birthday": "2022-12-20",
             "phone_no": "010-1234-5678",
             "address": {
@@ -32,8 +33,8 @@ USER_DETAIL_EXAMPLE = [
         value={
             "username": "igoman2@naver.com",
             "uuid": "a1b38583f3c6441194b9530700517f09",
-            "nickname": "한준호",
             "name": "한준호",
+            "nickname": "아이고맨",
             "birthday": "2022-12-20",
             "phone_no": "010-1234-5678",
             "address": {

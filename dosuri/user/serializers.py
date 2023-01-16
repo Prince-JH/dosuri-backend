@@ -107,7 +107,7 @@ class User(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     username: s.Field = s.CharField(read_only=True)
     nickname: s.Field = s.CharField()
-    name: s.Field = s.CharField(read_only=True)
+    name: s.Field = s.CharField()
     phone_no: s.Field = s.CharField()
     address: s.Field = cs.ReadWriteSerializerMethodField()
     birthday: s.Field = s.DateTimeField()
@@ -132,15 +132,27 @@ class User(s.ModelSerializer):
 
     def create(self, validated_data):
         user = validated_data['user']
-        user.nickname = validated_data['nickname']
-        user.birthday = validated_data['birthday']
-        user.phone_no = validated_data['phone_no']
-        user.sex = validated_data['sex']
-        self.save_address(user, validated_data['address'])
-        self.save_pain_areas(user, validated_data['pain_area_user_assoc'])
+        return self.save_user_info(user, validated_data)
+
+    def update(self, instance, validated_data):
+        user = instance
+        return self.save_user_info(user, validated_data)
+
+    def save_user_info(self, user, info_data):
+        info_data = self.save_extra(user, **info_data)
+        for key, value in info_data.items():
+            if hasattr(user, key):
+                setattr(user, key, value)
 
         user.save()
         return user
+
+    def save_extra(self, user, **kwargs):
+        if 'address' in kwargs:
+            self.save_address(user, kwargs.pop('address'))
+        if 'pain_area_user_assoc' in kwargs:
+            self.save_pain_areas(user, kwargs.pop('pain_area_user_assoc'))
+        return kwargs
 
     def save_address(self, user, address):
         um.AddressUserAssoc.objects.filter(user=user).delete()

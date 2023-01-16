@@ -2,6 +2,7 @@ import json
 
 import pytest
 import requests_mock
+from django.contrib.auth import get_user_model
 
 from dosuri.user import (
     models as um,
@@ -13,7 +14,73 @@ from dosuri.user import (
 
 class TestUserDetail:
     @pytest.mark.django_db
-    def test_get_user_without_jwt(self, client):
+    def test_get_user_with_jwt(self, client, user_dummy, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get(f'/user/v1/users/me', **headers)
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_get_user_without_jwt(self, client, user_dummy):
+        response = client.get(f'/user/v1/users/me')
+        assert response.status_code == 401
+
+    @pytest.mark.django_db
+    def test_update_user(self, client, user_dummy, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        assert user_dummy.name is None
+
+        data = {
+            "username": "igoman2@naver.com",
+            "name": "한준호",
+            "nickname": "아이고맨",
+            "birthday": "2022-12-20",
+            "phone_no": "010-1234-5678",
+            "address": {
+                "large_area": "서울",
+                "small_area": "강남구"
+            },
+            "sex": "남자",
+            "pain_areas": [
+                {
+                    "name": "목"
+                },
+                {
+                    "name": "그 외"
+                }
+            ]
+        }
+        response = client.put(f'/user/v1/users/me', data=data, **headers)
+        assert response.status_code == 200
+
+        user_dummy = get_user_model().objects.get(pk=user_dummy.pk)
+        assert user_dummy.name == '한준호'
+        assert user_dummy.nickname == '아이고맨'
+
+    @pytest.mark.django_db
+    def test_partial_update_user(self, client, user_dummy, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        assert user_dummy.name is None
+
+        data = {
+            "name": "한준호"
+        }
+        response = client.patch(f'/user/v1/users/me', data=data, **headers)
+        assert response.status_code == 200
+
+        user_dummy = get_user_model().objects.get(pk=user_dummy.pk)
+        assert user_dummy.name == '한준호'
+
+    @pytest.mark.django_db
+    def test_delete_user(self, client):
         response = client.get(f'/user/v1/users/me')
         assert response.status_code == 401
 
