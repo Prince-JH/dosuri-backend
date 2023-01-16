@@ -3,7 +3,9 @@ from dosuri.common import (
     models as cm,
     utils as cu
 )
-from drf_yasg.utils import swagger_serializer_method
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
+
 
 
 class ReadWriteSerializerMethodField(s.SerializerMethodField):
@@ -38,7 +40,7 @@ class Attachment(s.ModelSerializer):
         model = cm.Attachment
         exclude = ('id',)
 
-    @swagger_serializer_method(serializer_or_field=s.CharField)
+    @extend_schema_field(OpenApiTypes.STR)
     def get_signed_path(self, obj):
         return cu.generate_signed_path(obj)
 
@@ -51,6 +53,6 @@ class PutAttachment(s.ModelSerializer):
         model = cm.Attachment
         fields = ('uuid', 'signed_path')
 
-    @swagger_serializer_method(serializer_or_field=s.CharField)
+    @extend_schema_field(OpenApiTypes.STR)
     def get_signed_path(self, obj):
         return cu.generate_signed_path(obj)
