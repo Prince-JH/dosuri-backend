@@ -84,13 +84,14 @@ class TestHospitalList:
         assert content['results'][2]['uuid'] == hospital_test_C.uuid
 
 
-# class TestHospitalDetail:
-#     @pytest.mark.django_db
-#     def test_get_hospital_by_uuid(self, client, hospital_test_A):
-#         response = client.get(f'/hospital/v1/hospitals/{hospital_test_A.uuid}')
-#         content = json.loads(response.content)
-#         assert response.status_code == 200
-#         assert content['name'] == hospital_test_A.name
+class TestHospitalDetail:
+    @pytest.mark.django_db
+    def test_get_hospital_by_uuid(self, client, hospital_test_A):
+        response = client.get(f'/hospital/v1/hospitals/{hospital_test_A.uuid}')
+        content = json.loads(response.content)
+        assert response.status_code == 200
+        assert content['name'] == hospital_test_A.name
+
 
 
 # class TestDoctor:
