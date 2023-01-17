@@ -28,6 +28,11 @@ def tokens_user_dummy(user_dummy):
 
 
 @pytest.fixture
+def user_dummy_point_history_100(user_dummy):
+    return um.UserPointHistory.objects.create_history(user_dummy, 100, 'test')
+
+
+@pytest.fixture
 def address_서울시_강남구():
     return cm.Address.objects.create(
         large_area='서울',
