@@ -152,3 +152,17 @@ class TestInsuranceUserAssoc:
         response = client.post('/user/v1/insurance-user-assocs', **headers)
 
         assert response.status_code == 401
+
+
+class TestUserTotalPoint:
+    @pytest.mark.django_db
+    def test_get_total_point(self, client, tokens_user_dummy, user_dummy_point_history_100):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get('/user/v1/users/me/point', **headers)
+
+        assert response.status_code == 200
+        content = json.loads(response.content)
+        assert content['total_point'] == 100
