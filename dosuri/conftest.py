@@ -267,3 +267,10 @@ def insurance_A():
     return um.Insurance.objects.create(
         name='A'
     )
+
+@pytest.fixture
+def attachment_A():
+    return cm.Attachment.objects.create(
+        bucket_name='test bucket',
+        path='test path'
+    )

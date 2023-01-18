@@ -43,7 +43,7 @@ class TestHospitalList:
         assert len(content['results']) == 0
 
     @pytest.mark.django_db
-    def test_create_hospital(self, client):
+    def test_create_hospital(self, client, attachment_A):
         data = {
             'address': '서울시 강남구 삼성동 106',
             'name': '풍림아파트',
@@ -54,12 +54,38 @@ class TestHospitalList:
             'area': '강남구',
             'latitude': 1,
             'longitude': 2,
-            'attachments': [],
+            'keywords': [
+                {
+                    'keyword': '척추'
+                },
+                {
+                    'keyword': '요추'
+                }
+            ],
+            'attachments': [
+                {
+                    'attachment': attachment_A.uuid
+                }
+            ],
+            'calendar': {
+                'monday': '10:00 ~ 20:00',
+                'tuesday': '10:00 ~ 20:00',
+                'wednesday': '10:00 ~ 20:00',
+                'thursday': '10:00 ~ 20:00',
+                'friday': '10:00 ~ 20:00',
+                'saturday': '10:00 ~ 20:00',
+                'sunday': None
+            }
         }
         response = client.post('/hospital/v1/hospitals', data=data, content_type='application/json')
 
+        content = json.loads(response.content)
         assert response.status_code == 201
+        hospital = hm.Hospital.objects.get(uuid=content['uuid'])
         assert hm.Hospital.objects.all().count() == 1
+        assert hm.HospitalKeyword.objects.filter(hospital_keyword_assoc__hospital=hospital).count() == 2
+        assert hm.HospitalAttachmentAssoc.objects.filter(hospital=hospital).count() == 1
+        assert hm.HospitalCalendar.objects.filter(hospital=hospital).count() == 1
 
     @pytest.mark.django_db
     def test_hospital_list_order_by_review_count(
@@ -212,7 +238,7 @@ class TestHospitalSearch:
 
     @pytest.mark.django_db
     def test_delete_hospital_searches(self, client, tokens_user_dummy, hospital_search_A_user_dummy,
-                                    hospital_search_B_user_dummy):
+                                      hospital_search_B_user_dummy):
         headers = {
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
             'content_type': 'application/json'
