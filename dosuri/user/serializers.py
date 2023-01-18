@@ -68,6 +68,7 @@ class Auth(s.Serializer):
             country_code, phone_no = phone_no.split(' ')[0], phone_no.split(' ')[1]
             if country_code != '+82':
                 phone_no = None
+            phone_no = '0' + phone_no
         birth_year = kakao_user_info['kakao_account'].get('birthyear')
         birthday = kakao_user_info['kakao_account'].get('birthday')
         if birth_year and birthday:
