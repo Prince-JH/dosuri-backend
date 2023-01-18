@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers as s
 
 import dosuri.common.models
@@ -13,11 +14,11 @@ from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 
 
-class User(s.ModelSerializer):
+class CommunityUser(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     nickname: s.Field = s.CharField(read_only=True)
     class Meta:
-        model = dosuri.user.models.User
+        model = get_user_model()
         fields = ['uuid', 'nickname']
 
 # class AuthAttach(s.ModelSerializer):
@@ -150,8 +151,8 @@ class ArticleDoctorAssoc(s.ModelSerializer):
         exclude = ('id', 'article')
 
 class PostArticleThread(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)  
-    user = User(read_only=True)
+    uuid: s.Field = s.CharField(read_only=True)
+    user = CommunityUser(read_only=True)
     up_count: s.Field = s.IntegerField(default=0, read_only=True)
     view_count: s.Field = s.IntegerField(default=0, read_only=True)
     content: s.Field = s.CharField()
@@ -167,11 +168,11 @@ class PostArticleThread(s.ModelSerializer):
         slug_field='uuid',
         queryset=um.User.objects.all()
     )
-    
+
     class Meta:
         model = dosuri.community.models.ArticleThread
         exclude = ('id',)
-        
+
     @extend_schema_field(OpenApiTypes.STR)
     def get_created_at(self, instance): ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
         now = datetime.now().astimezone()
@@ -190,10 +191,10 @@ class PostArticleThread(s.ModelSerializer):
         else:
             created_at = str(int((((total_seconds/3600)/24)/30)/12))+ '년 전'
         return created_at
-        
+
 class ArticleThread(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)  
-    user = User(read_only=True)
+    uuid: s.Field = s.CharField(read_only=True)
+    user = CommunityUser(read_only=True)
     up_count: s.Field = s.IntegerField(default=0, read_only=True)
     view_count: s.Field = s.IntegerField(default=0, read_only=True)
     content: s.Field = s.CharField()
@@ -204,8 +205,8 @@ class ArticleThread(s.ModelSerializer):
     )
     # created_at: s.Field = s.DateTimeField(read_only=True)
     created_at: s.Field = s.SerializerMethodField()
-    mention_user: s.Field = User(read_only=True)
-    
+    mention_user: s.Field = CommunityUser(read_only=True)
+
     class Meta:
         model = dosuri.community.models.ArticleThread
         exclude = ('id',)
@@ -231,7 +232,7 @@ class ArticleThread(s.ModelSerializer):
 
 class ArticleComment(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    user = User(read_only=True)
+    user = CommunityUser(read_only=True)
     up_count: s.Field = s.IntegerField(default=0, read_only=True)
     view_count: s.Field = s.IntegerField(default=0, read_only=True)
     content: s.Field = s.CharField()
@@ -269,7 +270,7 @@ class ArticleComment(s.ModelSerializer):
 
 class Article(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    user = User(read_only=True)
+    user = CommunityUser(read_only=True)
     article_type: s.Field = s.CharField()
     up_count: s.Field = s.IntegerField(default=0, read_only=True)
     view_count: s.Field = s.IntegerField(default=0, read_only=True)
@@ -295,7 +296,7 @@ class Article(s.ModelSerializer):
             attachment_assoc_list = validated_data.pop('article_attachment_assoc')
         else:
             attachment_assoc_list = False
-            
+
         if "article_detail" in validated_data:
             article_detail_data = validated_data.pop('article_detail')
         else:
@@ -305,13 +306,13 @@ class Article(s.ModelSerializer):
             article_doctor_assoc_list = validated_data.pop('article_doctor_assoc')
         else:
             article_doctor_assoc_list = False
-        
+
         if 'article_auth' in validated_data:
             article_auth_data = validated_data.pop('article_auth')
             auth_attachment_list = article_auth_data.pop('auth_attachment_assoc')
         else:
             article_auth_data = False
-            
+
         if validated_data['article_type'] == cc.ARTICLE_REVIEW:
             article_keyword_assoc_list = validated_data.pop('article_keyword_assoc')
             with transaction.atomic():
@@ -339,13 +340,13 @@ class Article(s.ModelSerializer):
         return article
 
     @extend_schema_field(OpenApiTypes.BOOL)
-    def get_is_like(self, instance): 
+    def get_is_like(self, instance):
         return comm.ArticleLike.objects.filter(article=instance,
             user=self.context['request'].user
         ).exists()
 class GetArticle(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    user = User(read_only=True)
+    user = CommunityUser(read_only=True)
     comment_count: s.Field = s.IntegerField(default=0, read_only=True)
     article_type: s.Field = s.CharField()
     up_count: s.Field = s.IntegerField(default=0, read_only=True)
@@ -390,7 +391,7 @@ class GetArticle(s.ModelSerializer):
         return created_at
 
     @extend_schema_field(OpenApiTypes.BOOL)
-    def get_is_like(self, instance): 
+    def get_is_like(self, instance):
         if self.context['request'].user.is_anonymous:
             return False
         # if self.context['request'].user 
@@ -400,7 +401,7 @@ class GetArticle(s.ModelSerializer):
 
 class ArticleDetail(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    user = User(read_only=True)
+    user = CommunityUser(read_only=True)
     article_type: s.Field = s.CharField()
     up_count: s.Field = s.IntegerField(default=0, read_only=True)
     view_count: s.Field = s.IntegerField(default=0, read_only=True)
@@ -418,18 +419,18 @@ class ArticleDetail(s.ModelSerializer):
     article_doctor_assoc = ArticleDoctorAssoc(many=True, write_only=True, required=False)
     article_comment = ArticleComment(many=True, read_only=True)
     is_like: s.Field = s.SerializerMethodField()
-    
+
 
     class Meta:
         model = dosuri.community.models.Article
         exclude = ('id', 'status')
 
     @extend_schema_field(OpenApiTypes.BOOL)
-    def get_is_like(self, instance): 
+    def get_is_like(self, instance):
         return comm.ArticleLike.objects.filter(article=instance,
             user=self.context['request'].user
         ).exists()
-    
+
     @extend_schema_field(OpenApiTypes.STR)
     def get_created_at(self, instance): ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
         now = datetime.now().astimezone()
@@ -464,7 +465,7 @@ class ArticleLike(s.ModelSerializer):
         slug_field='uuid',
         queryset=comm.Article.objects.all()
     )
-    user = User(read_only=True)
+    user = CommunityUser(read_only=True)
     is_like: s.Field = s.SerializerMethodField()
     created_at: s.Field = s.DateTimeField(read_only=True)
     class Meta:
