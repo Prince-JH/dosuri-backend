@@ -71,7 +71,7 @@ class Auth(s.Serializer):
         birth_year = kakao_user_info['kakao_account'].get('birthyear')
         birthday = kakao_user_info['kakao_account'].get('birthday')
         if birth_year and birthday:
-            birthday = datetime.datetime.strptime(f'{birth_year}-{birthday}', '%Y-%m%d')
+            birthday = datetime.datetime.strptime(f'{birth_year}-{birthday}', '%Y-%m%d').astimezone()
         return {'name': name, 'phone_no': phone_no, 'sex': sex, 'birthday': birthday}
 
 

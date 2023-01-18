@@ -28,6 +28,11 @@ def tokens_user_dummy(user_dummy):
 
 
 @pytest.fixture
+def user_dummy_point_history_100(user_dummy):
+    return um.UserPointHistory.objects.create_history(user_dummy, 100, 'test')
+
+
+@pytest.fixture
 def address_서울시_강남구():
     return cm.Address.objects.create(
         large_area='서울',
@@ -287,4 +292,11 @@ def hospital_search_B_user_dummy(user_dummy):
 def insurance_A():
     return um.Insurance.objects.create(
         name='A'
+    )
+
+@pytest.fixture
+def attachment_A():
+    return cm.Attachment.objects.create(
+        bucket_name='test bucket',
+        path='test path'
     )

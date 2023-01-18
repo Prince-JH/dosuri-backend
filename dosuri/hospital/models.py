@@ -84,6 +84,8 @@ class HospitalKeyword(models.Model):
     is_custom = models.BooleanField(default=False)  # 사용자가 추가한 키워드 True, 관리자가 추가한 키워드 False
     created_at = models.DateTimeField(auto_now_add=True)
 
+    objects = hmm.HospitalKeywordManager()
+
     class Meta:
         db_table = 'hospital_keyword'
         ordering = ['-id']

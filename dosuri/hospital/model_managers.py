@@ -25,3 +25,11 @@ class HospitalSearchManager(Manager):
             user=user,
             word=word
         )
+
+
+class HospitalKeywordManager(Manager):
+    def get_or_create(self, name):
+        qs = self.filter(name=name)
+        if qs.exists():
+            return qs.first()
+        return self.create(name=name, is_custom=True)

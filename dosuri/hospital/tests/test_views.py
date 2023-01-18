@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from django.utils import timezone
 
 from dosuri.hospital import (
     models as hm,
@@ -26,14 +27,6 @@ class TestHospitalList:
         assert len(content['results']) == 1
 
     @pytest.mark.django_db
-    def test_list_hospital_filter_with_address(self, client, hospital_test_A, address_서울시_강남구, address_수원시_팔달구):
-        response = client.get(f'/hospital/v1/hospitals?hospital_address_assoc_address={address_서울시_강남구.uuid}')
-        content = json.loads(response.content)
-
-        assert response.status_code == 200
-        assert len(content['results']) == 1
-
-    @pytest.mark.django_db
     def test_list_hospital_search_by_exist_name_should_return_one(self, client, hospital_test_A):
         response = client.get(f'/hospital/v1/hospitals?search=test_A')
         content = json.loads(response.content)
@@ -49,21 +42,50 @@ class TestHospitalList:
         assert response.status_code == 200
         assert len(content['results']) == 0
 
-    # @pytest.mark.django_db
-    # def test_create_hospital(self, client, address_서울시_강남구):
-    #     data = {
-    #         'address': address_서울시_강남구.uuid,
-    #         'name': 'test hospital',
-    #         'introduction': None,
-    #         'phone_no': None,
-    #         'is_partner': False,
-    #         'opened_at': None,
-    #         'area': None
-    #     }
-    #     response = client.post('/hospital/v1/hospitals', data=data, content_type='application/json')
-    #
-    #     assert response.status_code == 201
-    #     assert hm.Hospital.objects.all().count() == 1
+    @pytest.mark.django_db
+    def test_create_hospital(self, client, attachment_A):
+        data = {
+            'address': '서울시 강남구 삼성동 106',
+            'name': '풍림아파트',
+            'introduction': '안녕하세요',
+            'phone_no': '02-516-2674',
+            'is_partner': False,
+            'opened_at': timezone.now(),
+            'area': '강남구',
+            'latitude': 1,
+            'longitude': 2,
+            'keywords': [
+                {
+                    'keyword': '척추'
+                },
+                {
+                    'keyword': '요추'
+                }
+            ],
+            'attachments': [
+                {
+                    'attachment': attachment_A.uuid
+                }
+            ],
+            'calendar': {
+                'monday': '10:00 ~ 20:00',
+                'tuesday': '10:00 ~ 20:00',
+                'wednesday': '10:00 ~ 20:00',
+                'thursday': '10:00 ~ 20:00',
+                'friday': '10:00 ~ 20:00',
+                'saturday': '10:00 ~ 20:00',
+                'sunday': None
+            }
+        }
+        response = client.post('/hospital/v1/hospitals', data=data, content_type='application/json')
+
+        content = json.loads(response.content)
+        assert response.status_code == 201
+        hospital = hm.Hospital.objects.get(uuid=content['uuid'])
+        assert hm.Hospital.objects.all().count() == 1
+        assert hm.HospitalKeyword.objects.filter(hospital_keyword_assoc__hospital=hospital).count() == 2
+        assert hm.HospitalAttachmentAssoc.objects.filter(hospital=hospital).count() == 1
+        assert hm.HospitalCalendar.objects.filter(hospital=hospital).count() == 1
 
     @pytest.mark.django_db
     def test_hospital_list_order_by_review_count(
@@ -89,42 +111,43 @@ class TestHospitalList:
         assert content['results'][2]['uuid'] == hospital_test_C.uuid
 
 
-# class TestHospitalDetail:
-#     @pytest.mark.django_db
-#     def test_get_hospital_by_uuid(self, client, hospital_test_A):
-#         response = client.get(f'/hospital/v1/hospitals/{hospital_test_A.uuid}')
-#         content = json.loads(response.content)
-#         assert response.status_code == 200
-#         assert content['name'] == hospital_test_A.name
+class TestHospitalDetail:
+    @pytest.mark.django_db
+    def test_get_hospital_by_uuid(self, client, hospital_test_A):
+        response = client.get(f'/hospital/v1/hospitals/{hospital_test_A.uuid}')
+        content = json.loads(response.content)
+        assert response.status_code == 200
+        assert content['name'] == hospital_test_A.name
 
 
-# class TestDoctor:
+class TestDoctor:
+    @pytest.mark.django_db
+    def test_doctor_list_by_position(
+            self, client, doctor_A_hospital_A, therapist_A_hospital_A):
+        response = client.get('/hospital/v1/doctors?position=doctor', content_type='application/json')
+        content = json.loads(response.content)
+        assert len(content['results']) == 1
+        assert content['results'][0]['position'] == 'doctor'
+
+        response = client.get('/hospital/v1/doctors?position=therapist', content_type='application/json')
+        content = json.loads(response.content)
+        assert len(content['results']) == 1
+        assert content['results'][0]['position'] == 'therapist'
+
     # @pytest.mark.django_db
-    # def test_doctor_list_by_position(
-    #         self, client, doctor_A_hospital_A, therapist_A_hospital_A):
-    #     response = client.get('/hospital/v1/doctors?position=doctor', content_type='application/json')
-    #     content = json.loads(response.content)
-    #     assert len(content['results']) == 1
-    #     assert content['results'][0]['position'] == 'doctor'
+    # def test_create_doctor(self, client, hospital_test_A):
+    #     data = {
+    #         'hospital': hospital_test_A.uuid,
+    #         'name': 'test doctor',
+    #         'thumbnail_url': None,
+    #         'title': 'chief',
+    #         'subtitle': 'chief',
+    #         'position': 'therapist',
+    #     }
+    #     response = client.post('/hospital/v1/doctors', data=data, content_type='application/json')
     #
-    #     response = client.get('/hospital/v1/doctors?position=therapist', content_type='application/json')
-    #     content = json.loads(response.content)
-    #     assert len(content['results']) == 1
-    #     assert content['results'][0]['position'] == 'therapist'
-#     @pytest.mark.django_db
-#     def test_create_doctor(self, client, hospital_test_A):
-#         data = {
-#             'hospital': hospital_test_A.uuid,
-#             'name': 'test doctor',
-#             'thumbnail_url': None,
-#             'title': 'chief',
-#             'subtitle': 'chief',
-#             'position': 'therapist',
-#         }
-#         response = client.post('/hospital/v1/doctors', data=data, content_type='application/json')
-#
-#         assert response.status_code == 201
-#         assert hm.Hospital.objects.all().count() == 1
+    #     assert response.status_code == 201
+    #     assert hm.Doctor.objects.all().count() == 1
 
 
 class TestHospitalTreatment:
@@ -215,7 +238,7 @@ class TestHospitalSearch:
 
     @pytest.mark.django_db
     def test_delete_hospital_searches(self, client, tokens_user_dummy, hospital_search_A_user_dummy,
-                                    hospital_search_B_user_dummy):
+                                      hospital_search_B_user_dummy):
         headers = {
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
             'content_type': 'application/json'

@@ -18,11 +18,6 @@ from drf_spectacular.types import OpenApiTypes
 
 
 class HospitalAttachmentAssoc(s.ModelSerializer):
-    hospital: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=hm.Hospital.objects.all(),
-        write_only=True
-    )
     attachment: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=cm.Attachment.objects.all(),
@@ -32,12 +27,44 @@ class HospitalAttachmentAssoc(s.ModelSerializer):
 
     class Meta:
         model = hm.HospitalAttachmentAssoc
-        exclude = ('uuid', 'id', 'created_at')
+        exclude = ('uuid', 'id', 'hospital', 'created_at')
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_signed_path(self, obj):
         return cu.generate_signed_path(obj.attachment)
 
+
+class HospitalCalendar(s.ModelSerializer):
+    monday: s.Field = s.CharField(allow_null=True)
+    tuesday: s.Field = s.CharField(allow_null=True)
+    wednesday: s.Field = s.CharField(allow_null=True)
+    thursday: s.Field = s.CharField(allow_null=True)
+    friday: s.Field = s.CharField(allow_null=True)
+    saturday: s.Field = s.CharField(allow_null=True)
+    sunday: s.Field = s.CharField(allow_null=True)
+
+    class Meta:
+        model = hm.HospitalCalendar
+        exclude = ('uuid', 'id', 'hospital', 'created_at')
+
+
+class HospitalKeyword(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    name: s.Field = s.CharField()
+    is_custom: s.Field = s.BooleanField(write_only=True)
+    hospital: s.Field = s.CharField(read_only=True)
+
+    class Meta:
+        model = hm.HospitalKeyword
+        exclude = ('id', 'created_at')
+
+
+class HospitalKeywordAssoc(s.ModelSerializer):
+    keyword: s.Field = s.CharField(source='keyword.name')
+
+    class Meta:
+        model = hm.HospitalKeywordAssoc
+        exclude = ('id', 'uuid', 'hospital', 'created_at')
 
 
 class Hospital(s.ModelSerializer):
@@ -55,57 +82,49 @@ class Hospital(s.ModelSerializer):
     is_partner: s.Field = s.BooleanField(write_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
+    calendar: s.Field = HospitalCalendar(write_only=True, source='hospital_calendar')
+    keywords: s.Field = HospitalKeywordAssoc(write_only=True, many=True, source='hospital_keyword_assoc')
     attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
     latitude: s.Field = s.FloatField(write_only=True)
     longitude: s.Field = s.FloatField(write_only=True)
+
+    extra_fields = ['hospital_calendar', 'hospital_keyword_assoc', 'hospital_attachment_assoc']
 
     class Meta:
         model = hm.Hospital
         exclude = ('id', 'created_at', 'code')
 
+    def create(self, validated_data):
+        extra = {}
+        for extra_field in self.extra_fields:
+            extra[extra_field] = validated_data.pop(extra_field)
+        hospital = super().create(validated_data)
+        self.save_extra(hospital, **extra)
+        return hospital
 
-class HospitalCalendar(s.ModelSerializer):
-    hospital: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=hm.Hospital.objects.all(),
-        write_only=True
-    )
-    monday: s.Field = s.CharField(allow_null=True)
-    tuesday: s.Field = s.CharField(allow_null=True)
-    wednesday: s.Field = s.CharField(allow_null=True)
-    thursday: s.Field = s.CharField(allow_null=True)
-    friday: s.Field = s.CharField(allow_null=True)
-    saturday: s.Field = s.CharField(allow_null=True)
-    sunday: s.Field = s.CharField(allow_null=True)
+    def save_extra(self, hospital, **kwargs):
+        if 'hospital_calendar' in kwargs:
+            self.save_calendar(hospital, kwargs.pop('hospital_calendar'))
+        if 'hospital_attachment_assoc' in kwargs:
+            self.save_attachments(hospital, kwargs.pop('hospital_attachment_assoc'))
+        if 'hospital_keyword_assoc' in kwargs:
+            self.save_keywords(hospital, kwargs.pop('hospital_keyword_assoc'))
+        return kwargs
 
-    class Meta:
-        model = hm.HospitalCalendar
-        exclude = ('uuid', 'id', 'created_at')
+    def save_calendar(self, hospital, calendar):
+        hm.HospitalCalendar.objects.filter(hospital=hospital).delete()
+        hm.HospitalCalendar.objects.create(hospital=hospital, **calendar)
 
+    def save_attachments(self, hospital, assocs):
+        hm.HospitalAttachmentAssoc.objects.filter(hospital=hospital).delete()
+        for assoc in assocs:
+            hm.HospitalAttachmentAssoc.objects.create(hospital=hospital, attachment=assoc['attachment'])
 
-class HospitalKeyword(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
-    name: s.Field = s.CharField()
-    is_custom: s.Field = s.BooleanField(write_only=True)
-    hospital: s.Field = s.CharField(read_only=True)
-
-    class Meta:
-        model = hm.HospitalKeyword
-        exclude = ('id', 'created_at')
-
-
-class HospitalKeywordAssoc(s.ModelSerializer):
-    hospital: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=hm.Hospital.objects.all(),
-        write_only=True
-    )
-    keyword: s.Field = s.CharField(source='keyword.name')
-
-    class Meta:
-        model = hm.HospitalKeywordAssoc
-        exclude = ('id', 'created_at', 'uuid')
-
+    def save_keywords(self, hospital, assocs):
+        hm.HospitalKeywordAssoc.objects.filter(hospital=hospital).delete()
+        for assoc in assocs:
+            keyword = hm.HospitalKeyword.objects.get_or_create(name=assoc['keyword']['name'])
+            hm.HospitalKeywordAssoc.objects.create(hospital=hospital, keyword=keyword)
 
 class HospitalDetail(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
