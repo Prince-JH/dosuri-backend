@@ -8,20 +8,25 @@ from dosuri.community import (
     constants as cc
 )
 
+
 class TestArticleList:
     attach_url='https://img.hankyung.com/photo/202110/01.27720352.1.jpg'
     auth_attach_url='https://cdn.topstarnews.net/news/photo/first/201705/img_269634_1.jpg'
 
     @pytest.mark.django_db
-    def test_list_article_should_return_zero(self, client):
-        response = client.get('/community/v1/community/articles')
+    def test_list_article_should_return_zero(self, client, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get('/community/v1/community/articles', **headers)
         content = json.loads(response.content)
 
         assert response.status_code == 200
         assert len(content['results']) == 0
 
     @pytest.mark.django_db
-    def test_create_review(self, client, hospital_test_A, article_keyword_A, tokens_user_dummy):
+    def test_create_review(self, client, hospital_test_A, article_keyword_A, tokens_user_dummy, attachment_A, attachment_B):
         headers = {
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
             'content_type': 'application/json'
@@ -32,14 +37,14 @@ class TestArticleList:
                 "article_type": cc.ARTICLE_REVIEW,
                 "hospital": hospital_test_A.uuid,
                 "content": "선생님이 변태 같아요",
-                "article_attach": [
+                "article_attachment_assoc": [
                     {
-                        "path": self.attach_url
+                        "attachment": attachment_A.uuid
                     }
                 ],
                 "article_keyword_assoc": [
                     {
-                        "article_keyword": article_keyword_A.uuid
+                        "treatment_keyword": article_keyword_A.uuid
                     }
                 ],
                 "article_detail": {
@@ -54,17 +59,17 @@ class TestArticleList:
                 "article_auth": {
                     "sensitive_agreement": True,
                     "personal_agreement": True,
-                    "auth_attach": [
-                    {
-                        "path": self.auth_attach_url
-                    }
+                    "auth_attachment_assoc": [
+                        {
+                            "attachment": attachment_B.uuid
+                        }
                     ]
                 },
                 # "article_doctor_assoc": [
                 #     {
-                #         "doctor": "string"
+                #     "doctor": "string"
                 #     }
-                # ],
+                # ]
             },
             **headers
         )
@@ -77,8 +82,6 @@ class TestArticleList:
         assert article != None
         assert article.article_type == cc.ARTICLE_REVIEW
 
-        article_attach = cm.ArticleAttach.objects.filter(article=article)
-        assert len(article_attach) == 1
         
         article_keyword_assoc = cm.ArticleKeywordAssoc.objects.filter(article=article)
         assert len(article_keyword_assoc) == 1
@@ -94,17 +97,18 @@ class TestArticleList:
         article_auth = cm.ArticleAuth.objects.get(article=article)
         assert article_auth != None
 
-        auth_attach = cm.AuthAttach.objects.filter(article_auth=article_auth)
-        assert len(auth_attach) == 1
-
         
         return article
     
 
     @pytest.mark.django_db
-    def test_list_article_should_return_one_result(self, client, hospital_test_A, article_keyword_A, tokens_user_dummy):
-        article = self.test_create_review(client, hospital_test_A, article_keyword_A, tokens_user_dummy)
-        response = client.get('/community/v1/community/articles')
+    def test_list_article_should_return_one_result(self, client, hospital_test_A, article_keyword_A, tokens_user_dummy, attachment_A, attachment_B):
+        article = self.test_create_review(client, hospital_test_A, article_keyword_A, tokens_user_dummy, attachment_A, attachment_B)
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get('/community/v1/community/articles', **headers)
         content = json.loads(response.content)
         assert response.status_code == 200
         assert len(content['results']) == 1

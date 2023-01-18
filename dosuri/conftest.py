@@ -210,6 +210,32 @@ def article_A_hospital_A(hospital_test_A, user_dummy):
         article_type=cmc.ARTICLE_REVIEW
     )
 
+@pytest.fixture
+def treatment_category_A():
+    return cmm.TreatmentCategory.objects.create(
+        category = "도수 치료"
+    )
+
+@pytest.fixture
+def article_keyword_A(treatment_category_A):
+    return cmm.TreatmentKeyword.objects.create(
+        keyword = "도수 치료",
+        category = treatment_category_A,
+    )
+
+@pytest.fixture
+def attachment_A(hospital_test_A, user_dummy):
+    return cm.Attachment.objects.create(
+        bucket_name = "test_bucket_A",
+        path = "test_path_A"
+    )
+    
+@pytest.fixture
+def attachment_B(hospital_test_A, user_dummy):
+    return cm.Attachment.objects.create(
+        bucket_name = "test_bucket_A",
+        path = "test_path_B"
+    )
 
 @pytest.fixture
 def article_B_hospital_A(hospital_test_A, user_dummy):
