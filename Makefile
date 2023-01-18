@@ -1,6 +1,7 @@
 test:
 	cd dosuri/user && pytest
 	cd dosuri/hospital && pytest
+	cd dosuri/community && pytest
 	python3 manage.py test --settings=config.settings_test
 
 test-db:
