@@ -1,3 +1,5 @@
+from random import randint
+
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.expressions import ArraySubquery
 from django.db.models import OuterRef, Count, Subquery, Q, F, Avg
@@ -302,7 +304,7 @@ class HomeHospitalList(g.ListAPIView):
         qs = queryset.filter(hospital_treatment__isnull=False).distinct().annotate(avg_price_per_hour=Subquery(
             m.HospitalTreatment.objects.filter(hospital=OuterRef('pk')).annotate(
                 avg_price_per_hour=Avg('price_per_hour')).values('avg_price_per_hour')[:1])).filter(
-            avg_price_per_hour__isnull=False)
+            avg_price_per_hour__isnull=False).order_by('avg_price_per_hour')
         count = qs.count()
         if count == 0:
             return queryset.none()
@@ -311,12 +313,17 @@ class HomeHospitalList(g.ListAPIView):
             count = int(count * 0.5)
         elif count >= showing_number:
             count = showing_number
-
         avg_price_per_hour = qs[count - 1].avg_price_per_hour
         if not avg_price_per_hour:
             return qs.none()
 
-        return qs.annotate_extra_fields().filter(avg_price_per_hour__lte=avg_price_per_hour)[:3]
+        ids = qs.filter(avg_price_per_hour__lte=avg_price_per_hour).values_list('id', flat=True)
+        if len(ids) >= 3:
+            indexes = set([randint(0, len(ids) - 1) for i in range(3)])
+        else:
+            indexes = set(ids)
+        extracted_ids = [ids[index] for index in indexes]
+        return qs.annotate_extra_fields().filter(id__in=extracted_ids)
 
     def get_good_review_hospital_queryset(self, queryset):
         count = queryset.count()
@@ -324,8 +331,15 @@ class HomeHospitalList(g.ListAPIView):
             return queryset.none()
         elif count // 2 >= 3:
             count //= 2
-        article_count = queryset.annotate_article_count()[count - 1].article_count
-        return queryset.annotate_extra_fields().filter(article_count__gte=article_count).order_by('?')[:3]
+        qs = queryset.annotate_article_count()
+        article_count = qs[count - 1].article_count
+        ids = qs.filter(article_count__gte=article_count).values_list('id', flat=True)
+        if len(ids) >= 3:
+            indexes = set([randint(0, len(ids) - 1) for i in range(3)])
+        else:
+            indexes = set(ids)
+        extracted_ids = [ids[index] for index in indexes]
+        return qs.annotate_extra_fields().filter(id__in=extracted_ids)
 
 
 class HospitalSearch(g.ListCreateAPIView):
