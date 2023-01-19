@@ -272,7 +272,6 @@ class HomeHospitalList(g.ListAPIView):
         top_hospital_serializer = s.AroundHospital(top_hospital_queryset, many=True)
 
         new_hospital_queryset = self.get_new_hospital_queryset(address_filtered_queryset)
-        print(new_hospital_queryset)
         new_hospital_serializer = s.AroundHospital(new_hospital_queryset, many=True)
 
         good_price_hospital_queryset = self.get_good_price_hospital_queryset(address_filtered_queryset)
@@ -349,10 +348,13 @@ class HomeHospitalList(g.ListAPIView):
         return qs.annotate_extra_fields().filter(id__in=rand_ids)
 
     def get_rand_ids(self, ids):
-        if len(ids) >= 3:
-            indexes = set([randint(0, len(ids) - 1) for i in range(3)])
-        else:
-            indexes = set(range(len(ids)))
+        if len(ids) < 3:
+            return list(ids)
+        indexes = []
+        while len(indexes) < 3:
+            index = randint(0, len(ids) - 1)
+            if index not in indexes:
+                indexes.append(index)
         return [ids[index] for index in indexes]
 
 
