@@ -101,6 +101,7 @@ class TestKaKaoAuth:
         assert response.status_code == 201
         assert content['is_new'] is True
         assert get_user_model().objects.all().count() == 1
+        assert get_user_model().objects.first().phone_no == '010-1234-5678'
 
     @pytest.mark.django_db
     @requests_mock.Mocker(kw='mock')
