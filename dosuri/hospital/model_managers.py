@@ -33,3 +33,11 @@ class HospitalKeywordManager(Manager):
         if qs.exists():
             return qs.first()
         return self.create(name=name, is_custom=True)
+
+
+class DoctorKeywordManager(Manager):
+    def get_or_create(self, name):
+        qs = self.filter(name=name)
+        if qs.exists():
+            return qs.first()
+        return self.create(name=name, is_custom=True)
