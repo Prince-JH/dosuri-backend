@@ -92,7 +92,7 @@ class Hospital(s.ModelSerializer):
 
     class Meta:
         model = hm.Hospital
-        exclude = ('id', 'created_at', 'code')
+        exclude = ('id', 'status', 'code', 'last_updated_at', 'created_at')
 
     def create(self, validated_data):
         extra = {}
@@ -126,6 +126,7 @@ class Hospital(s.ModelSerializer):
             keyword = hm.HospitalKeyword.objects.get_or_create(name=assoc['keyword']['name'])
             hm.HospitalKeywordAssoc.objects.create(hospital=hospital, keyword=keyword)
 
+
 class HospitalDetail(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     address: s.Field = s.CharField()
@@ -144,7 +145,7 @@ class HospitalDetail(s.ModelSerializer):
 
     class Meta:
         model = hm.Hospital
-        exclude = ('id', 'created_at', 'view_count', 'code')
+        exclude = ('id', 'status', 'code', 'last_updated_at', 'created_at')
 
 
 class HospitalAddressAssoc(s.ModelSerializer):
@@ -175,37 +176,22 @@ class DoctorKeyword(s.ModelSerializer):
 
 
 class DoctorKeywordAssoc(s.ModelSerializer):
-    doctor: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=hm.Doctor.objects.all(),
-        write_only=True
-    )
     keyword: s.Field = s.CharField(source='keyword.name')
 
     class Meta:
         model = hm.DoctorKeywordAssoc
-        exclude = ('uuid', 'id', 'created_at')
+        exclude = ('uuid', 'id', 'doctor', 'created_at')
 
 
 class DoctorDescription(s.ModelSerializer):
-    doctor: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=hm.Doctor.objects.all(),
-        write_only=True
-    )
     description: s.Field = s.CharField()
 
     class Meta:
         model = hm.DoctorDescription
-        fields = ('doctor', 'description')
+        exclude = ('uuid', 'id', 'doctor', 'created_at')
 
 
 class DoctorAttachmentAssoc(s.ModelSerializer):
-    doctor: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=hm.Doctor.objects.all(),
-        write_only=True
-    )
     attachment: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=cm.Attachment.objects.all(),
@@ -215,7 +201,7 @@ class DoctorAttachmentAssoc(s.ModelSerializer):
 
     class Meta:
         model = hm.DoctorAttachmentAssoc
-        exclude = ('uuid', 'id', 'created_at')
+        exclude = ('uuid', 'id', 'doctor', 'created_at')
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_signed_path(self, obj):
@@ -306,7 +292,7 @@ class AroundHospital(s.ModelSerializer):
 
     class Meta:
         model = hm.Hospital
-        exclude = ('id', 'created_at', 'code')
+        exclude = ('id', 'status', 'code', 'last_updated_at', 'created_at')
 
 
 class NewHospital(s.ModelSerializer):
@@ -330,7 +316,7 @@ class NewHospital(s.ModelSerializer):
 
     class Meta:
         model = hm.Hospital
-        exclude = ('id', 'created_at', 'code')
+        exclude = ('id', 'status', 'code', 'last_updated_at', 'created_at')
 
 
 class GoodPriceHospital(s.ModelSerializer):
@@ -354,7 +340,7 @@ class GoodPriceHospital(s.ModelSerializer):
 
     class Meta:
         model = hm.Hospital
-        exclude = ('id', 'created_at', 'code')
+        exclude = ('id', 'status', 'code', 'last_updated_at', 'created_at')
 
 
 class GoodReviewHospital(s.ModelSerializer):
@@ -378,7 +364,7 @@ class GoodReviewHospital(s.ModelSerializer):
 
     class Meta:
         model = hm.Hospital
-        exclude = ('id', 'created_at', 'code')
+        exclude = ('id', 'status', 'code', 'last_updated_at', 'created_at')
 
 
 @extend_schema_serializer(examples=sch.HOME_HOSPITAL_EXAMPLE)
