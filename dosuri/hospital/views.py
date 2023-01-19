@@ -1,9 +1,11 @@
+from datetime import timedelta
 from random import randint
 
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.expressions import ArraySubquery
 from django.db.models import OuterRef, Count, Subquery, Q, F, Avg
 from django.db.models.functions import Coalesce
+from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework import (
     generics as g,
@@ -297,8 +299,16 @@ class HomeHospitalList(g.ListAPIView):
         queryset = queryset.annotate_extra_fields()
         return queryset.annotate(top_count=F('up_count') + F('article_count')).order_by('-top_count')[:3]
 
-    def get_new_hospital_queryset(self, queryset):
-        return queryset.annotate_extra_fields().order_by('-opened_at')[:3]
+    def get_new_hospital_queryset(self, queryset, showing_number=3):
+        now = timezone.now()
+        qs = queryset.filter(opened_at__gte=(now - timedelta(days=90)))
+        count = qs.count()
+        if count == 0:
+            return queryset.none()
+
+        ids = qs.values_list('id', flat=True)
+        rand_ids = self.get_rand_ids(ids)
+        return qs.annotate_extra_fields().filter(id__in=rand_ids)
 
     def get_good_price_hospital_queryset(self, queryset, showing_number=3):
         qs = queryset.filter(hospital_treatment__isnull=False).distinct().annotate(avg_price_per_hour=Subquery(
@@ -318,12 +328,8 @@ class HomeHospitalList(g.ListAPIView):
             return qs.none()
 
         ids = qs.filter(avg_price_per_hour__lte=avg_price_per_hour).values_list('id', flat=True)
-        if len(ids) >= 3:
-            indexes = set([randint(0, len(ids) - 1) for i in range(3)])
-        else:
-            indexes = set(ids)
-        extracted_ids = [ids[index] for index in indexes]
-        return qs.annotate_extra_fields().filter(id__in=extracted_ids)
+        rand_ids = self.get_rand_ids(ids)
+        return qs.annotate_extra_fields().filter(id__in=rand_ids)
 
     def get_good_review_hospital_queryset(self, queryset):
         count = queryset.count()
@@ -334,13 +340,15 @@ class HomeHospitalList(g.ListAPIView):
         qs = queryset.annotate_article_count()
         article_count = qs[count - 1].article_count
         ids = qs.filter(article_count__gte=article_count).values_list('id', flat=True)
+        rand_ids = self.get_rand_ids(ids)
+        return qs.annotate_extra_fields().filter(id__in=rand_ids)
+
+    def get_rand_ids(self, ids):
         if len(ids) >= 3:
             indexes = set([randint(0, len(ids) - 1) for i in range(3)])
         else:
-            indexes = set(ids)
-        extracted_ids = [ids[index] for index in indexes]
-        return qs.annotate_extra_fields().filter(id__in=extracted_ids)
-
+            indexes = set(range(len(ids)))
+        return [ids[index] for index in indexes]
 
 class HospitalSearch(g.ListCreateAPIView):
     permission_classes = [p.IsAuthenticated]
