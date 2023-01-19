@@ -272,6 +272,7 @@ class HomeHospitalList(g.ListAPIView):
         top_hospital_serializer = s.AroundHospital(top_hospital_queryset, many=True)
 
         new_hospital_queryset = self.get_new_hospital_queryset(address_filtered_queryset)
+        print(new_hospital_queryset)
         new_hospital_serializer = s.AroundHospital(new_hospital_queryset, many=True)
 
         good_price_hospital_queryset = self.get_good_price_hospital_queryset(address_filtered_queryset)
@@ -310,10 +311,9 @@ class HomeHospitalList(g.ListAPIView):
                                                                                                   '경기도']).distinct()
             if count + extra_qs.count() < 3:
                 extra_qs = m.Hospital.objects.filter(opened_at__gte=(now - timedelta(days=90)))
-            ids = ids + list(extra_qs.values_list('id', flat=True))
-
+            ids = list(set(ids + list(extra_qs.values_list('id', flat=True))))
         rand_ids = self.get_rand_ids(ids)
-        return qs.annotate_extra_fields().filter(id__in=rand_ids)
+        return m.Hospital.objects.filter(id__in=rand_ids).annotate_extra_fields()
 
     def get_good_price_hospital_queryset(self, queryset, showing_number=3):
         qs = queryset.filter(hospital_treatment__isnull=False).distinct().annotate(avg_price_per_hour=Subquery(
