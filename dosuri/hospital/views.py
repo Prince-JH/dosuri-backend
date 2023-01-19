@@ -296,21 +296,25 @@ class HomeHospitalList(g.ListAPIView):
     def get_new_hospital_queryset(self, queryset):
         return queryset.annotate_extra_fields().order_by('-opened_at')[:3]
 
-    def get_good_price_hospital_queryset(self, queryset):
-        count = queryset.count()
-        if count == 0:
+    def get_good_price_hospital_queryset(self, queryset, showing_number=3):
+        if queryset.count() == 0:
             return queryset.none()
-        elif count * 0.3 >= 3:
-            count = int(count * 0.3)
-        avg_price_per_hour = queryset.annotate(avg_price_per_hour=Coalesce(Subquery(
-            m.HospitalTreatment.objects.filter(price_per_hour__isnull=False, hospital=OuterRef('pk')).annotate(
-                avg_price_per_hour=Avg('price_per_hour')).values('avg_price_per_hour')[:1]), 0.0))[
-            count - 1].avg_price_per_hour
+        qs = queryset.filter(hospital_treatment__isnull=False).distinct().annotate(avg_price_per_hour=Subquery(
+            m.HospitalTreatment.objects.filter(hospital=OuterRef('pk')).annotate(
+                avg_price_per_hour=Avg('price_per_hour')).values('avg_price_per_hour')[:1])).filter(
+            avg_price_per_hour__isnull=False)
+        count = qs.count()
 
-        queryset = queryset.annotate(avg_price_per_hour=Coalesce(Subquery(
-            m.HospitalTreatment.objects.filter(price_per_hour__isnull=False, hospital=OuterRef('pk')).annotate(
-                avg_price_per_hour=Avg('price_per_hour')).values('avg_price_per_hour')[:1]), 0.0))
-        return queryset.annotate_extra_fields().filter(avg_price_per_hour__gte=avg_price_per_hour).order_by('?')[:3]
+        if count * 0.5 >= showing_number:
+            count = int(count * 0.5)
+        elif count >= showing_number:
+            count = showing_number
+
+        avg_price_per_hour = qs[count - 1].avg_price_per_hour
+        if not avg_price_per_hour:
+            return qs.none()
+
+        return qs.annotate_extra_fields().filter(avg_price_per_hour__lte=avg_price_per_hour)[:3]
 
     def get_good_review_hospital_queryset(self, queryset):
         count = queryset.count()
