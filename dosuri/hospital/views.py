@@ -297,13 +297,13 @@ class HomeHospitalList(g.ListAPIView):
         return queryset.annotate_extra_fields().order_by('-opened_at')[:3]
 
     def get_good_price_hospital_queryset(self, queryset, showing_number=3):
-        if queryset.count() == 0:
-            return queryset.none()
         qs = queryset.filter(hospital_treatment__isnull=False).distinct().annotate(avg_price_per_hour=Subquery(
             m.HospitalTreatment.objects.filter(hospital=OuterRef('pk')).annotate(
                 avg_price_per_hour=Avg('price_per_hour')).values('avg_price_per_hour')[:1])).filter(
             avg_price_per_hour__isnull=False)
         count = qs.count()
+        if count == 0:
+            return queryset.none()
 
         if count * 0.5 >= showing_number:
             count = int(count * 0.5)
