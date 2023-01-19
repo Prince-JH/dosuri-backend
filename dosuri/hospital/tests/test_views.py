@@ -132,22 +132,47 @@ class TestDoctor:
         response = client.get('/hospital/v1/doctors?position=therapist', content_type='application/json')
         content = json.loads(response.content)
         assert len(content['results']) == 1
-        assert content['results'][0]['position'] == 'therapist'
+        assert content['results'][0]['position'] == hc.POSITION_THERAPIST
 
-    # @pytest.mark.django_db
-    # def test_create_doctor(self, client, hospital_test_A):
-    #     data = {
-    #         'hospital': hospital_test_A.uuid,
-    #         'name': 'test doctor',
-    #         'thumbnail_url': None,
-    #         'title': 'chief',
-    #         'subtitle': 'chief',
-    #         'position': 'therapist',
-    #     }
-    #     response = client.post('/hospital/v1/doctors', data=data, content_type='application/json')
-    #
-    #     assert response.status_code == 201
-    #     assert hm.Doctor.objects.all().count() == 1
+    @pytest.mark.django_db
+    def test_create_doctor(self, client, hospital_test_A, attachment_A):
+        data = {
+            'hospital': hospital_test_A.uuid,
+            'name': 'test doctor',
+            'title': 'chief',
+            'subtitle': 'chief',
+            'position': hc.POSITION_THERAPIST,
+            'keywords': [
+                {
+                    'keyword': '도수'
+                },
+                {
+                    'keyword': '마취'
+                }
+            ],
+            'attachments': [
+                {
+                    'attachment': attachment_A.uuid
+                }
+            ],
+            'descriptions': [
+                {
+                    'description': '세브란스 병원 수련'
+                },
+                {
+                    'description': '진찰 잘함'
+                }
+            ]
+        }
+        response = client.post('/hospital/v1/doctors', data=data, content_type='application/json')
+
+        content = json.loads(response.content)
+        assert response.status_code == 201
+        assert hm.Doctor.objects.all().count() == 1
+        doctor = hm.Doctor.objects.get(uuid=content['uuid'])
+        assert hm.DoctorKeyword.objects.filter(doctor_keyword_assoc__doctor=doctor).count() == 2
+        assert hm.DoctorAttachmentAssoc.objects.filter(doctor=doctor).count() == 1
+        assert hm.DoctorDescription.objects.filter(doctor=doctor).count() == 2
 
 
 class TestHospitalTreatment:

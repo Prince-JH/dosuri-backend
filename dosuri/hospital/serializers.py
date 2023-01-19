@@ -226,6 +226,41 @@ class Doctor(s.ModelSerializer):
         model = hm.Doctor
         exclude = ('id', 'created_at')
 
+    extra_fields = ['doctor_detail', 'doctor_keyword_assoc', 'doctor_attachment_assoc']
+
+    def create(self, validated_data):
+        extra = {}
+        for extra_field in self.extra_fields:
+            extra[extra_field] = validated_data.pop(extra_field)
+        doctor = super().create(validated_data)
+        self.save_extra(doctor, **extra)
+        return doctor
+
+    def save_extra(self, doctor, **kwargs):
+        if 'doctor_detail' in kwargs:
+            self.save_deatil(doctor, kwargs.pop('doctor_detail'))
+        if 'doctor_attachment_assoc' in kwargs:
+            self.save_attachments(doctor, kwargs.pop('doctor_attachment_assoc'))
+        if 'doctor_keyword_assoc' in kwargs:
+            self.save_keywords(doctor, kwargs.pop('doctor_keyword_assoc'))
+        return kwargs
+
+    def save_deatil(self, doctor, descriptions):
+        hm.DoctorDescription.objects.filter(doctor=doctor).delete()
+        for description in descriptions:
+            hm.DoctorDescription.objects.create(doctor=doctor, description=description)
+
+    def save_attachments(self, doctor, assocs):
+        hm.DoctorAttachmentAssoc.objects.filter(doctor=doctor).delete()
+        for assoc in assocs:
+            hm.DoctorAttachmentAssoc.objects.create(doctor=doctor, attachment=assoc['attachment'])
+
+    def save_keywords(self, doctor, assocs):
+        hm.DoctorKeywordAssoc.objects.filter(doctor=doctor).delete()
+        for assoc in assocs:
+            keyword = hm.DoctorKeyword.objects.get_or_create(name=assoc['keyword']['name'])
+            hm.DoctorKeywordAssoc.objects.create(doctor=doctor, keyword=keyword)
+
 
 class HospitalTreatment(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
