@@ -303,8 +303,13 @@ class HomeHospitalList(g.ListAPIView):
         now = timezone.now()
         qs = queryset.filter(opened_at__gte=(now - timedelta(days=90)))
         count = qs.count()
-        if count == 0:
-            return queryset.none()
+        if count < 3:
+            extra_qs = m.Hospital.objects.filter(opened_at__gte=(now - timedelta(days=90)),
+                                                 hospital_address_assoc__address__large_area__in=['서울특별시',
+                                                                                                  '경기도']).distinct()
+            if count + extra_qs.count() < 3:
+                extra_qs = m.Hospital.objects.filter(opened_at__gte=(now - timedelta(days=90)))
+            qs = qs | extra_qs
 
         ids = qs.values_list('id', flat=True)
         rand_ids = self.get_rand_ids(ids)
@@ -349,6 +354,7 @@ class HomeHospitalList(g.ListAPIView):
         else:
             indexes = set(range(len(ids)))
         return [ids[index] for index in indexes]
+
 
 class HospitalSearch(g.ListCreateAPIView):
     permission_classes = [p.IsAuthenticated]
