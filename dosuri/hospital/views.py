@@ -19,15 +19,16 @@ from dosuri.hospital import (
     models as m,
     serializers as s,
     filters as hf,
-    pagings as hp
+    pagings as hp,
+    constants as hc
 )
 from dosuri.common import filters as f
 
 
 class HospitalList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all().prefetch_related('hospital_attachment_assoc',
-                                                         'hospital_attachment_assoc__attachment').annotate_extra_fields()
+    queryset = m.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
+                                                                                     'hospital_attachment_assoc__attachment').annotate_extra_fields()
     serializer_class = s.Hospital
     filter_backends = [rf.OrderingFilter, rf.SearchFilter, hf.HospitalDistanceOrderingFilter]
     ordering_field = '__all__'
@@ -39,9 +40,10 @@ class HospitalList(g.ListCreateAPIView):
 
 class HospitalDetail(g.CreateAPIView, g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all().prefetch_related('hospital_keyword_assoc', 'hospital_keyword_assoc__keyword',
-                                                         'hospital_attachment_assoc',
-                                                         'hospital_attachment_assoc__attachment')
+    queryset = m.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_keyword_assoc',
+                                                                                     'hospital_keyword_assoc__keyword',
+                                                                                     'hospital_attachment_assoc',
+                                                                                     'hospital_attachment_assoc__attachment')
     serializer_class = s.HospitalDetail
     lookup_field = 'uuid'
 
@@ -253,7 +255,7 @@ class HospitalUserAssoc(g.CreateAPIView):
 class HomeHospitalList(g.ListAPIView):
     pagination_class = None
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all()
+    queryset = m.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).all()
     serializer_class = s.HomeHospital
 
     def list(self, request, *args, **kwargs):
