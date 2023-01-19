@@ -112,3 +112,16 @@ class TestArticleList:
         content = json.loads(response.content)
         assert response.status_code == 200
         assert len(content['results']) == 1
+
+    @pytest.mark.django_db
+    def test_delete_article(self, client, hospital_test_A, article_keyword_A, tokens_user_dummy, attachment_A, attachment_B):
+        article = self.test_create_review(client, hospital_test_A, article_keyword_A, tokens_user_dummy, attachment_A, attachment_B)
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        assert len(cm.Article.objects.all()) == 1
+        response = client.delete('/community/v1/community/articles/'+article.uuid, **headers)
+        assert response.status_code == 204
+        
+        assert len(cm.Article.objects.all()) == 0

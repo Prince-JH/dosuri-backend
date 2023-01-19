@@ -76,13 +76,17 @@ class ArticleKeywordAssocList(g.ListAPIView):
     uuid_filter_params = ['hospital']
     ordering_fields = '__all__'
 
-class ArticleDetail(g.RetrieveAPIView):
+class ArticleDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.IsAuthenticated]
     queryset = m.Article.objects.prefetch_related(
         'article_comment',
         'article_comment__article_thread').all()
     serializer_class = s.ArticleDetail
     lookup_field = 'uuid'
+    def get_queryset(self):
+        if self.request.user.is_anonymous:
+            return []
+        return self.queryset.filter(user=self.request.user)
 
 class ArticleAuth(g.ListAPIView):
     permission_classes = [p.AllowAny]
