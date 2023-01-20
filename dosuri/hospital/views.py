@@ -1,7 +1,11 @@
+from datetime import timedelta
+from random import randint
+
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.expressions import ArraySubquery
 from django.db.models import OuterRef, Count, Subquery, Q, F, Avg
 from django.db.models.functions import Coalesce
+from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework import (
     generics as g,
@@ -19,15 +23,16 @@ from dosuri.hospital import (
     models as m,
     serializers as s,
     filters as hf,
-    pagings as hp
+    pagings as hp,
+    constants as hc
 )
 from dosuri.common import filters as f
 
 
 class HospitalList(g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all().prefetch_related('hospital_attachment_assoc',
-                                                         'hospital_attachment_assoc__attachment').annotate_extra_fields()
+    queryset = m.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
+                                                                                     'hospital_attachment_assoc__attachment').annotate_extra_fields()
     serializer_class = s.Hospital
     filter_backends = [rf.OrderingFilter, rf.SearchFilter, hf.HospitalDistanceOrderingFilter]
     ordering_field = '__all__'
@@ -39,9 +44,10 @@ class HospitalList(g.ListCreateAPIView):
 
 class HospitalDetail(g.CreateAPIView, g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all().prefetch_related('hospital_keyword_assoc', 'hospital_keyword_assoc__keyword',
-                                                         'hospital_attachment_assoc',
-                                                         'hospital_attachment_assoc__attachment')
+    queryset = m.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_keyword_assoc',
+                                                                                     'hospital_keyword_assoc__keyword',
+                                                                                     'hospital_attachment_assoc',
+                                                                                     'hospital_attachment_assoc__attachment')
     serializer_class = s.HospitalDetail
     lookup_field = 'uuid'
 
@@ -253,7 +259,7 @@ class HospitalUserAssoc(g.CreateAPIView):
 class HomeHospitalList(g.ListAPIView):
     pagination_class = None
     permission_classes = [p.AllowAny]
-    queryset = m.Hospital.objects.all()
+    queryset = m.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).all()
     serializer_class = s.HomeHospital
 
     def list(self, request, *args, **kwargs):
@@ -293,24 +299,41 @@ class HomeHospitalList(g.ListAPIView):
         queryset = queryset.annotate_extra_fields()
         return queryset.annotate(top_count=F('up_count') + F('article_count')).order_by('-top_count')[:3]
 
-    def get_new_hospital_queryset(self, queryset):
-        return queryset.annotate_extra_fields().order_by('-opened_at')[:3]
+    def get_new_hospital_queryset(self, queryset, showing_number=3):
+        now = timezone.now()
+        qs = queryset.filter(opened_at__gte=(now - timedelta(days=90)))
+        count = qs.count()
+        ids = list(qs.values_list('id', flat=True))
+        if count < 3:
+            extra_qs = m.Hospital.objects.filter(opened_at__gte=(now - timedelta(days=90)),
+                                                 hospital_address_assoc__address__large_area__in=['서울특별시',
+                                                                                                  '경기도']).distinct()
+            if count + extra_qs.count() < 3:
+                extra_qs = m.Hospital.objects.filter(opened_at__gte=(now - timedelta(days=90)))
+            ids = list(set(ids + list(extra_qs.values_list('id', flat=True))))
+        rand_ids = self.get_rand_ids(ids)
+        return m.Hospital.objects.filter(id__in=rand_ids).annotate_extra_fields()
 
-    def get_good_price_hospital_queryset(self, queryset):
-        count = queryset.count()
+    def get_good_price_hospital_queryset(self, queryset, showing_number=3):
+        qs = queryset.filter(hospital_treatment__isnull=False).distinct().annotate(avg_price_per_hour=Subquery(
+            m.HospitalTreatment.objects.filter(hospital=OuterRef('pk')).annotate(
+                avg_price_per_hour=Avg('price_per_hour')).values('avg_price_per_hour')[:1])).filter(
+            avg_price_per_hour__isnull=False).order_by('avg_price_per_hour')
+        count = qs.count()
         if count == 0:
             return queryset.none()
-        elif count * 0.3 >= 3:
-            count = int(count * 0.3)
-        avg_price_per_hour = queryset.annotate(avg_price_per_hour=Coalesce(Subquery(
-            m.HospitalTreatment.objects.filter(price_per_hour__isnull=False, hospital=OuterRef('pk')).annotate(
-                avg_price_per_hour=Avg('price_per_hour')).values('avg_price_per_hour')[:1]), 0.0))[
-            count - 1].avg_price_per_hour
 
-        queryset = queryset.annotate(avg_price_per_hour=Coalesce(Subquery(
-            m.HospitalTreatment.objects.filter(price_per_hour__isnull=False, hospital=OuterRef('pk')).annotate(
-                avg_price_per_hour=Avg('price_per_hour')).values('avg_price_per_hour')[:1]), 0.0))
-        return queryset.annotate_extra_fields().filter(avg_price_per_hour__gte=avg_price_per_hour).order_by('?')[:3]
+        if count * 0.5 >= showing_number:
+            count = int(count * 0.5)
+        elif count >= showing_number:
+            count = showing_number
+        avg_price_per_hour = qs[count - 1].avg_price_per_hour
+        if not avg_price_per_hour:
+            return qs.none()
+
+        ids = qs.filter(avg_price_per_hour__lte=avg_price_per_hour).values_list('id', flat=True)
+        rand_ids = self.get_rand_ids(ids)
+        return qs.annotate_extra_fields().filter(id__in=rand_ids)
 
     def get_good_review_hospital_queryset(self, queryset):
         count = queryset.count()
@@ -318,8 +341,21 @@ class HomeHospitalList(g.ListAPIView):
             return queryset.none()
         elif count // 2 >= 3:
             count //= 2
-        article_count = queryset.annotate_article_count()[count - 1].article_count
-        return queryset.annotate_extra_fields().filter(article_count__gte=article_count).order_by('?')[:3]
+        qs = queryset.annotate_article_count()
+        article_count = qs[count - 1].article_count
+        ids = qs.filter(article_count__gte=article_count).values_list('id', flat=True)
+        rand_ids = self.get_rand_ids(ids)
+        return qs.annotate_extra_fields().filter(id__in=rand_ids)
+
+    def get_rand_ids(self, ids):
+        if len(ids) < 3:
+            return list(ids)
+        indexes = []
+        while len(indexes) < 3:
+            index = randint(0, len(ids) - 1)
+            if index not in indexes:
+                indexes.append(index)
+        return [ids[index] for index in indexes]
 
 
 class HospitalSearch(g.ListCreateAPIView):

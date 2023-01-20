@@ -92,7 +92,7 @@ class Hospital(s.ModelSerializer):
 
     class Meta:
         model = hm.Hospital
-        exclude = ('id', 'created_at', 'code')
+        exclude = ('id', 'status', 'code', 'last_updated_at', 'created_at')
 
     def create(self, validated_data):
         extra = {}
@@ -126,6 +126,7 @@ class Hospital(s.ModelSerializer):
             keyword = hm.HospitalKeyword.objects.get_or_create(name=assoc['keyword']['name'])
             hm.HospitalKeywordAssoc.objects.create(hospital=hospital, keyword=keyword)
 
+
 class HospitalDetail(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     address: s.Field = s.CharField()
@@ -144,7 +145,7 @@ class HospitalDetail(s.ModelSerializer):
 
     class Meta:
         model = hm.Hospital
-        exclude = ('id', 'created_at', 'view_count', 'code')
+        exclude = ('id', 'status', 'code', 'last_updated_at', 'created_at')
 
 
 class HospitalAddressAssoc(s.ModelSerializer):
@@ -175,37 +176,22 @@ class DoctorKeyword(s.ModelSerializer):
 
 
 class DoctorKeywordAssoc(s.ModelSerializer):
-    doctor: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=hm.Doctor.objects.all(),
-        write_only=True
-    )
     keyword: s.Field = s.CharField(source='keyword.name')
 
     class Meta:
         model = hm.DoctorKeywordAssoc
-        exclude = ('uuid', 'id', 'created_at')
+        exclude = ('uuid', 'id', 'doctor', 'created_at')
 
 
 class DoctorDescription(s.ModelSerializer):
-    doctor: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=hm.Doctor.objects.all(),
-        write_only=True
-    )
     description: s.Field = s.CharField()
 
     class Meta:
         model = hm.DoctorDescription
-        fields = ('doctor', 'description')
+        exclude = ('uuid', 'id', 'doctor', 'created_at')
 
 
 class DoctorAttachmentAssoc(s.ModelSerializer):
-    doctor: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=hm.Doctor.objects.all(),
-        write_only=True
-    )
     attachment: s.Field = s.SlugRelatedField(
         slug_field='uuid',
         queryset=cm.Attachment.objects.all(),
@@ -215,7 +201,7 @@ class DoctorAttachmentAssoc(s.ModelSerializer):
 
     class Meta:
         model = hm.DoctorAttachmentAssoc
-        exclude = ('uuid', 'id', 'created_at')
+        exclude = ('uuid', 'id', 'doctor', 'created_at')
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_signed_path(self, obj):
@@ -239,6 +225,41 @@ class Doctor(s.ModelSerializer):
     class Meta:
         model = hm.Doctor
         exclude = ('id', 'created_at')
+
+    extra_fields = ['doctor_detail', 'doctor_keyword_assoc', 'doctor_attachment_assoc']
+
+    def create(self, validated_data):
+        extra = {}
+        for extra_field in self.extra_fields:
+            extra[extra_field] = validated_data.pop(extra_field)
+        doctor = super().create(validated_data)
+        self.save_extra(doctor, **extra)
+        return doctor
+
+    def save_extra(self, doctor, **kwargs):
+        if 'doctor_detail' in kwargs:
+            self.save_deatil(doctor, kwargs.pop('doctor_detail'))
+        if 'doctor_attachment_assoc' in kwargs:
+            self.save_attachments(doctor, kwargs.pop('doctor_attachment_assoc'))
+        if 'doctor_keyword_assoc' in kwargs:
+            self.save_keywords(doctor, kwargs.pop('doctor_keyword_assoc'))
+        return kwargs
+
+    def save_deatil(self, doctor, descriptions):
+        hm.DoctorDescription.objects.filter(doctor=doctor).delete()
+        for description in descriptions:
+            hm.DoctorDescription.objects.create(doctor=doctor, description=description)
+
+    def save_attachments(self, doctor, assocs):
+        hm.DoctorAttachmentAssoc.objects.filter(doctor=doctor).delete()
+        for assoc in assocs:
+            hm.DoctorAttachmentAssoc.objects.create(doctor=doctor, attachment=assoc['attachment'])
+
+    def save_keywords(self, doctor, assocs):
+        hm.DoctorKeywordAssoc.objects.filter(doctor=doctor).delete()
+        for assoc in assocs:
+            keyword = hm.DoctorKeyword.objects.get_or_create(name=assoc['keyword']['name'])
+            hm.DoctorKeywordAssoc.objects.create(doctor=doctor, keyword=keyword)
 
 
 class HospitalTreatment(s.ModelSerializer):
@@ -306,7 +327,7 @@ class AroundHospital(s.ModelSerializer):
 
     class Meta:
         model = hm.Hospital
-        exclude = ('id', 'created_at', 'code')
+        exclude = ('id', 'status', 'code', 'last_updated_at', 'created_at')
 
 
 class NewHospital(s.ModelSerializer):
@@ -330,7 +351,7 @@ class NewHospital(s.ModelSerializer):
 
     class Meta:
         model = hm.Hospital
-        exclude = ('id', 'created_at', 'code')
+        exclude = ('id', 'status', 'code', 'last_updated_at', 'created_at')
 
 
 class GoodPriceHospital(s.ModelSerializer):
@@ -354,7 +375,7 @@ class GoodPriceHospital(s.ModelSerializer):
 
     class Meta:
         model = hm.Hospital
-        exclude = ('id', 'created_at', 'code')
+        exclude = ('id', 'status', 'code', 'last_updated_at', 'created_at')
 
 
 class GoodReviewHospital(s.ModelSerializer):
@@ -378,7 +399,7 @@ class GoodReviewHospital(s.ModelSerializer):
 
     class Meta:
         model = hm.Hospital
-        exclude = ('id', 'created_at', 'code')
+        exclude = ('id', 'status', 'code', 'last_updated_at', 'created_at')
 
 
 @extend_schema_serializer(examples=sch.HOME_HOSPITAL_EXAMPLE)

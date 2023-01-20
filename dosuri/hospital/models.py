@@ -5,7 +5,10 @@ from django.db import models, transaction
 
 from dosuri.common import models as cm
 from dosuri.user import models as um
-from dosuri.hospital import model_managers as hmm
+from dosuri.hospital import (
+    model_managers as hmm,
+    constants as hc,
+)
 
 
 def generate_uuid():
@@ -25,7 +28,9 @@ class Hospital(models.Model):
     opened_at = models.DateTimeField(null=True)
     latitude = models.FloatField(default=0)
     longitude = models.FloatField(default=0)
+    status = models.CharField(max_length=32, default=hc.HOSPITAL_ACTIVE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    last_updated_at = models.DateTimeField(auto_now=True, null=True)
 
     objects = hmm.HospitalManager()
 
@@ -143,6 +148,8 @@ class DoctorKeyword(models.Model):
     name = models.CharField(max_length=64)
     is_custom = models.BooleanField(default=False)  # 사용자가 추가한 키워드 True, 관리자가 추가한 키워드 False
     created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = hmm.DoctorKeywordManager()
 
     class Meta:
         db_table = 'doctor_keyword'
