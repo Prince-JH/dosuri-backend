@@ -7,6 +7,7 @@ urlpatterns = [
 
     path('v1/hospitals', v.HospitalList.as_view(), name='hospital'),
     path('v1/hospitals/home', v.HomeHospitalList.as_view(), name='hospital-home'),
+    path('v1/hospitals-address-filtered', v.HospitalAddressFilteredList.as_view(), name='hospital-address-filtered'),
     path('v1/hospitals/<uuid>', v.HospitalDetail.as_view(), name='hospital-detail'),
 
 
