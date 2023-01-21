@@ -50,18 +50,9 @@ class HospitalAddressFilteredList(g.ListAPIView):
     ordering_field = '__all__'
     serializer_class = s.Hospital
 
-    def get_address_filtered_queryset(self, request, queryset):
-        user = request.user
-        if user.is_authenticated:
-            user_addr_qs = cm.Address.objects.filter(address_user_assoc__user=user)
-            if user_addr_qs.exists():
-                return queryset.filter(hospital_address_assoc__address=user_addr_qs.first())
-
-        return queryset.get_default_address_filtered_qs()
-
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        address_filtered_qs = self.get_address_filtered_queryset(request, queryset)
+        address_filtered_qs = queryset.get_address_filtered_queryset(request.user)
         ordered_qs = self.filter_queryset(address_filtered_qs)
 
         page = self.paginate_queryset(ordered_qs)
@@ -296,7 +287,7 @@ class HomeHospitalList(g.ListAPIView):
         queryset = self.filter_queryset(self.get_queryset()).prefetch_related('hospital_attachment_assoc',
                                                                               'hospital_attachment_assoc__attachment')
 
-        address_filtered_queryset = self.get_address_filtered_queryset(request, queryset)
+        address_filtered_queryset = queryset.get_address_filtered_queryset(request.user)
 
         top_hospital_queryset = self.get_top_hospital_queryset(address_filtered_queryset)
         top_hospital_serializer = s.AroundHospital(top_hospital_queryset, many=True)
@@ -314,15 +305,6 @@ class HomeHospitalList(g.ListAPIView):
                                           'new_hospitals': new_hospital_serializer.data,
                                           'good_price_hospitals': good_price_hospital_serializer.data})
         return Response(serializer.data)
-
-    def get_address_filtered_queryset(self, request, queryset):
-        user = request.user
-        if user.is_authenticated:
-            user_addr_qs = cm.Address.objects.filter(address_user_assoc__user=user)
-            if user_addr_qs.exists():
-                return queryset.filter(hospital_address_assoc__address=user_addr_qs.first())
-
-        return queryset.get_default_address_filtered_qs()
 
     def get_top_hospital_queryset(self, queryset):
         queryset = queryset.annotate_extra_fields()

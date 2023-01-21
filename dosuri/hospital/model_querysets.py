@@ -3,6 +3,7 @@ from datetime import date
 from django.db.models import QuerySet, Count, Subquery, OuterRef
 from django.db.models.functions import Coalesce
 
+from dosuri.common import models as cm
 from dosuri.community import constants as cmc
 from django.apps import apps
 
@@ -56,6 +57,14 @@ class HospitalQuerySet(QuerySet):
                 Article.objects.filter(article_type=cmc.ARTICLE_REVIEW, hospital=OuterRef('pk')).order_by(
                     '-created_at').values('created_at')[:1])
         )
+
+    def get_address_filtered_queryset(self, user):
+        if user.is_authenticated:
+            user_addr_qs = cm.Address.objects.filter(address_user_assoc__user=user)
+            if user_addr_qs.exists():
+                return self.filter(hospital_address_assoc__address=user_addr_qs.first())
+
+        return self.get_default_address_filtered_qs()
 
     def get_default_address_filtered_qs(self):
         return self.filter(hospital_address_assoc__address__large_area='서울특별시',
