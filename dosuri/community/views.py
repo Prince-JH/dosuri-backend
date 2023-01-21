@@ -84,9 +84,9 @@ class ArticleDetail(g.RetrieveUpdateDestroyAPIView):
     serializer_class = s.ArticleDetail
     lookup_field = 'uuid'
     def get_queryset(self):
-        if self.request.user.is_anonymous:
-            return []
-        return self.queryset.filter(user=self.request.user)
+        if self.request.method == "DELETE":
+            return self.queryset.filter(user=self.request.user)
+        return self.queryset
 
 class ArticleAuth(g.ListAPIView):
     permission_classes = [p.AllowAny]
