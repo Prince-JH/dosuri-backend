@@ -7,7 +7,10 @@ import os.path
 from datetime import datetime
 
 from dosuri.common import models as cm
-from dosuri.hospital import models as hm
+from dosuri.hospital import (
+    models as hm,
+    constants as hc,
+)
 
 
 class Command(BaseCommand):
@@ -32,22 +35,28 @@ def read_hospital_data(file_loc):
     reader = csv.reader(file)
     for line in reader:
         try:
-            code = line[0]
-            name = line[1]
-            full_address = line[3]
-            large_area = line[5]
-            small_area = line[6]
-            area = line[7]
-            phone_no = line[8]
-            opened_at = datetime.strptime(line[10], '%Y-%m-%d')
-            longitude = line[18]
-            latitude = line[19]
+            code = line[1]
+            name = line[2]
+            full_address = line[4]
+            large_area = line[6]
+            small_area = line[7]
+            area = line[8]
+            phone_no = line[9]
+            opened_at = datetime.strptime(line[11], '%Y-%m-%d')
+            longitude = line[19]
+            latitude = line[20]
+            status = line[21]
+            status = hc.HOSPITAL_ACTIVE if status == '영업' else hc.HOSPITAL_INACTIVE
 
-            # print(code, name, full_address, large_area, small_area, area, phone_no, opened_at, longitude, latitude)
-
+            print(code, name, full_address, large_area, small_area, area, phone_no, opened_at, longitude, latitude,
+                  status)
+            # if status == hc.HOSPITAL_ACTIVE:
+            #     break
             hospital_qs = hm.Hospital.objects.filter(code=code)
             if hospital_qs.exists():
-                pass
+                hospital = hospital_qs.first()
+                hospital.status = status
+                hospital.save()
             else:
                 hospital_obj = hm.Hospital.objects.create(
                     code=code,
@@ -57,7 +66,8 @@ def read_hospital_data(file_loc):
                     opened_at=opened_at,
                     latitude=latitude,
                     longitude=longitude,
-                    area=area
+                    area=area,
+                    status=status
                 )
                 address_qs = cm.Address.objects.filter(large_area=large_area, small_area=small_area)
                 if not address_qs.exists():
@@ -89,11 +99,11 @@ def read_hospital_treatment_data(file_loc):
         try:
             hospital = hm.Hospital.objects.get(code=code)
             if not hm.HospitalTreatment.objects.filter(
-                hospital=hospital,
-                name=name,
-                price=price,
-                price_per_hour=price_per_hour,
-                description=description
+                    hospital=hospital,
+                    name=name,
+                    price=price,
+                    price_per_hour=price_per_hour,
+                    description=description
             ).exists():
                 hm.HospitalTreatment.objects.create(
                     hospital=hospital,
