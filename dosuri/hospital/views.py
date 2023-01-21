@@ -307,13 +307,12 @@ class HomeHospitalList(g.ListAPIView):
         good_price_hospital_queryset = self.get_good_price_hospital_queryset(address_filtered_queryset)
         good_price_hospital_serializer = s.GoodPriceHospital(good_price_hospital_queryset, many=True)
 
-        good_review_hospital_queryset = self.get_good_review_hospital_queryset(address_filtered_queryset)
-        good_review_hospital_serializer = s.AroundHospital(good_review_hospital_queryset, many=True)
+        # good_review_hospital_queryset = self.get_good_review_hospital_queryset(address_filtered_queryset)
+        # good_review_hospital_serializer = s.AroundHospital(good_review_hospital_queryset, many=True)
 
         serializer = self.get_serializer({'top_hospitals': top_hospital_serializer.data,
                                           'new_hospitals': new_hospital_serializer.data,
-                                          'good_price_hospitals': good_price_hospital_serializer.data,
-                                          'good_review_hospitals': good_review_hospital_serializer.data})
+                                          'good_price_hospitals': good_price_hospital_serializer.data})
         return Response(serializer.data)
 
     def get_address_filtered_queryset(self, request, queryset):
