@@ -356,26 +356,16 @@ class NewHospital(s.ModelSerializer):
 
 class GoodPriceHospital(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    address: s.Field = s.CharField()
     name: s.Field = s.CharField()
-    introduction: s.Field = s.CharField(write_only=True, allow_null=True)
     area: s.Field = s.CharField(allow_null=True)
-    phone_no: s.Field = s.CharField(write_only=True, allow_null=True)
     up_count: s.Field = s.IntegerField(read_only=True)
     view_count: s.Field = s.IntegerField(read_only=True)
-    article_count: s.Field = s.IntegerField(read_only=True)
-    latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
-    latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
-    is_partner: s.Field = s.BooleanField(write_only=True)
-    opened_at: s.Field = s.DateTimeField(allow_null=True)
-    distance: s.Field = s.FloatField(read_only=True, allow_null=True)
+    avg_price_per_hour: s.Field = s.FloatField(read_only=True, allow_null=True)
     attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
-    latitude: s.Field = s.FloatField(write_only=True)
-    longitude: s.Field = s.FloatField(write_only=True)
 
     class Meta:
         model = hm.Hospital
-        exclude = ('id', 'status', 'code', 'last_updated_at', 'created_at')
+        fields = ['uuid', 'name', 'area', 'up_count', 'view_count', 'avg_price_per_hour', 'attachments']
 
 
 class GoodReviewHospital(s.ModelSerializer):

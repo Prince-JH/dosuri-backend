@@ -305,7 +305,7 @@ class HomeHospitalList(g.ListAPIView):
         new_hospital_serializer = s.AroundHospital(new_hospital_queryset, many=True)
 
         good_price_hospital_queryset = self.get_good_price_hospital_queryset(address_filtered_queryset)
-        good_price_hospital_serializer = s.AroundHospital(good_price_hospital_queryset, many=True)
+        good_price_hospital_serializer = s.GoodPriceHospital(good_price_hospital_queryset, many=True)
 
         good_review_hospital_queryset = self.get_good_review_hospital_queryset(address_filtered_queryset)
         good_review_hospital_serializer = s.AroundHospital(good_review_hospital_queryset, many=True)
