@@ -272,3 +272,16 @@ class TestHospitalSearch:
 
         assert response.status_code == 204
         assert hm.HospitalSearch.objects.all().count() == 0
+
+
+class TestHomeHospital:
+    @pytest.mark.django_db
+    def test_list_home_hospital(self, client, hospital_test_A, assoc_hospital_A_address_강남):
+        headers = {
+            'content_type': 'application/json'
+        }
+        response = client.get('/hospital/v1/hospitals/home', **headers)
+
+        assert response.status_code == 200
+        content = json.loads(response.content)
+        assert content['top_hospitals'][0]['uuid'] == hospital_test_A.uuid
