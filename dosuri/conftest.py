@@ -35,7 +35,7 @@ def user_dummy_point_history_100(user_dummy):
 @pytest.fixture
 def address_서울시_강남구():
     return cm.Address.objects.create(
-        large_area='서울',
+        large_area='서울특별시',
         small_area='강남구'
     )
 
@@ -43,7 +43,7 @@ def address_서울시_강남구():
 @pytest.fixture
 def address_수원시_팔달구():
     return cm.Address.objects.create(
-        large_area='경기',
+        large_area='경기도',
         small_area='수원시 팔달구'
     )
 
