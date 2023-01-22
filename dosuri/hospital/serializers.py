@@ -360,12 +360,13 @@ class GoodPriceHospital(s.ModelSerializer):
     area: s.Field = s.CharField(allow_null=True)
     up_count: s.Field = s.IntegerField(read_only=True)
     view_count: s.Field = s.IntegerField(read_only=True)
+    article_count: s.Field = s.IntegerField(read_only=True)
     avg_price_per_hour: s.Field = s.FloatField(read_only=True, allow_null=True)
     attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
 
     class Meta:
         model = hm.Hospital
-        fields = ['uuid', 'name', 'area', 'up_count', 'view_count', 'avg_price_per_hour', 'attachments']
+        fields = ['uuid', 'name', 'area', 'up_count', 'view_count', 'article_count', 'avg_price_per_hour', 'attachments']
 
 
 class GoodReviewHospital(s.ModelSerializer):

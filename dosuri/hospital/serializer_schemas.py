@@ -53,27 +53,8 @@ HOME_HOSPITAL_EXAMPLE = [
                     "area": "string",
                     "up_count": 0,
                     "view_count": 0,
-                    "avg_price_per_hour": "string",
-                    "attachments": [
-                        {
-                            "signed_path": "string"
-                        }
-                    ]
-                }
-            ],
-            "good_review_hospitals": [
-                {
-                    "uuid": "string",
-                    "address": "string",
-                    "name": "string",
-                    "area": "string",
-                    "up_count": 0,
-                    "view_count": 0,
                     "article_count": 0,
-                    "latest_article": "string",
-                    "latest_article_created_at": "2022-12-08 12:52:08.674922+00:00",
-                    "opened_at": "2022-12-12T13:16:36.465000Z",
-                    "distance": 0,
+                    "avg_price_per_hour": "string",
                     "attachments": [
                         {
                             "signed_path": "string"
