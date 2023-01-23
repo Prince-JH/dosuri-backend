@@ -13,5 +13,6 @@ urlpatterns = [
     path('v1/community/article-auth/<uuid>', v.ArticleAuthDetail.as_view(), name='auth-update'),
     path('v1/community/hot-articles', v.HotArticleList.as_view(), name='article'),
     path('v1/community/treatment-keywords', v.TreatmentKeywordList.as_view(), name='treatment-keyword'),
+    path('v1/community/sample-review', v.SampleReview.as_view(), name='sample-review'),
 
 ]

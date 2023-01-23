@@ -54,12 +54,29 @@ class ArticleAttachmentAssoc(s.ModelSerializer):
         self.fields['attachment'] = cs.PutAttachment(read_only=True)
         return super().to_representation(obj)
 
+class AuthAttachmentAssoc(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    attachment: s.Field = s.SlugRelatedField(
+        read_only=False,
+        slug_field='uuid',
+        queryset=cm.Attachment.objects.all()
+    )
+    created_at: s.Field = s.DateTimeField(read_only=True)
+
+    class Meta:
+        model = dosuri.community.models.AuthAttachmentAssoc
+        exclude = ('id', 'article_auth')
+
+    def to_representation(self, obj):
+        self.fields['attachment'] = cs.PutAttachment(read_only=True)
+        return super().to_representation(obj)
+
 class ArticleAuth(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     sensitive_agreement: s.Field = s.BooleanField()
     personal_agreement: s.Field = s.BooleanField()
     status: s.Field = s.CharField(required=False)
-    auth_attachment_assoc: s.Field = ArticleAttachmentAssoc(many=True)
+    auth_attachment_assoc: s.Field = AuthAttachmentAssoc(many=True)
     created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
@@ -87,22 +104,7 @@ class ArticleAuth(s.ModelSerializer):
 #         exclude = ('id', 'article')
 
 
-class AuthAttachmentAssoc(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
-    attachment: s.Field = s.SlugRelatedField(
-        read_only=False,
-        slug_field='uuid',
-        queryset=cm.Attachment.objects.all()
-    )
-    created_at: s.Field = s.DateTimeField(read_only=True)
 
-    class Meta:
-        model = dosuri.community.models.AuthAttachmentAssoc
-        exclude = ('id', 'article_auth')
-
-    def to_representation(self, obj):
-        self.fields['attachment'] = cs.PutAttachment(read_only=True)
-        return super().to_representation(obj)
 
 class ArticleKeywordAssoc(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
