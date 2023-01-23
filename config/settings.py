@@ -168,4 +168,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 KAKAO_REST_API_KEY = os.environ.get('KAKAO_REST_API_KEY')
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-CONTENT_STORAGE = os.environ.get('CONTENT_STORAGE')
+CONTENT_STORAGE = {
+    "class": "storages.backends.s3boto3.S3Boto3Storage",
+    "kwargs": {
+        "bucket_name": "dosuri-content"
+    }
+}
