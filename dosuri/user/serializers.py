@@ -12,7 +12,8 @@ from dosuri.user import (
     models as um,
     constants as c,
     serializer_schemas as sch,
-    exceptions as exc
+    exceptions as exc,
+    utils as uu,
 )
 from dosuri.common import (
     models as cm,
@@ -47,7 +48,10 @@ class Auth(s.Serializer):
         user = um.User.objects.get_or_create(username=username)[0]
         is_new = user.is_new()
         user_info = self.get_user_info_from_kakao(kakao_user_info)
-        um.User.objects.update_user_info(user, user_info)
+        if is_new:
+            user_info['nickname'] = uu.pick_random_nickname()
+            um.User.objects.update_user_info(user, user_info)
+
         tokens = a.get_tokens_for_user(user)
 
         validated_data['access_token'] = tokens['access']
