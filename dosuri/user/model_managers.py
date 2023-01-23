@@ -1,5 +1,8 @@
 from django.contrib.auth.models import UserManager
-from dosuri.user import models as um
+from dosuri.user import (
+    models as um,
+    utils as uu,
+)
 
 
 class DosuriUserManager(UserManager):

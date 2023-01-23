@@ -9,3 +9,7 @@ DATABASES = {
         'PASSWORD': 'dosuri',
     }
 }
+
+CONTENT_STORAGE = {
+    'class': 'django.core.files.storage.FileSystemStorage'
+}
