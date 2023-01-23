@@ -49,7 +49,7 @@ class Auth(s.Serializer):
         is_new = user.is_new()
         user_info = self.get_user_info_from_kakao(kakao_user_info)
         if is_new:
-            user_info['nickname'] = uu.pick_random_nickname()
+            user_info['nickname'] = uu.get_random_nickname()
             um.User.objects.update_user_info(user, user_info)
 
         tokens = a.get_tokens_for_user(user)
