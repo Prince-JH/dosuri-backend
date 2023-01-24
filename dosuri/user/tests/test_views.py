@@ -134,6 +134,16 @@ class TestUserNickname:
 
         assert response.status_code == 409
 
+    @pytest.mark.django_db
+    def test_check_given_name_duplicated(self, client, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get('/user/v1/users/nickname?nickname=dummy', **headers)
+
+        assert response.status_code == 200
+
 
 class TestInsuranceUserAssoc:
     @pytest.mark.django_db
