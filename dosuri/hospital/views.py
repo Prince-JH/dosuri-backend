@@ -3,7 +3,7 @@ from random import randint
 
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.expressions import ArraySubquery
-from django.db.models import OuterRef, Count, Subquery, Q, F, Avg
+from django.db.models import OuterRef, Count, Subquery, Q, F, Avg, Func
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 from rest_framework.response import Response
@@ -326,10 +326,13 @@ class HomeHospitalList(g.ListAPIView):
         return m.Hospital.objects.filter(id__in=rand_ids).annotate_extra_fields()
 
     def get_good_price_hospital_queryset(self, queryset, showing_number=3):
-        qs = queryset.filter(hospital_treatment__isnull=False).distinct().annotate(avg_price_per_hour=Subquery(
-            m.HospitalTreatment.objects.filter(hospital=OuterRef('pk')).annotate(
-                avg_price_per_hour=Avg('price_per_hour')).values('avg_price_per_hour')[:1])).filter(
-            avg_price_per_hour__isnull=False).order_by('avg_price_per_hour')
+        sub_qs = m.HospitalTreatment.objects.filter(hospital=OuterRef('pk')).annotate(
+            avg_price_per_hour=Func(F('price_per_hour'), function='AVG')).values('avg_price_per_hour').order_by(
+            'avg_price_per_hour')
+
+        qs = queryset.filter(hospital_treatment__isnull=False).distinct().annotate(
+            avg_price_per_hour=Subquery(sub_qs)).filter(avg_price_per_hour__isnull=False).order_by('avg_price_per_hour')
+
         count = qs.count()
         if count == 0:
             return queryset.none()
