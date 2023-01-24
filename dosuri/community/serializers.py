@@ -17,9 +17,11 @@ from drf_spectacular.types import OpenApiTypes
 class CommunityUser(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     nickname: s.Field = s.CharField(read_only=True)
+
     class Meta:
         model = get_user_model()
         fields = ['uuid', 'nickname']
+
 
 # class AuthAttach(s.ModelSerializer):
 #     uuid: s.Field = s.CharField(read_only=True)
@@ -38,6 +40,7 @@ class GetArticleAttachmentAssoc(s.ModelSerializer):
         model = dosuri.community.models.ArticleAttachmentAssoc
         exclude = ('id', 'article')
 
+
 class ArticleAttachmentAssoc(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     attachment: s.Field = s.SlugRelatedField(
@@ -50,9 +53,11 @@ class ArticleAttachmentAssoc(s.ModelSerializer):
     class Meta:
         model = dosuri.community.models.ArticleAttachmentAssoc
         exclude = ('id', 'article')
+
     def to_representation(self, obj):
         self.fields['attachment'] = cs.PutAttachment(read_only=True)
         return super().to_representation(obj)
+
 
 class AuthAttachmentAssoc(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
@@ -71,6 +76,7 @@ class AuthAttachmentAssoc(s.ModelSerializer):
         self.fields['attachment'] = cs.PutAttachment(read_only=True)
         return super().to_representation(obj)
 
+
 class ArticleAuth(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     sensitive_agreement: s.Field = s.BooleanField()
@@ -82,13 +88,14 @@ class ArticleAuth(s.ModelSerializer):
     class Meta:
         model = dosuri.community.models.ArticleAuth
         exclude = ('id', 'article')
+
     def update(self, instance, validated_data):
         instance.sensitive_agreement = validated_data.get('sensitive_agreement', instance.sensitive_agreement)
         instance.personal_agreement = validated_data.get('personal_agreement', instance.personal_agreement)
         if validated_data.get('status', instance.status) in [cc.STATUS_DENY, cc.STATUS_COMPLETE]:
             with transaction.atomic():
                 instance.status = validated_data.get('status', instance.status)
-                instance.article.status=validated_data.get('status', instance.status)
+                instance.article.status = validated_data.get('status', instance.status)
                 instance.save()
                 instance.article.save()
         return instance
@@ -102,8 +109,6 @@ class ArticleAuth(s.ModelSerializer):
 #     class Meta:
 #         model = dosuri.community.models.ArticleAttach
 #         exclude = ('id', 'article')
-
-
 
 
 class ArticleKeywordAssoc(s.ModelSerializer):
@@ -152,6 +157,7 @@ class ArticleDoctorAssoc(s.ModelSerializer):
         model = dosuri.community.models.ArticleDoctorAssoc
         exclude = ('id', 'article')
 
+
 class PostArticleThread(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     user = CommunityUser(read_only=True)
@@ -176,23 +182,25 @@ class PostArticleThread(s.ModelSerializer):
         exclude = ('id',)
 
     @extend_schema_field(OpenApiTypes.STR)
-    def get_created_at(self, instance): ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
+    def get_created_at(self,
+                       instance):  ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
         now = datetime.now().astimezone()
         created_at = instance.created_at
-        total_seconds = (now-created_at).total_seconds()
+        total_seconds = (now - created_at).total_seconds()
         if total_seconds < 60:
-            created_at = str(int(total_seconds))+ '초 전'
-        elif total_seconds/60 < 60:
-            created_at = str(int(total_seconds/60))+ '분 전'
-        elif total_seconds/3600 < 24:
-            created_at = str(int(total_seconds/3600))+ '시간 전'
-        elif (total_seconds/3600)/24 < 30:
-            created_at = str(int((total_seconds/3600)/24))+ '일 전'
-        elif ((total_seconds/3600)/24)/30 < 12:
-            created_at = str(int(((total_seconds/3600)/24)/30))+ '개월 전'
+            created_at = str(int(total_seconds)) + '초 전'
+        elif total_seconds / 60 < 60:
+            created_at = str(int(total_seconds / 60)) + '분 전'
+        elif total_seconds / 3600 < 24:
+            created_at = str(int(total_seconds / 3600)) + '시간 전'
+        elif (total_seconds / 3600) / 24 < 30:
+            created_at = str(int((total_seconds / 3600) / 24)) + '일 전'
+        elif ((total_seconds / 3600) / 24) / 30 < 12:
+            created_at = str(int(((total_seconds / 3600) / 24) / 30)) + '개월 전'
         else:
-            created_at = str(int((((total_seconds/3600)/24)/30)/12))+ '년 전'
+            created_at = str(int((((total_seconds / 3600) / 24) / 30) / 12)) + '년 전'
         return created_at
+
 
 class ArticleThread(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
@@ -214,23 +222,25 @@ class ArticleThread(s.ModelSerializer):
         exclude = ('id',)
 
     @extend_schema_field(OpenApiTypes.STR)
-    def get_created_at(self, instance): ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
+    def get_created_at(self,
+                       instance):  ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
         now = datetime.now().astimezone()
         created_at = instance.created_at
-        total_seconds = (now-created_at).total_seconds()
+        total_seconds = (now - created_at).total_seconds()
         if total_seconds < 60:
-            created_at = str(int(total_seconds))+ '초 전'
-        elif total_seconds/60 < 60:
-            created_at = str(int(total_seconds/60))+ '분 전'
-        elif total_seconds/3600 < 24:
-            created_at = str(int(total_seconds/3600))+ '시간 전'
-        elif (total_seconds/3600)/24 < 30:
-            created_at = str(int((total_seconds/3600)/24))+ '일 전'
-        elif ((total_seconds/3600)/24)/30 < 12:
-            created_at = str(int(((total_seconds/3600)/24)/30))+ '개월 전'
+            created_at = str(int(total_seconds)) + '초 전'
+        elif total_seconds / 60 < 60:
+            created_at = str(int(total_seconds / 60)) + '분 전'
+        elif total_seconds / 3600 < 24:
+            created_at = str(int(total_seconds / 3600)) + '시간 전'
+        elif (total_seconds / 3600) / 24 < 30:
+            created_at = str(int((total_seconds / 3600) / 24)) + '일 전'
+        elif ((total_seconds / 3600) / 24) / 30 < 12:
+            created_at = str(int(((total_seconds / 3600) / 24) / 30)) + '개월 전'
         else:
-            created_at = str(int((((total_seconds/3600)/24)/30)/12))+ '년 전'
+            created_at = str(int((((total_seconds / 3600) / 24) / 30) / 12)) + '년 전'
         return created_at
+
 
 class ArticleComment(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
@@ -252,23 +262,25 @@ class ArticleComment(s.ModelSerializer):
         exclude = ('id',)
 
     @extend_schema_field(OpenApiTypes.STR)
-    def get_created_at(self, instance): ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
+    def get_created_at(self,
+                       instance):  ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
         now = datetime.now().astimezone()
         created_at = instance.created_at
-        total_seconds = (now-created_at).total_seconds()
+        total_seconds = (now - created_at).total_seconds()
         if total_seconds < 60:
-            created_at = str(int(total_seconds))+ '초 전'
-        elif total_seconds/60 < 60:
-            created_at = str(int(total_seconds/60))+ '분 전'
-        elif total_seconds/3600 < 24:
-            created_at = str(int(total_seconds/3600))+ '시간 전'
-        elif (total_seconds/3600)/24 < 30:
-            created_at = str(int((total_seconds/3600)/24))+ '일 전'
-        elif ((total_seconds/3600)/24)/30 < 12:
-            created_at = str(int(((total_seconds/3600)/24)/30))+ '개월 전'
+            created_at = str(int(total_seconds)) + '초 전'
+        elif total_seconds / 60 < 60:
+            created_at = str(int(total_seconds / 60)) + '분 전'
+        elif total_seconds / 3600 < 24:
+            created_at = str(int(total_seconds / 3600)) + '시간 전'
+        elif (total_seconds / 3600) / 24 < 30:
+            created_at = str(int((total_seconds / 3600) / 24)) + '일 전'
+        elif ((total_seconds / 3600) / 24) / 30 < 12:
+            created_at = str(int(((total_seconds / 3600) / 24) / 30)) + '개월 전'
         else:
-            created_at = str(int((((total_seconds/3600)/24)/30)/12))+ '년 전'
+            created_at = str(int((((total_seconds / 3600) / 24) / 30) / 12)) + '년 전'
         return created_at
+
 
 class Article(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
@@ -293,6 +305,7 @@ class Article(s.ModelSerializer):
     class Meta:
         model = dosuri.community.models.Article
         exclude = ('id', 'status')
+
     def create(self, validated_data):
         if 'article_attachment_assoc' in validated_data:
             attachment_assoc_list = validated_data.pop('article_attachment_assoc')
@@ -320,20 +333,23 @@ class Article(s.ModelSerializer):
             with transaction.atomic():
                 article = comm.Article.objects.create(**validated_data)
                 article_keyword_assoc_data = [comm.ArticleKeywordAssoc(**item, article=article) for item in
-                                            article_keyword_assoc_list]
+                                              article_keyword_assoc_list]
                 comm.ArticleKeywordAssoc.objects.bulk_create(article_keyword_assoc_data)
                 if article_detail_data:
                     comm.ArticleDetail.objects.create(**article_detail_data, article=article)
                 if attachment_assoc_list:
-                    article_attachment_assoc_data = [comm.ArticleAttachmentAssoc(**item, article=article) for item in attachment_assoc_list]
+                    article_attachment_assoc_data = [comm.ArticleAttachmentAssoc(**item, article=article) for item in
+                                                     attachment_assoc_list]
                     comm.ArticleAttachmentAssoc.objects.bulk_create(article_attachment_assoc_data)
                 if article_auth_data:
                     article_auth = comm.ArticleAuth.objects.create(**article_auth_data, article=article)
-                    auth_attachment_assoc_data = [comm.AuthAttachmentAssoc(**item, article_auth=article_auth) for item in auth_attachment_list]
+                    auth_attachment_assoc_data = [comm.AuthAttachmentAssoc(**item, article_auth=article_auth) for item
+                                                  in auth_attachment_list]
                     comm.AuthAttachmentAssoc.objects.bulk_create(auth_attachment_assoc_data)
 
                 if article_doctor_assoc_list:
-                    article_doctor_assoc_data = [comm.ArticleDoctorAssoc(**item, article=article) for item in article_doctor_assoc_list]
+                    article_doctor_assoc_data = [comm.ArticleDoctorAssoc(**item, article=article) for item in
+                                                 article_doctor_assoc_list]
                     comm.ArticleDoctorAssoc.objects.bulk_create(article_doctor_assoc_data)
         if validated_data['article_type'] == cc.ARTICLE_QUESTION:
             with transaction.atomic():
@@ -344,8 +360,10 @@ class Article(s.ModelSerializer):
     @extend_schema_field(OpenApiTypes.BOOL)
     def get_is_like(self, instance):
         return comm.ArticleLike.objects.filter(article=instance,
-            user=self.context['request'].user
-        ).exists()
+                                               user=self.context['request'].user
+                                               ).exists()
+
+
 class GetArticle(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     user = CommunityUser(read_only=True)
@@ -374,22 +392,23 @@ class GetArticle(s.ModelSerializer):
         exclude = ('id', 'status')
 
     @extend_schema_field(OpenApiTypes.STR)
-    def get_created_at(self, instance): ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
+    def get_created_at(self,
+                       instance):  ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
         now = datetime.now().astimezone()
         created_at = instance.created_at
-        total_seconds = (now-created_at).total_seconds()
+        total_seconds = (now - created_at).total_seconds()
         if total_seconds < 60:
-            created_at = str(int(total_seconds))+ '초 전'
-        elif total_seconds/60 < 60:
-            created_at = str(int(total_seconds/60))+ '분 전'
-        elif total_seconds/3600 < 24:
-            created_at = str(int(total_seconds/3600))+ '시간 전'
-        elif (total_seconds/3600)/24 < 30:
-            created_at = str(int((total_seconds/3600)/24))+ '일 전'
-        elif ((total_seconds/3600)/24)/30 < 12:
-            created_at = str(int(((total_seconds/3600)/24)/30))+ '개월 전'
+            created_at = str(int(total_seconds)) + '초 전'
+        elif total_seconds / 60 < 60:
+            created_at = str(int(total_seconds / 60)) + '분 전'
+        elif total_seconds / 3600 < 24:
+            created_at = str(int(total_seconds / 3600)) + '시간 전'
+        elif (total_seconds / 3600) / 24 < 30:
+            created_at = str(int((total_seconds / 3600) / 24)) + '일 전'
+        elif ((total_seconds / 3600) / 24) / 30 < 12:
+            created_at = str(int(((total_seconds / 3600) / 24) / 30)) + '개월 전'
         else:
-            created_at = str(int((((total_seconds/3600)/24)/30)/12))+ '년 전'
+            created_at = str(int((((total_seconds / 3600) / 24) / 30) / 12)) + '년 전'
         return created_at
 
     @extend_schema_field(OpenApiTypes.BOOL)
@@ -398,8 +417,9 @@ class GetArticle(s.ModelSerializer):
             return False
         # if self.context['request'].user 
         return comm.ArticleLike.objects.filter(article=instance,
-            user=self.context['request'].user
-        ).exists()
+                                               user=self.context['request'].user
+                                               ).exists()
+
 
 class ArticleDetail(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
@@ -422,7 +442,6 @@ class ArticleDetail(s.ModelSerializer):
     article_comment = ArticleComment(many=True, read_only=True)
     is_like: s.Field = s.SerializerMethodField()
 
-
     class Meta:
         model = dosuri.community.models.Article
         exclude = ('id', 'status')
@@ -430,27 +449,29 @@ class ArticleDetail(s.ModelSerializer):
     @extend_schema_field(OpenApiTypes.BOOL)
     def get_is_like(self, instance):
         return comm.ArticleLike.objects.filter(article=instance,
-            user=self.context['request'].user
-        ).exists()
+                                               user=self.context['request'].user
+                                               ).exists()
 
     @extend_schema_field(OpenApiTypes.STR)
-    def get_created_at(self, instance): ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
+    def get_created_at(self,
+                       instance):  ## 준호님의 요청으로 created_at을 XX분/시간/일/월/년 전으로 대체하는 로직 추후 작업시 MethodField를 DatatimeField로 변환 요망
         now = datetime.now().astimezone()
         created_at = instance.created_at
-        total_seconds = (now-created_at).total_seconds()
+        total_seconds = (now - created_at).total_seconds()
         if total_seconds < 60:
-            created_at = str(int(total_seconds))+ '초 전'
-        elif total_seconds/60 < 60:
-            created_at = str(int(total_seconds/60))+ '분 전'
-        elif total_seconds/3600 < 24:
-            created_at = str(int(total_seconds/3600))+ '시간 전'
-        elif (total_seconds/3600)/24 < 30:
-            created_at = str(int((total_seconds/3600)/24))+ '일 전'
-        elif ((total_seconds/3600)/24)/30 < 12:
-            created_at = str(int(((total_seconds/3600)/24)/30))+ '개월 전'
+            created_at = str(int(total_seconds)) + '초 전'
+        elif total_seconds / 60 < 60:
+            created_at = str(int(total_seconds / 60)) + '분 전'
+        elif total_seconds / 3600 < 24:
+            created_at = str(int(total_seconds / 3600)) + '시간 전'
+        elif (total_seconds / 3600) / 24 < 30:
+            created_at = str(int((total_seconds / 3600) / 24)) + '일 전'
+        elif ((total_seconds / 3600) / 24) / 30 < 12:
+            created_at = str(int(((total_seconds / 3600) / 24) / 30)) + '개월 전'
         else:
-            created_at = str(int((((total_seconds/3600)/24)/30)/12))+ '년 전'
+            created_at = str(int((((total_seconds / 3600) / 24) / 30) / 12)) + '년 전'
         return created_at
+
 
 class TreatmentKeyword(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
@@ -459,6 +480,7 @@ class TreatmentKeyword(s.ModelSerializer):
     class Meta:
         model = dosuri.community.models.TreatmentKeyword
         exclude = ('id', 'created_at', 'category')
+
 
 class ArticleLike(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
@@ -470,6 +492,7 @@ class ArticleLike(s.ModelSerializer):
     user = CommunityUser(read_only=True)
     is_like: s.Field = s.SerializerMethodField()
     created_at: s.Field = s.DateTimeField(read_only=True)
+
     class Meta:
         model = dosuri.community.models.ArticleLike
         exclude = ('id',)
@@ -477,8 +500,8 @@ class ArticleLike(s.ModelSerializer):
     @extend_schema_field(OpenApiTypes.BOOL)
     def get_is_like(self, instance):
         return comm.ArticleLike.objects.filter(article=instance.article,
-            user=self.instance.user
-        ).exists()
+                                               user=self.instance.user
+                                               ).exists()
 
     def create(self, validated_data):
         try:
