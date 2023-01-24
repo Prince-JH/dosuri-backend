@@ -3,6 +3,7 @@ import os
 
 import requests
 from django.core.management.base import BaseCommand
+from django.conf import settings
 from dosuri.user.models import User
 
 import csv
@@ -29,7 +30,7 @@ class Command(BaseCommand):
 
 
 def write_random_nickname():
-    file = '/dosuri/user/tests/random_nickname.csv'
+    file = f'{settings.BASE_DIR}/dosuri/user/random_nickname.csv'
     nicknames = get_random_nickname()
     seed = 1
     requests.get(f'https://nickname.hwanmoo.kr/?format=json&count=3000&max_length=12&seed={seed}')
@@ -48,7 +49,7 @@ def get_random_nickname():
     seed = 1
     while len(nicknames) < 10000:
         content = json.loads(
-            requests.get(f'https://nickname.hwanmoo.kr/?format=json&count=3000&max_length=12&seed={seed}').content)
+            requests.get(f'https://nickname.hwanmoo.kr/?format=json&count=3000&max_length=8&seed={seed}').content)
         for word in content['words']:
             nicknames.append(word)
         seed += 1
