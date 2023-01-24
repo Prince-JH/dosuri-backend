@@ -20,8 +20,19 @@ def user_dummy():
         username='dummy@dummy.com',
         nickname='dummy'
     )
+@pytest.fixture
+def user_dummy_1():
+    return get_user_model().objects.create_user(
+        username='dummy@dummy.net',
+        nickname='dummy1'
+    )
 
-
+@pytest.fixture
+def user_dummies():
+    return [get_user_model().objects.create_user(
+        username=f'dummy{i}@dummy.com',
+        nickname=f'dummy{i}'
+    ) for i in range(100)]
 @pytest.fixture
 def tokens_user_dummy(user_dummy):
     return get_tokens_for_user(user_dummy)
