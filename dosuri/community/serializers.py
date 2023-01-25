@@ -355,6 +355,10 @@ class Article(s.ModelSerializer):
         if validated_data['article_type'] == cc.ARTICLE_QUESTION:
             with transaction.atomic():
                 article = comm.Article.objects.create(**validated_data)
+                if attachment_assoc_list:
+                    article_attachment_assoc_data = [comm.ArticleAttachmentAssoc(**item, article=article) for item in
+                                                     attachment_assoc_list]
+                    comm.ArticleAttachmentAssoc.objects.bulk_create(article_attachment_assoc_data)
 
         return article
 

@@ -153,7 +153,8 @@ class TestArticleList:
         
         assert article != None
         assert article.article_type == cc.ARTICLE_QUESTION
-
+        attachment_asoc = cm.ArticleAttachmentAssoc.objects.filter(article=article, attachment=attachment_A)
+        assert len(attachment_asoc) == 1
 
 
         
