@@ -1,11 +1,10 @@
-import os
 from django.core.management.base import BaseCommand
 from dosuri.user.models import User
 
 import csv
-import os.path
 from datetime import datetime
-
+from os import listdir
+from os.path import isfile, join
 from dosuri.common import models as cm
 from dosuri.hospital import (
     models as hm,
@@ -27,6 +26,8 @@ class Command(BaseCommand):
             read_hospital_data(file_loc)
         elif data_type == 'hospital_treatment':
             read_hospital_treatment_data(file_loc)
+        elif data_type == 'hospital_image':
+            read_hospital_image(file_loc)
 
 
 def read_hospital_data(file_loc):
@@ -52,33 +53,33 @@ def read_hospital_data(file_loc):
                   status)
             # if status == hc.HOSPITAL_ACTIVE:
             #     break
-            hospital_qs = hm.Hospital.objects.filter(code=code)
-            if hospital_qs.exists():
-                hospital = hospital_qs.first()
-                hospital.status = status
-                hospital.save()
-            else:
-                hospital_obj = hm.Hospital.objects.create(
-                    code=code,
-                    address=full_address,
-                    name=name,
-                    phone_no=phone_no,
-                    opened_at=opened_at,
-                    latitude=latitude,
-                    longitude=longitude,
-                    area=area,
-                    status=status
-                )
-                address_qs = cm.Address.objects.filter(large_area=large_area, small_area=small_area)
-                if not address_qs.exists():
-                    address_obj = cm.Address.objects.create(
-                        large_area=large_area, small_area=small_area
-                    )
-                hm.HospitalAddressAssoc.objects.create(
-                    hospital=hospital_obj,
-                    address=address_obj
-                )
-                print('INSERT:', code)
+            # hospital_qs = hm.Hospital.objects.filter(code=code)
+            # if hospital_qs.exists():
+            #     hospital = hospital_qs.first()
+            #     hospital.status = status
+            #     hospital.save()
+            # else:
+            #     hospital_obj = hm.Hospital.objects.create(
+            #         code=code,
+            #         address=full_address,
+            #         name=name,
+            #         phone_no=phone_no,
+            #         opened_at=opened_at,
+            #         latitude=latitude,
+            #         longitude=longitude,
+            #         area=area,
+            #         status=status
+            #     )
+            #     address_qs = cm.Address.objects.filter(large_area=large_area, small_area=small_area)
+            #     if not address_qs.exists():
+            #         address_obj = cm.Address.objects.create(
+            #             large_area=large_area, small_area=small_area
+            #         )
+            #     hm.HospitalAddressAssoc.objects.create(
+            #         hospital=hospital_obj,
+            #         address=address_obj
+            #     )
+            #     print('INSERT:', code)
         except:
             pass
 
@@ -114,3 +115,40 @@ def read_hospital_treatment_data(file_loc):
                 )
         except hm.Hospital.DoesNotExist:
             pass
+
+
+def read_hospital_image(file_loc):
+    import unicodedata
+    import boto3
+    from uuid import uuid4
+
+    def generate_uuid():
+        return uuid4().hex
+
+    loc = file_loc
+    files = [f for f in listdir(loc) if isfile(join(loc, f))]
+
+    count = 1
+
+    s3 = boto3.client('s3')
+    for file in files:
+        title = unicodedata.normalize('NFC', file.rstrip('.jpg'))
+        code = title[:-2]
+        qs = hm.Hospital.objects.filter(code=code)
+        bucket = 'dosuri-image'
+        if qs.exists():
+            hospital = qs.first()
+            uuid = generate_uuid()
+            path = f'{uuid}/{title}'
+            s3.upload_file(f'{file_loc}/{file.title()}', bucket, path)
+            attachment = cm.Attachment.objects.create(
+                uuid=uuid,
+                bucket_name=bucket,
+                path=path
+            )
+            assoc = hm.HospitalAttachmentAssoc.objects.create(
+                hospital=hospital,
+                attachment=attachment
+            )
+            print(count)
+            count += 1
