@@ -125,3 +125,38 @@ class TestArticleList:
         assert response.status_code == 204
         
         assert len(cm.Article.objects.all()) == 0
+    
+    @pytest.mark.django_db
+    def test_create_question(self, client, tokens_user_dummy, attachment_A, attachment_B):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        res = client.post(
+            path="/community/v1/community/articles",
+            data={
+                "article_type": cc.ARTICLE_QUESTION,
+                "content": "여기 주차는 어떻게 하면 되나요?",
+                "article_attachment_assoc": [
+                    {
+                        "attachment": attachment_A.uuid
+                    }
+                ]
+            },
+            **headers
+        )
+        
+        data = res.json()
+        assert res.status_code == 201
+        assert data["uuid"] != None
+        article = cm.Article.objects.get(uuid=data["uuid"])
+        
+        assert article != None
+        assert article.article_type == cc.ARTICLE_QUESTION
+
+
+
+        
+        return article
+    
+

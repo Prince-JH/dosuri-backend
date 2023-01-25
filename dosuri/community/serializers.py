@@ -292,7 +292,8 @@ class Article(s.ModelSerializer):
     hospital: s.Field = s.SlugRelatedField(
         write_only=True,
         slug_field='uuid',
-        queryset=hm.Hospital.objects.all()
+        queryset=hm.Hospital.objects.all(),
+        required=False
     )
     content: s.Field = s.CharField(read_only=False)
     article_attachment_assoc: s.Field = ArticleAttachmentAssoc(many=True, write_only=True)

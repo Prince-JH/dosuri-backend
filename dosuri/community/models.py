@@ -36,7 +36,7 @@ class Article(models.Model):
     article_type = models.CharField(default=None, null=True, max_length=20)
     up_count = models.IntegerField(default=0)
     view_count = models.IntegerField(default=0)
-    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='article')
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='article', null=True)
     content = models.CharField(max_length=1200, blank=True, null=False, default='')  ## 후기 최대글자 한글은 3 bytes (최대 400글자)
     created_at = models.DateTimeField(auto_now_add=True)
 
