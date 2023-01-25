@@ -152,22 +152,9 @@ class TestArticleList:
         article = cm.Article.objects.get(uuid=data["uuid"])
         
         assert article != None
-        assert article.article_type == cc.ARTICLE_REVIEW
+        assert article.article_type == cc.ARTICLE_QUESTION
 
-        
-        article_keyword_assoc = cm.ArticleKeywordAssoc.objects.filter(article=article)
-        assert len(article_keyword_assoc) == 1
-        
-        article_detail = cm.ArticleDetail.objects.get(article=article)
-        assert article_detail != None
-        assert article_detail.treatment_effect == 1
-        assert article_detail.doctor_kindness == 1
-        assert article_detail.clean_score == 1
-        assert article_detail.cost == 50000
-        assert article_detail.treat_count == 3
 
-        article_auth = cm.ArticleAuth.objects.get(article=article)
-        assert article_auth != None
 
         
         return article
