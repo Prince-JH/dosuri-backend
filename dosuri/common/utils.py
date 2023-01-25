@@ -9,6 +9,21 @@ from urllib import parse
 # Create an SNS client
 from django.utils import timezone
 
+sns_client = boto3.client(
+    "sns",
+    aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+    region_name="ap-northeast-1"
+)
+
+s3_client = boto3.client(
+    "s3",
+    aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+    region_name="ap-northeast-2"
+)
+
+
 def generate_signed_path(obj):
     try:
         url = f'http://{obj.bucket_name}.{settings.HOST_DOMAIN}/{parse.quote(obj.path)}'

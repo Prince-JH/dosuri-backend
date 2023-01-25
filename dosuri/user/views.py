@@ -78,6 +78,8 @@ class UserNickname(g.RetrieveAPIView):
         nickname = request.GET.get('nickname')
         qs = get_user_model().objects.filter(nickname=nickname)
         if qs.exists():
+            if qs.first() == request.user:
+                return Response(data={}, status=status.HTTP_200_OK)
             raise uexc.NicknameDuplicated()
         else:
             return Response(data={}, status=status.HTTP_200_OK)
