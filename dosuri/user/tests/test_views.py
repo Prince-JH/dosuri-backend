@@ -100,8 +100,9 @@ class TestKaKaoAuth:
 
         assert response.status_code == 201
         assert content['is_new'] is True
+        user = get_user_model().objects.first()
         assert get_user_model().objects.all().count() == 1
-        assert get_user_model().objects.first().phone_no == '010-1234-5678'
+        assert user.phone_no == '010-1234-5678'
 
     @pytest.mark.django_db
     @requests_mock.Mocker(kw='mock')
@@ -132,6 +133,16 @@ class TestUserNickname:
         response = client.get('/user/v1/users/nickname?nickname=dummy')
 
         assert response.status_code == 409
+
+    @pytest.mark.django_db
+    def test_check_given_name_duplicated(self, client, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get('/user/v1/users/nickname?nickname=dummy', **headers)
+
+        assert response.status_code == 200
 
 
 class TestInsuranceUserAssoc:
