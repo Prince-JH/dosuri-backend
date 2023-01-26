@@ -37,7 +37,6 @@ def add_article(df_list):
                 content = row['리뷰내용'],
                 created_at = created_at
             ))
-            break
         except:
             article_list.append(m.Article(
                 user_id = 1,
