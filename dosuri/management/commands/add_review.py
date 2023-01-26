@@ -28,6 +28,7 @@ def add_article(df_list):
                 hospital_id = None
             org_created_at = row['날짜'][0:-4].replace("\n", "")
             created_at = datetime.strptime(org_created_at, "%Y년 %m월 %d일")
+            
             article_list.append(m.Article(
                 user = user,
                 status = "complete",
@@ -36,6 +37,7 @@ def add_article(df_list):
                 content = row['리뷰내용'],
                 created_at = created_at
             ))
+            break
         except:
             article_list.append(m.Article(
                 user_id = 1,
@@ -54,9 +56,8 @@ class Command(BaseCommand):
         for i in range(0,47):
             df_list.append({
                 'pid': i+1,
-                'df': df.loc[i*5000:(i+1)*5000, ['리뷰어이름','코드','날짜','리뷰내용']]
+                'df': df.loc[i*5000:(i+1)*5000-1, ['리뷰어이름','코드','날짜','리뷰내용']]
             })
-            print(str(i*5000)+":"+str((i+1)*5000))
         pool = multiprocessing.Pool(processes=47)
         
         pool.map(add_article, df_list)
