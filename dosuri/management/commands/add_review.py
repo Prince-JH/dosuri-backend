@@ -5,84 +5,62 @@ from dosuri.community import models as m
 from dosuri.user import models as um
 from datetime import datetime
 from django.core.management.base import BaseCommand
+from dosuri.user.utils import get_random_nickname
+import multiprocessing
+import pandas as pd
+from django.db import connection
+
+def add_article(df_list):
+    connection.close()
+    count=0
+    data_len = 5000
+    pid=df_list['pid']
+    df_list=df_list['df']
+    article_list = []
+    for idx, row in df_list.iterrows():
+        try:
+            count=count+1
+            print(str(pid)+" progress: "+ str((count/data_len)*100) + "%")
+            user=um.User.objects.get(username=row['리뷰어이름'])
+            try:
+                hospital_id = hm.Hospital.objects.get(code=row['코드']).id
+            except:
+                hospital_id = None
+            org_created_at = row['날짜'][0:-4].replace("\n", "")
+            created_at = datetime.strptime(org_created_at, "%Y년 %m월 %d일")
+            
+            article_list.append(m.Article(
+                user = user,
+                status = "complete",
+                article_type = "review",
+                hospital_id = hospital_id,
+                content = row['리뷰내용'],
+                created_at = created_at
+            ))
+        except:
+            article_list.append(m.Article(
+                user_id = 1,
+                status = "complete",
+                article_type = "review",
+                content = row['리뷰내용'],
+                created_at = created_at
+            ))
+    m.Article.objects.bulk_create(article_list, batch_size=1000)
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        failed_user = []
-        data_len = 177402
-        count = 0
-        with open('review.csv', newline='', encoding="utf-8-sig") as csvfile:
-            spamreader = csv.reader(csvfile, quotechar='"', delimiter=',')
-            article_list = []
-            default_hospital = hm.Hospital.objects.get(id=7379)
-            for row in spamreader:
-                count=count+1
-                print("progress:"+str(int((count/data_len) * 100)) + "%")
-                try:
-                    hospital = hm.Hospital.objects.get(code=row[0])
-                except:
-                    hospital = default_hospital
-                org_created_at = row[4][0:-4].replace("\n", "")
-                print(row[2])
-                created_at = datetime.strptime(org_created_at, "%Y년 %m월 %d일")
-                try:
-                    user = um.User.objects.get(tmp_review_username=row[2])
-                    article_list.append(m.Article(
-                        user = um.User.objects.get(tmp_review_username=row[2]),
-                        status = "complete",
-                        article_type = "review",
-                        hospital = hospital,
-                        content = row[3],
-                        created_at = created_at
-                    ))
-                except:
-                    failed_user.append(row[2])
+        m.Article.objects.filter(article_type='review').delete()
+        df = pd.read_csv('review.csv')
+        df_list=[]
+        for i in range(0,47):
+            df_list.append({
+                'pid': i+1,
+                'df': df.loc[i*5000:(i+1)*5000-1, ['리뷰어이름','코드','날짜','리뷰내용']]
+            })
+        pool = multiprocessing.Pool(processes=47)
         
-        m.Article.objects.bulk_create(article_list, batch_size=1000)
-        print(failed_user)
-        print("Successfully Added")
-        with open("output.txt", "w") as txt_file:
-            for line in failed_user:
-                txt_file.write(" ".join(line) + "\n") # works with any number of elements in a line
-        return
-
-        # ts = [threading.Thread(target=self.add_article, args=(i,)) for i in range(0,18)]
-        # for t in ts:
-        #     t.start()
-        # for t in ts:
-        #     t.join()
-        # print("Successfully Added")
-        # return
-    def add_article(self, index):
-        data_len = 10000
-        count = 0
-        if index==17:
-            end=177402
-        else:
-            end=(index+1)*10000
-        with open('review.csv', newline='', encoding="utf-8-sig") as csvfile:
-            spamreader = csv.reader(csvfile, quotechar='"', delimiter=',')
-            article_list = []
-            default_hospital = hm.Hospital.objects.get(id=7379)
-            for row in islice(spamreader,index*10000,end):
-                count=count+1
-                print("index:"+str(index))
-                print("progress:"+str(int((count/data_len) * 100)) + "%")
-                try:
-                    hospital = hm.Hospital.objects.get(code=row[0])
-                except:
-                    hospital = default_hospital
-                org_created_at = row[4][0:-4].replace("\n", "")
-                created_at = datetime.strptime(org_created_at, "%Y년 %m월 %d일")
-                article_list.append(m.Article(
-                    user = um.User.objects.get(tmp_review_username=row[2]),
-                    status = "complete",
-                    article_type = "review",
-                    hospital = hospital,
-                    content = row[3],
-                    created_at = created_at
-                ))
-        
-        m.Article.objects.bulk_create(article_list, batch_size=1000)
+        pool.map(add_article, df_list)
+        pool.close()
+        pool.join()
         print("Successfully Added")
         return
