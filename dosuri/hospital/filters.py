@@ -156,3 +156,10 @@ class HospitalSearchFilter(filters.SearchFilter):
             hm.HospitalSearch.objects.save_search(request.user, word)
 
         return super().filter_queryset(request, queryset, view)
+
+
+class ExtraOrderingByIdFilter(filters.OrderingFilter):
+    def get_ordering(self, request, queryset, view):
+        ordering = super().get_ordering(request, queryset, view)
+        ordering.append('id')
+        return ordering
