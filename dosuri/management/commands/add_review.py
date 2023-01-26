@@ -13,7 +13,7 @@ from django.db import connection
 def add_article(df_list):
     connection.close()
     count=0
-    data_len = 10000
+    data_len = 5000
     pid=df_list['pid']
     df_list=df_list['df']
     article_list = []
@@ -46,12 +46,13 @@ class Command(BaseCommand):
         m.Article.objects.filter(article_type='review').delete()
         df = pd.read_csv('review.csv')
         df_list=[]
-        for i in range(0,24):
+        for i in range(0,47):
             df_list.append({
                 'pid': i+1,
-                'df': df.loc[i*10000:(i+1)*10000, ['리뷰어이름','코드','날짜','리뷰내용']]
+                'df': df.loc[i*5000:(i+1)*5000, ['리뷰어이름','코드','날짜','리뷰내용']]
             })
-        pool = multiprocessing.Pool(processes=25)
+            print(str(i*5000)+":"+str((i+1)*5000))
+        pool = multiprocessing.Pool(processes=47)
         
         pool.map(add_article, df_list)
         pool.close()
