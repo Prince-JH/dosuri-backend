@@ -6,7 +6,6 @@ from dosuri.hospital import models as hm
 from dosuri.community import models as m
 from dosuri.user import models as um
 from dosuri.user.utils import get_random_nickname
-import numpy as np
 import random
 import multiprocessing
 import pandas as pd
