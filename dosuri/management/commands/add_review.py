@@ -46,13 +46,6 @@ class Command(BaseCommand):
                 txt_file.write(" ".join(line) + "\n") # works with any number of elements in a line
         return
 
-        # ts = [threading.Thread(target=self.add_article, args=(i,)) for i in range(0,18)]
-        # for t in ts:
-        #     t.start()
-        # for t in ts:
-        #     t.join()
-        # print("Successfully Added")
-        # return
     def add_article(self, index):
         data_len = 10000
         count = 0

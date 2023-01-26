@@ -5,37 +5,41 @@ import requests
 from dosuri.hospital import models as hm
 from dosuri.community import models as m
 from dosuri.user import models as um
+from dosuri.user.utils import get_random_nickname
 import numpy as np
 import random
+import multiprocessing
+import pandas as pd
+from django.db import connection
+
+
+def add_user(df_list):
+    connection.close()
+    count=0
+    data_len = 10000
+    pid=df_list['pid']
+    df_list=df_list['df']
+    for idx, row in df_list.iterrows():
+        count=count+1
+        print(str(pid)+" progress: "+ str((count/data_len)*100) + "%")
+        if not um.User.objects.filter(username=row['리뷰어이름']).exists():
+            user=um.User(nickname=get_random_nickname(), is_real=False, username=row['리뷰어이름'])
+            user.save()
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        seed = 0
-        nickname_list = []
-        tmp_user_list = []
-        while len(nickname_list) < 106000:
-            seed = seed + 1
-            print(len(nickname_list))
-            nickname_list = list(set(nickname_list + self.get_nickname_list(seed))) ## 중복 제거
-        print(len(nickname_list))
-        count = 0
-        with open('review.csv', newline='', encoding="utf-8-sig") as csvfile:
-            spamreader = csv.reader(csvfile, quotechar='"', delimiter=',')
-            user_list = []
-            data_len = 177402
-            for row in spamreader:
-                count = count+1
-                print("progress:"+str(int((count/data_len) * 100)) + "%")
-                if len(nickname_list) == 0:
-                    seed = seed
-                    nickname_list = self.get_nickname_list(nickname_len, seed)
-                
-                if row[2] not in tmp_user_list:
-                    user_list.append(um.User(nickname=nickname_list.pop(), tmp_review_username=row[2], is_real=False, username="crowl_review_user_"+str(count)))
-                    tmp_user_list.append(row[2])
-        print(len(user_list))
-        um.User.objects.bulk_create(user_list, batch_size=1000)
+        um.User.objects.filter(is_real=False).delete()
+        df = pd.read_csv('review.csv')
+        df_list=[]
+        for i in range(0,24):
+            df_list.append({
+                'pid': i+1,
+                'df': df.loc[i*10000:(i+1)*10000, ['리뷰어이름']]
+            })
+        pool = multiprocessing.Pool(processes=25)
+        
+        pool.map(add_user, df_list)
+        pool.close()
+        pool.join()
         print("Successfully Added")
         return
-    def get_nickname_list(self, seed):
-        return requests.get('https://nickname.hwanmoo.kr/?format=json&count=3000&max_length=12&seed='+str(seed)).json()['words']
