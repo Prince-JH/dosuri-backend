@@ -17,18 +17,11 @@ def add_article(df_list):
     pid=df_list['pid']
     df_list=df_list['df']
     article_list = []
-    flag=True
     for idx, row in df_list.iterrows():
         count=count+1
         print(str(pid)+" progress: "+ str((count/data_len)*100) + "%")
-        try:
-            user=um.User.objects.get(username=row['리뷰어이름'])
-            flag=True
-        except:
-            user=um.User(nickname=get_random_nickname(), is_real=False, username=row['리뷰어이름'])
-            user.save()
-            flag=False
-        if flag:
+        user=um.User.objects.get(username=row['리뷰어이름'])
+        if m.Article.objects.filter(content=row['리뷰내용']).exists():
             continue
         try:
             hospital_id = hm.Hospital.objects.get(code=row['코드']).id
