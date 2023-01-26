@@ -17,14 +17,19 @@ def add_article(df_list):
     pid=df_list['pid']
     df_list=df_list['df']
     article_list = []
+    flag=True
     for idx, row in df_list.iterrows():
         count=count+1
         print(str(pid)+" progress: "+ str((count/data_len)*100) + "%")
         try:
             user=um.User.objects.get(username=row['리뷰어이름'])
+            flag=True
         except:
             user=um.User(nickname=get_random_nickname(), is_real=False, username=row['리뷰어이름'])
             user.save()
+            flag=False
+        if flag:
+            continue
         try:
             hospital_id = hm.Hospital.objects.get(code=row['코드']).id
         except:
@@ -43,7 +48,6 @@ def add_article(df_list):
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        m.Article.objects.filter(article_type='review').delete()
         df = pd.read_csv('review.csv')
         df_list=[]
         for i in range(0,47):
