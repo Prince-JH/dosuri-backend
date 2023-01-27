@@ -296,7 +296,7 @@ class Article(s.ModelSerializer):
         required=False
     )
     content: s.Field = s.CharField(read_only=False)
-    article_attachment_assoc: s.Field = ArticleAttachmentAssoc(many=True, write_only=True)
+    article_attachment_assoc: s.Field = ArticleAttachmentAssoc(many=True, write_only=True, required=False)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
     article_detail = ArticleDetailSer(many=False, write_only=True, required=False)
     article_auth = ArticleAuth(many=False, write_only=True, required=False)
