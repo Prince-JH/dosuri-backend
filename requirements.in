@@ -13,3 +13,4 @@ boto3
 requests_toolbelt
 drf_yasg
 django-storages
+elasticsearch
