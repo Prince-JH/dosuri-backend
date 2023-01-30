@@ -216,6 +216,16 @@ def hospital_treatments_test_A(hospital_test_A):
         description=None
     )
 
+@pytest.fixture
+def hospital_treatments_A_hospital_B(hospital_test_B):
+    return hm.HospitalTreatment.objects.create(
+        name='treatment_A',
+        hospital=hospital_test_B,
+        price=80000,
+        price_per_hour=160000,
+        description=None
+    )
+
 
 @pytest.fixture
 def article_A_hospital_A(hospital_test_A, user_dummy):

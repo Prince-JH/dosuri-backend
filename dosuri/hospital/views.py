@@ -63,6 +63,28 @@ class HospitalAddressFilteredList(g.ListAPIView):
         return Response(serializer.data)
 
 
+class HospitalAddressFilteredAvgPriceList(g.ListAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = m.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
+                                                                                     'hospital_attachment_assoc__attachment').annotate_extra_fields()
+    filter_backends = [rf.OrderingFilter]
+    ordering_field = '__all__'
+    serializer_class = s.GoodPriceHospital
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        address_filtered_qs = queryset.get_address_filtered_queryset(request.user)
+        address_filtered_qs_with_avg_price = address_filtered_qs.annotate_avg_price_per_hour()
+        ordered_qs = self.filter_queryset(address_filtered_qs_with_avg_price)
+
+        page = self.paginate_queryset(ordered_qs)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(ordered_qs, many=True)
+        return Response(serializer.data)
+
+
 class HospitalDetail(g.CreateAPIView, g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_keyword_assoc',
