@@ -1,10 +1,11 @@
 from datetime import date
 
-from django.db.models import QuerySet, Count, Subquery, OuterRef
+from django.db.models import QuerySet, Count, Subquery, OuterRef, Func, F
 from django.db.models.functions import Coalesce
 
 from dosuri.common import models as cm
 from dosuri.community import constants as cmc
+from dosuri.hospital import models as hm
 from django.apps import apps
 
 
@@ -69,3 +70,10 @@ class HospitalQuerySet(QuerySet):
     def get_default_address_filtered_qs(self):
         return self.filter(hospital_address_assoc__address__large_area='서울특별시',
                            hospital_address_assoc__address__small_area__in=['송파구', '서초구', '강남구']).distinct()
+
+    def annotate_avg_price_per_hour(self):
+        sub_qs = hm.HospitalTreatment.objects.filter(hospital=OuterRef('pk')).annotate(
+            avg_price_per_hour=Func(F('price_per_hour'), function='AVG')).values('avg_price_per_hour').order_by(
+            'avg_price_per_hour')
+        return self.filter(hospital_treatment__isnull=False).distinct().annotate(
+            avg_price_per_hour=Subquery(sub_qs)).filter(avg_price_per_hour__isnull=False).order_by('avg_price_per_hour')
