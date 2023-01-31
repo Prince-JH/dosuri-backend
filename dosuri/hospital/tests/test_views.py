@@ -135,7 +135,7 @@ class TestAddressFilteredHospitalList:
         assert len(content['results']) == 1
 
 
-class TestAddressFilteredAvgPriceHospitalList:
+class TestHospitalCurrentAddressFilteredList:
     @pytest.mark.django_db
     def test_list_address_filtered_hospital_should_return_one_result(self, client, hospital_test_B,
                                                                      assoc_hospital_B_address_수원,
@@ -145,7 +145,24 @@ class TestAddressFilteredAvgPriceHospitalList:
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
             'content_type': 'application/json'
         }
-        response = client.get('/hospital/v1/hospitals-address-filtered-avg-price', **headers)
+        response = client.get('/hospital/v1/hospitals-current-address-filtered', **headers)
+        content = json.loads(response.content)
+
+        assert response.status_code == 200
+        assert len(content['results']) == 1
+
+
+class TestHospitalCurrentAddressFilteredAvgPriceList:
+    @pytest.mark.django_db
+    def test_list_address_filtered_hospital_should_return_one_result(self, client, hospital_test_B,
+                                                                     assoc_hospital_B_address_수원,
+                                                                     tokens_user_dummy, assoc_address_수원_user_dummy,
+                                                                     hospital_treatments_A_hospital_B):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get('/hospital/v1/hospitals-current-address-filtered-avg-price', **headers)
         content = json.loads(response.content)
 
         assert response.status_code == 200

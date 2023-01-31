@@ -366,7 +366,8 @@ class GoodPriceHospital(s.ModelSerializer):
 
     class Meta:
         model = hm.Hospital
-        fields = ['uuid', 'name', 'area', 'up_count', 'view_count', 'article_count', 'avg_price_per_hour', 'attachments']
+        fields = ['uuid', 'name', 'area', 'up_count', 'view_count', 'article_count', 'avg_price_per_hour',
+                  'attachments']
 
 
 class GoodReviewHospital(s.ModelSerializer):
