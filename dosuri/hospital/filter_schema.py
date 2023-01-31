@@ -56,3 +56,29 @@ class DoctorPositionFilterSchema:
                 },
             },
         ]
+
+
+class HospitalDistanceFilterSchema:
+    def get_schema_fields(self, view):
+        return [
+            coreapi.Field(
+                name=param, location='query', required=False,
+                schema=coreschema.String(title=f'{param} of user',
+                                         description=f'{param} of user')
+            )
+            for param
+            in view.hospital_distance_filter_params if param != 'distance'
+        ]
+
+    def get_schema_operation_parameters(self, view):
+        return [
+            {
+                'name': param,
+                'in': 'query',
+                'required': False,
+                'description': f'{param} of user',
+                'schema': {'type': 'float'}
+            }
+            for param
+            in view.hospital_distance_filter_params if param != 'distance'
+        ]
