@@ -1,7 +1,7 @@
 from datetime import date
 
 from django.db.models import QuerySet, Count, Subquery, OuterRef, Func, F
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Coalesce, Sqrt
 
 from dosuri.common import models as cm
 from dosuri.community import constants as cmc
@@ -76,4 +76,9 @@ class HospitalQuerySet(QuerySet):
             avg_price_per_hour=Func(F('price_per_hour'), function='AVG')).values('avg_price_per_hour').order_by(
             'avg_price_per_hour')
         return self.filter(hospital_treatment__isnull=False).distinct().annotate(
-            avg_price_per_hour=Subquery(sub_qs)).filter(avg_price_per_hour__isnull=False).order_by('avg_price_per_hour')
+            avg_price_per_hour=Subquery(sub_qs)).filter(avg_price_per_hour__isnull=False)
+
+    def annotate_distance(self, latitude, longitude):
+        d_lat = (F('latitude') - latitude) * 111.19
+        d_long = (F('longitude') - longitude) * 88.80
+        return self.annotate(distance=Sqrt((d_lat * d_lat) + (d_long * d_long)))
