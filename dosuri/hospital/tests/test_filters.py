@@ -17,6 +17,15 @@ class DummyView:
     uuid_filter_body_params = ['hospital']
 
 
+class Dummy1kmDistanceView:
+    hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
+    hospital_distance_range = 1
+
+class DummyNoneDistanceView:
+    hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
+    hospital_distance_range = None
+
+
 class TestReviewCountOrderingFilter:
     @pytest.mark.django_db
     def test_hospital_queryset_order_by_article_count(
@@ -54,3 +63,32 @@ class TestReviewNewOrderingFilter:
         assert filtered_qs[0].uuid == hospital_test_B.uuid
         assert filtered_qs[1].uuid == hospital_test_A.uuid
         assert filtered_qs[2].uuid == hospital_test_C.uuid
+
+
+class TestHospitalDistanceFilter:
+    @pytest.mark.django_db
+    def test_filter_within_1km(
+            self, rf, hospital_lat100_long100):
+        url = f'/?latitude=37.2762816&longitude=127.0433978'
+        request = rf.get(url)
+        queryset = hm.Hospital.objects.all()
+        assert queryset.count() == 1
+
+        _filter = hf.HospitalDistanceFilter()
+        view = Dummy1kmDistanceView()
+        filtered_qs = _filter.filter_queryset(request, queryset, view)
+        assert filtered_qs.count() == 0
+
+    @pytest.mark.django_db
+    def test_filter_within_infinite(
+            self, rf, hospital_lat100_long100):
+        url = f'/?latitude=37.2762816&longitude=127.0433978'
+        request = rf.get(url)
+        queryset = hm.Hospital.objects.all()
+        assert queryset.count() == 1
+
+        _filter = hf.HospitalDistanceFilter()
+        view = DummyNoneDistanceView()
+        filtered_qs = _filter.filter_queryset(request, queryset, view)
+        assert filtered_qs.count() == 1
+

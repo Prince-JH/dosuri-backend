@@ -79,6 +79,15 @@ def hospital_test_C():
         name='test_C'
     )
 
+@pytest.fixture
+def hospital_lat100_long100():
+    return hm.Hospital.objects.create(
+        name='test_D',
+        latitude=100,
+        longitude=100
+    )
+
+
 
 @pytest.fixture
 def hospital_calendar_test_A(hospital_test_A):
