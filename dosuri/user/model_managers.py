@@ -1,12 +1,8 @@
 from django.contrib.auth.models import UserManager
-from dosuri.user import (
-    models as um,
-    utils as uu,
-)
+from django.db.models import Manager
 
 
 class DosuriUserManager(UserManager):
-
     def get_user_by_uuid(self, uuid):
         return self.get(uuid=uuid)
 
@@ -14,7 +10,7 @@ class DosuriUserManager(UserManager):
         self.filter(pk=user.pk).update(**user_info)
 
 
-class UserPointHistoryManager(UserManager):
+class UserPointHistoryManager(Manager):
     def create_history(self, user, point, content):
         qs = self.filter(user=user)
         if qs.exists():
@@ -33,7 +29,7 @@ class UserPointHistoryManager(UserManager):
         return qs.order_by('-created_at').first().total_point if qs.exists() else 0
 
 
-class UserNotificationManager(UserManager):
+class UserNotificationManager(Manager):
     def create_notification(self, user, content):
         return self.create(
             user=user,
@@ -45,3 +41,12 @@ class UserNotificationManager(UserManager):
         return self.filter(uuid=uuid).update(
             is_new=False
         )
+
+
+class AddressUserAssocManager(Manager):
+    def get_user_address(self, user):
+        try:
+            address = self.get(user=user).address
+            return f'{address.large_area}{address.small_area}'
+        except self.model.DoesNotExist:
+            return
