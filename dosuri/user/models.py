@@ -74,6 +74,8 @@ class AddressUserAssoc(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='address_user_assoc')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    objects = umm.AddressUserAssocManager()
+
     class Meta:
         db_table = 'address_user_assoc'
         ordering = ['-id']
