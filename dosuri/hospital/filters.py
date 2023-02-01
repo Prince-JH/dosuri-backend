@@ -21,8 +21,8 @@ class HospitalDistanceFilter(fsc.HospitalDistanceFilterSchema,
     longitude_param = 'longitude'
 
     def filter_queryset(self, request, queryset, view, now=None):
-        latitude = view.latitude
-        longitude = view.longitude
+        latitude = getattr(view, 'latitude', None)
+        longitude = getattr(view, 'longitude', None)
         if not latitude or not longitude:
             return queryset
 

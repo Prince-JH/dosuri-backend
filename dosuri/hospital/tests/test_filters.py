@@ -20,10 +20,15 @@ class DummyView:
 class Dummy1kmDistanceView:
     hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
     hospital_distance_range = 1
+    latitude = 37.2762816
+    longitude = 127.0433978
+
 
 class DummyNoneDistanceView:
     hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
     hospital_distance_range = None
+    latitude = 37.2762816
+    longitude = 127.0433978
 
 
 class TestReviewCountOrderingFilter:
@@ -69,7 +74,7 @@ class TestHospitalDistanceFilter:
     @pytest.mark.django_db
     def test_filter_within_1km(
             self, rf, hospital_lat100_long100):
-        url = f'/?latitude=37.2762816&longitude=127.0433978'
+        url = f'/'
         request = rf.get(url)
         queryset = hm.Hospital.objects.all()
         assert queryset.count() == 1
@@ -82,7 +87,7 @@ class TestHospitalDistanceFilter:
     @pytest.mark.django_db
     def test_filter_within_infinite(
             self, rf, hospital_lat100_long100):
-        url = f'/?latitude=37.2762816&longitude=127.0433978'
+        url = f'/'
         request = rf.get(url)
         queryset = hm.Hospital.objects.all()
         assert queryset.count() == 1
@@ -91,4 +96,3 @@ class TestHospitalDistanceFilter:
         view = DummyNoneDistanceView()
         filtered_qs = _filter.filter_queryset(request, queryset, view)
         assert filtered_qs.count() == 1
-
