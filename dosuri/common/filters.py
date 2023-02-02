@@ -124,7 +124,7 @@ class CompleteStatusFilter(filters.BaseFilterBackend):
         # Used Django's GET variable to utilize multiple value feature which DRF doesn't provide.
         # note: https://docs.djangoproject.com/en/4.0/ref/request-response/#querydict-objects
 
-        return queryset.filter(status="Complete")
+        return queryset.filter(status="complete")
 
 
 class InCompleteStatusFilter(filters.BaseFilterBackend):
@@ -132,7 +132,7 @@ class InCompleteStatusFilter(filters.BaseFilterBackend):
         # Used Django's GET variable to utilize multiple value feature which DRF doesn't provide.
         # note: https://docs.djangoproject.com/en/4.0/ref/request-response/#querydict-objects
 
-        return queryset.filter(status="InComplete")
+        return queryset.filter(status="incomplete")
 
 
 class ArticleTypeFilter(fsc.ArticleTypeFilter, filters.BaseFilterBackend):
