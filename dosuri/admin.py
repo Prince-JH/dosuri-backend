@@ -25,6 +25,8 @@ class ArticleAuthAdminInline(admin.TabularInline):
 
 class ArticleAdmin(admin.ModelAdmin):
     inlines = [ArticleAuthAdminInline]
+    list_display = ['content', 'user', 'created_at']
+    search_fields = ['content']
 
 
 admin.site.register(cmm.Article, ArticleAdmin)
