@@ -3,7 +3,8 @@ from rest_framework import serializers as s
 from dosuri.hospital import (
     models as hm,
     model_managers as hmm,
-    serializer_schemas as sch
+    serializer_schemas as sch,
+    constants as hc
 )
 from dosuri.common import (
     models as cm,
@@ -66,6 +67,19 @@ class HospitalKeywordAssoc(s.ModelSerializer):
         model = hm.HospitalKeywordAssoc
         exclude = ('id', 'uuid', 'hospital', 'created_at')
 
+
+
+class PostHospital(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    name: s.Field = s.CharField()
+
+    class Meta:
+        model = hm.Hospital
+        fields = ('uuid', 'name')
+    def create(self, validated_data):
+        validated_data['status']=hc.HOSPITAL_PENDING
+        hospital = super().create(validated_data)
+        return hospital
 
 class Hospital(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
