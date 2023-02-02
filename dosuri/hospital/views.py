@@ -29,6 +29,10 @@ from dosuri.hospital import (
 )
 from dosuri.common import filters as f
 
+class TempHospital(g.CreateAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE)
+    serializer_class = s.PostHospital
 
 class HospitalList(hmx.HospitalDistance, g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
