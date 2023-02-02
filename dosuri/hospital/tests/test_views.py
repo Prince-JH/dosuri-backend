@@ -88,6 +88,18 @@ class TestHospitalList:
         assert hm.HospitalCalendar.objects.filter(hospital=hospital).count() == 1
 
     @pytest.mark.django_db
+    def test_create_temp_hospital(self, client):
+        data = {
+            'name': '이름 없는 고무통 병원',
+        }
+        response = client.post('/hospital/v1/temp-hospitals', data=data, content_type='application/json')
+
+        content = json.loads(response.content)
+        assert response.status_code == 201
+        hospital = hm.Hospital.objects.get(uuid=content['uuid'])
+        assert hm.Hospital.objects.all().count() == 1
+        
+    @pytest.mark.django_db
     def test_hospital_list_order_by_review_count(
             self, client, hospital_test_A, hospital_test_B, hospital_test_C, article_A_hospital_A, article_B_hospital_A,
             article_A_hospital_B):
