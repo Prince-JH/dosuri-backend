@@ -301,25 +301,26 @@ class HospitalUserAssoc(g.CreateAPIView):
         return Response(status=status.HTTP_201_CREATED, data=serializer.data)
 
 
-class HomeHospitalList(g.ListAPIView):
+class HomeHospitalList(hmx.HospitalDistance, g.ListAPIView):
     pagination_class = None
     permission_classes = [p.AllowAny]
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).all()
     serializer_class = s.HomeHospital
+    filter_backends = [hf.HospitalDistanceFilter]
+    hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
+    hospital_distance_range = 5
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset()).prefetch_related('hospital_attachment_assoc',
                                                                               'hospital_attachment_assoc__attachment')
 
-        address_filtered_queryset = queryset.get_address_filtered_queryset(request.user)
-
-        top_hospital_queryset = self.get_top_hospital_queryset(address_filtered_queryset)
+        top_hospital_queryset = self.get_top_hospital_queryset(queryset)
         top_hospital_serializer = s.AroundHospital(top_hospital_queryset, many=True)
 
-        new_hospital_queryset = self.get_new_hospital_queryset(address_filtered_queryset)
+        new_hospital_queryset = self.get_new_hospital_queryset(queryset)
         new_hospital_serializer = s.AroundHospital(new_hospital_queryset, many=True)
 
-        good_price_hospital_queryset = self.get_good_price_hospital_queryset(address_filtered_queryset)
+        good_price_hospital_queryset = self.get_good_price_hospital_queryset(queryset)
         good_price_hospital_serializer = s.GoodPriceHospital(good_price_hospital_queryset, many=True)
 
         # good_review_hospital_queryset = self.get_good_review_hospital_queryset(address_filtered_queryset)
@@ -339,15 +340,16 @@ class HomeHospitalList(g.ListAPIView):
         qs = queryset.filter(opened_at__gte=(now - timedelta(days=90)))
         count = qs.count()
         ids = list(qs.values_list('id', flat=True))
-        if count < 3:
-            extra_qs = hm.Hospital.objects.filter(opened_at__gte=(now - timedelta(days=90)),
-                                                  hospital_address_assoc__address__large_area__in=['서울특별시',
-                                                                                                   '경기도']).distinct()
-            if count + extra_qs.count() < 3:
-                extra_qs = hm.Hospital.objects.filter(opened_at__gte=(now - timedelta(days=90)))
-            ids = list(set(ids + list(extra_qs.values_list('id', flat=True))))
-        rand_ids = self.get_rand_ids(ids)
-        return hm.Hospital.objects.filter(id__in=rand_ids).annotate_extra_fields()
+        # if count < 3:
+        #     extra_qs = hm.Hospital.objects.filter(opened_at__gte=(now - timedelta(days=90)),
+        #                                           hospital_address_assoc__address__large_area__in=['서울특별시',
+        #                                                                                            '경기도']).distinct()
+        #     if count + extra_qs.count() < 3:
+        #         extra_qs = hm.Hospital.objects.filter(opened_at__gte=(now - timedelta(days=90)))
+        #     ids = list(set(ids + list(extra_qs.values_list('id', flat=True))))
+        if count >= 3:
+            ids = self.get_rand_ids(ids)
+        return hm.Hospital.objects.filter(id__in=ids).annotate_extra_fields()
 
     def get_good_price_hospital_queryset(self, queryset, showing_number=3):
         sub_qs = hm.HospitalTreatment.objects.filter(hospital=OuterRef('pk')).annotate(
