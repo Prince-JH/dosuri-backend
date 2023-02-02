@@ -1,3 +1,5 @@
+from django.contrib.auth.models import AnonymousUser
+
 from dosuri.common import geocoding as cg
 from dosuri.user import models as um
 from dosuri.hospital import exceptions as hexc
@@ -5,6 +7,8 @@ from dosuri.hospital import exceptions as hexc
 
 class HospitalDistance:
     def get_coordinates(self):
+        if isinstance(self.request.user, AnonymousUser):
+            return
         address = um.AddressUserAssoc.objects.get_user_address(self.request.user)
         if not address:
             return
@@ -15,7 +19,7 @@ class HospitalDistance:
         if latitude == '0' and longitude == '0':
             coordinates = self.get_coordinates()
             if not coordinates:
-                raise hexc.NoAddress()
+                coordinates = self.get_default_coordinates()
             latitude = coordinates[0]
             longitude = coordinates[1]
         else:
@@ -27,7 +31,6 @@ class HospitalDistance:
     def get_queryset(self):
         latitude = self.request.GET.get('latitude')
         longitude = self.request.GET.get('longitude')
-
         if not latitude or not longitude:
             return self.queryset
         try:
