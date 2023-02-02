@@ -35,3 +35,11 @@ class HospitalDistance:
         except hexc.NoAddress:
             return self.queryset
         return self.queryset.annotate_distance(self.latitude, self.longitude)
+
+    def get_default_coordinates(self):
+        '''
+        서울시 강남구의 좌표
+        '''
+        latitude = 37.517331925853
+        longitude = 127.047377408384
+        return [latitude, longitude]
