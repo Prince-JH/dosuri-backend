@@ -377,6 +377,7 @@ class HomeHospitalList(g.ListAPIView):
             if count + extra_qs.count() < 3:
                 extra_qs = hm.Hospital.objects.filter(opened_at__gte=(now - timedelta(days=90)))
             ids = list(set(ids + list(extra_qs.values_list('id', flat=True))))
+        ids = self.get_rand_ids(ids)
         # if count >= 3:
         #     ids = self.get_rand_ids(ids)
         return hm.Hospital.objects.filter(id__in=ids).annotate_extra_fields()
