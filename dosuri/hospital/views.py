@@ -29,10 +29,12 @@ from dosuri.hospital import (
 )
 from dosuri.common import filters as f
 
+
 class TempHospital(g.CreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE)
     serializer_class = s.PostHospital
+
 
 class HospitalList(hmx.HospitalDistance, g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
@@ -59,6 +61,29 @@ class HospitalAddressFilteredList(hmx.HospitalDistance, g.ListAPIView):
         queryset = self.get_queryset()
         address_filtered_qs = queryset.get_address_filtered_queryset(request.user)
         ordered_qs = self.filter_queryset(address_filtered_qs)
+
+        page = self.paginate_queryset(ordered_qs)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(ordered_qs, many=True)
+        return Response(serializer.data)
+
+
+class HospitalAddressFilteredAvgPriceList(g.ListAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
+                                                                                      'hospital_attachment_assoc__attachment').annotate_extra_fields().annotate_avg_price_per_hour()
+    serializer_class = s.GoodPriceHospital
+    filter_backends = [hf.ExtraOrderingByIdFilter]
+    ordering_field = '__all__'
+
+    def list(self, request, *args, **kwargs):
+        print(request.user)
+        queryset = self.get_queryset()
+        address_filtered_qs = queryset.get_address_filtered_queryset(request.user)
+        address_filtered_qs_with_avg_price = address_filtered_qs.annotate_avg_price_per_hour()
+        ordered_qs = self.filter_queryset(address_filtered_qs_with_avg_price)
 
         page = self.paginate_queryset(ordered_qs)
         if page is not None:

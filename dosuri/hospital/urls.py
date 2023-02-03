@@ -9,6 +9,8 @@ urlpatterns = [
     path('v1/temp-hospitals', v.TempHospital.as_view(), name='temp-hospital'),
     path('v1/hospitals/home', v.HomeHospitalList.as_view(), name='hospital-home'),
     path('v1/hospitals-address-filtered', v.HospitalAddressFilteredList.as_view(), name='hospital-address-filtered'),
+    path('v1/hospitals-address-filtered-avg-price', v.HospitalAddressFilteredAvgPriceList.as_view(),
+         name='hospital-address-filtered-avg-price'),
     path('v1/hospitals-current-address-filtered-avg-price', v.HospitalCurrentAddressFilteredAvgPriceList.as_view(),
          name='hospital-address-filtered-avg-price'),
     path('v1/hospitals-current-address-filtered', v.HospitalCurrentAddressFilteredList.as_view(),
