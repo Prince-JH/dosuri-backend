@@ -68,7 +68,6 @@ class HospitalKeywordAssoc(s.ModelSerializer):
         exclude = ('id', 'uuid', 'hospital', 'created_at')
 
 
-
 class PostHospital(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     name: s.Field = s.CharField()
@@ -76,10 +75,12 @@ class PostHospital(s.ModelSerializer):
     class Meta:
         model = hm.Hospital
         fields = ('uuid', 'name')
+
     def create(self, validated_data):
-        validated_data['status']=hc.HOSPITAL_PENDING
+        validated_data['status'] = hc.HOSPITAL_PENDING
         hospital = super().create(validated_data)
         return hospital
+
 
 class Hospital(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
