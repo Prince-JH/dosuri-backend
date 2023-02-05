@@ -49,8 +49,8 @@ class ArticleList(g.ListCreateAPIView):
     def get_queryset(self):
         return self.queryset.prefetch_related('article_attachment_assoc',
                                               'article_attachment_assoc__attachment',
-                                              'hospital', 'article_comment', 'article_comment__article_thread', 'user') \
-            .annotate(comment_count=Count('article_comment')+Count('article_comment__article_thread'))
+                                              'hospital', 'article_comment', 'user') \
+            .annotate(comment_count=Count('article_comment', distinct=True)+Count('article_comment__article_thread'))
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
