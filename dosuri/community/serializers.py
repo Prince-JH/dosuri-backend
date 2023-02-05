@@ -373,6 +373,7 @@ class GetArticle(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     user = CommunityUser(read_only=True)
     comment_count: s.Field = s.IntegerField(default=0, read_only=True)
+    thread_count: s.Field = s.IntegerField(default=0, read_only=True)
     article_type: s.Field = s.CharField()
     up_count: s.Field = s.IntegerField(default=0, read_only=True)
     view_count: s.Field = s.IntegerField(default=0, read_only=True)

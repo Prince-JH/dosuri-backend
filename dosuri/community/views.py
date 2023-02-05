@@ -23,7 +23,7 @@ from django.contrib.postgres.aggregates import ArrayAgg
 class HotArticleList(g.ListAPIView):
     permission_classes = [p.AllowAny]
     queryset = m.Article.objects.filter(created_at__gte=timezone.now() - timedelta(days=7)).annotate(
-        comment_count=Count('article_comment')).order_by('-comment_count')[:3]
+        comment_count=Count('article_comment') + Count('article_comment__article_thread')).order_by('-comment_count')[:3]
     serializer_class = s.GetArticle
     filter_backends = []
     ordering_fields = '__all__'
@@ -49,8 +49,8 @@ class ArticleList(g.ListCreateAPIView):
     def get_queryset(self):
         return self.queryset.prefetch_related('article_attachment_assoc',
                                               'article_attachment_assoc__attachment',
-                                              'hospital') \
-            .annotate(comment_count=Count('article_comment'))
+                                              'hospital', 'article_comment', 'article_comment__article_thread', 'user') \
+            .annotate(comment_count=Count('article_comment')+Count('article_comment__article_thread'))
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
