@@ -108,6 +108,16 @@ class PainAreaUserAssoc(s.ModelSerializer):
         model = um.PainAreaUserAssoc
         exclude = ('id', 'pain_area', 'user', 'created_at', 'uuid')
 
+class UserNotice(s.ModelSerializer):
+    unread_notice: s.Field = s.BooleanField(read_only=True)
+    class Meta:
+        model = get_user_model()
+        fields = ('unread_notice',)
+
+    def update(self, instance, validated_data):
+        instance.unread_notice=False
+        instance.save()
+        return instance
 
 @extend_schema_serializer(examples=sch.USER_DETAIL_EXAMPLE)
 class User(s.ModelSerializer):
@@ -126,7 +136,7 @@ class User(s.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ('uuid', 'username', 'nickname', 'birthday', 'phone_no', 'name',
-                  'address', 'sex', 'is_real', 'pain_areas', 'created_at')
+                  'address', 'sex', 'is_real', 'pain_areas', 'created_at', 'unread_notice')
 
     def get_address(self, obj):
         qs = cm.Address.objects.filter(address_user_assoc__user=obj)

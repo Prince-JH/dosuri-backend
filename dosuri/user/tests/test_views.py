@@ -84,6 +84,22 @@ class TestUserDetail:
         response = client.get(f'/user/v1/users/me')
         assert response.status_code == 401
 
+    @pytest.mark.django_db
+    def test_user_unread_notice(self, client, user_dummy, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get(f'/user/v1/users/me', **headers)
+        assert response.status_code == 200
+        content = json.loads(response.content)
+        assert content['unread_notice'] == True
+        
+        response = client.put(f'/user/v1/users/notice', **headers)
+        assert response.status_code == 200
+        
+        user_dummy = get_user_model().objects.get(pk=user_dummy.pk)
+        assert user_dummy.unread_notice == False
 
 class TestKaKaoAuth:
     @pytest.mark.django_db

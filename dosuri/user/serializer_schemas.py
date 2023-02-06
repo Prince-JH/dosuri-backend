@@ -22,7 +22,8 @@ USER_DETAIL_EXAMPLE = [
                 {
                     "name": "그 외"
                 }
-            ]
+            ],
+            "unread_notice":True
         },
         request_only=True
     ),
@@ -49,7 +50,8 @@ USER_DETAIL_EXAMPLE = [
                 {
                     "name": "그 외"
                 }
-            ]
+            ],
+            "unread_notice":True
         },
         response_only=True
     )

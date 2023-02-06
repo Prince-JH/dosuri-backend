@@ -20,6 +20,7 @@ urlpatterns = [
     path('v1/auth/superuser', v.SuperUserAuth.as_view(), name='superuser-auth'),
 
     path('v1/users/me', v.UserDetail.as_view(), name='user-detail'),
+    path('v1/users/notice', v.UserNotice.as_view(), name='user-detail'),
     path('v1/users/me/point-histories', v.UserPointHistoryList.as_view(), name='user-point-history'),
     path('v1/users/me/point-histories/<uuid>', v.UserPointHistoryDetail.as_view(), name='user-point-history'),
     path('v1/users/me/point', v.UserTotalPoint.as_view(), name='user-total-point'),
