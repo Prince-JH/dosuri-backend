@@ -20,6 +20,7 @@ class User(AbstractUser):
     name = models.CharField(max_length=16, null=True)
     phone_no = models.CharField(max_length=32, null=True)
     is_real = models.BooleanField(default=True)
+    unread_notice = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     objects = umm.DosuriUserManager()
