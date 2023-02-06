@@ -8,18 +8,16 @@ from dosuri.hospital import exceptions as hexc
 class HospitalDistance:
     def get_coordinates(self):
         if isinstance(self.request.user, AnonymousUser):
-            return
+            return self.get_default_coordinates()
         address = um.AddressUserAssoc.objects.get_user_address(self.request.user)
         if not address:
-            return
+            return self.get_default_coordinates()
         client = cg.KaKaoGeoClient()
         return client.get_coordinates(address)
 
     def set_coordinates(self, latitude, longitude):
         if latitude == '0' and longitude == '0':
             coordinates = self.get_coordinates()
-            if not coordinates:
-                coordinates = self.get_default_coordinates()
             latitude = coordinates[0]
             longitude = coordinates[1]
         else:
@@ -29,14 +27,16 @@ class HospitalDistance:
         self.longitude = longitude
 
     def get_queryset(self):
-        latitude = self.request.GET.get('latitude')
-        longitude = self.request.GET.get('longitude')
-        if not latitude or not longitude:
-            return self.queryset
-        try:
-            self.set_coordinates(latitude, longitude)
-        except hexc.NoAddress:
-            return self.queryset
+        is_realtime_coordinates = getattr(self, 'is_realtime_coordinates', False)
+        if is_realtime_coordinates:
+            latitude = self.request.GET.get('latitude')
+            longitude = self.request.GET.get('longitude')
+            if not latitude or not longitude:
+                return self.queryset
+        else:
+            latitude = '0'
+            longitude = '0'
+        self.set_coordinates(latitude, longitude)
         return self.queryset.annotate_distance(self.latitude, self.longitude)
 
     def get_default_coordinates(self):
