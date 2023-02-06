@@ -350,7 +350,7 @@ class HomeHospitalList(hmx.HospitalDistance, g.ListAPIView):
 
     def get_new_hospital_queryset(self, queryset, showing_number=3):
         now = timezone.now()
-        qs = queryset.filter(opened_at__gte=(now - timedelta(days=90)))
+        qs = queryset.filter(opened_at__gte=(now - timedelta(days=730)))
         count = qs.count()
         ids = list(qs.values_list('id', flat=True))
         # if count < 3:
