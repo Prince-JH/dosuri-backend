@@ -14,9 +14,15 @@ class HospitalDistance:
         client = cg.KaKaoGeoClient()
         return client.get_coordinates(address)
 
-    def set_coordinates(self, latitude, longitude):
+    def set_coordinates(self):
         is_realtime_coordinates = getattr(self, 'is_realtime_coordinates', False)
-        if not is_realtime_coordinates:
+        if is_realtime_coordinates:
+            try:
+                latitude = float(self.request.GET.get('latitude'))
+                longitude = float(self.request.GET.get('longitude'))
+            except (ValueError, TypeError):
+                return
+        else:
             coordinates = self.get_coordinates()
             latitude = coordinates[0]
             longitude = coordinates[1]
@@ -24,12 +30,7 @@ class HospitalDistance:
         self.longitude = longitude
 
     def get_queryset(self):
-        try:
-            latitude = float(self.request.GET.get('latitude'))
-            longitude = float(self.request.GET.get('longitude'))
-        except (ValueError, TypeError):
-            return self.queryset
-        self.set_coordinates(latitude, longitude)
+        self.set_coordinates()
         return self.queryset.annotate_distance(self.latitude, self.longitude)
 
     def get_default_coordinates(self):
