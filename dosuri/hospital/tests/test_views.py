@@ -1,11 +1,14 @@
 import json
+from urllib import parse
 
 import pytest
+import requests_mock
 from django.utils import timezone
 
 from dosuri.hospital import (
     models as hm,
-    constants as hc
+    constants as hc,
+    mockings as hmo,
 )
 
 
@@ -98,7 +101,7 @@ class TestHospitalList:
         assert response.status_code == 201
         hospital = hm.Hospital.objects.get(uuid=content['uuid'])
         assert hm.Hospital.objects.all().count() == 1
-        
+
     @pytest.mark.django_db
     def test_hospital_list_order_by_review_count(
             self, client, hospital_test_A, hospital_test_B, hospital_test_C, article_A_hospital_A, article_B_hospital_A,
@@ -133,9 +136,14 @@ class TestAddressFilteredHospitalList:
         assert len(content['results']) == 0
 
     @pytest.mark.django_db
-    def test_list_address_filtered_hospital_should_return_one_result(self, client, hospital_test_B,
+    @requests_mock.Mocker(kw='mock')
+    def test_list_address_filtered_hospital_should_return_one_result(self, client, hospital_test_B, address_수원시_팔달구,
                                                                      assoc_hospital_B_address_수원,
-                                                                     tokens_user_dummy, assoc_address_수원_user_dummy):
+                                                                     tokens_user_dummy, assoc_address_수원_user_dummy,
+                                                                     **kwargs):
+        parsed_address = parse.quote(f'{address_수원시_팔달구.large_area}{address_수원시_팔달구.small_area}')
+        kwargs['mock'].get(f'https://dapi.kakao.com/v2/local/search/address.json?query={parsed_address}',
+                           json=hmo.수원시_팔달구_coordinates)
         headers = {
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
             'content_type': 'application/json'
@@ -346,7 +354,14 @@ class TestHospitalSearch:
 
 class TestHomeHospital:
     @pytest.mark.django_db
-    def test_list_home_hospital(self, client, hospital_test_A, assoc_hospital_A_address_강남):
+    @requests_mock.Mocker(kw='mock')
+    def test_list_home_hospital_without_token(self, client, hospital_test_A, address_서울시_강남구,
+                                              assoc_hospital_A_address_강남, tokens_user_dummy,
+                                              assoc_address_서울_강남_user_dummy, **kwargs):
+        parsed_address = parse.quote(f'{address_서울시_강남구.large_area}{address_서울시_강남구.small_area}')
+        kwargs['mock'].get(f'https://dapi.kakao.com/v2/local/search/address.json?query={parsed_address}',
+                           json=hmo.서울특별시_강남구_coordinates)
+
         headers = {
             'content_type': 'application/json'
         }
@@ -355,3 +370,22 @@ class TestHomeHospital:
         assert response.status_code == 200
         content = json.loads(response.content)
         assert content['top_hospitals'][0]['uuid'] == hospital_test_A.uuid
+
+    @pytest.mark.django_db
+    @requests_mock.Mocker(kw='mock')
+    def test_list_home_hospital_with_token(self, client, hospital_test_B, address_수원시_팔달구,
+                                           assoc_hospital_B_address_수원,
+                                           tokens_user_dummy, assoc_address_수원_user_dummy,
+                                           **kwargs):
+        parsed_address = parse.quote(f'{address_수원시_팔달구.large_area}{address_수원시_팔달구.small_area}')
+        kwargs['mock'].get(f'https://dapi.kakao.com/v2/local/search/address.json?query={parsed_address}',
+                           json=hmo.수원시_팔달구_coordinates)
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get('/hospital/v1/hospitals-address-filtered', **headers)
+        content = json.loads(response.content)
+
+        assert response.status_code == 200
+        assert len(content['results']) == 1

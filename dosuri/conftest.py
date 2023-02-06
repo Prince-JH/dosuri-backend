@@ -20,6 +20,8 @@ def user_dummy():
         username='dummy@dummy.com',
         nickname='dummy'
     )
+
+
 @pytest.fixture
 def user_dummy_1():
     return get_user_model().objects.create_user(
@@ -27,12 +29,15 @@ def user_dummy_1():
         nickname='dummy1'
     )
 
+
 @pytest.fixture
 def user_dummies():
     return [get_user_model().objects.create_user(
         username=f'dummy{i}@dummy.com',
         nickname=f'dummy{i}'
     ) for i in range(100)]
+
+
 @pytest.fixture
 def tokens_user_dummy(user_dummy):
     return get_tokens_for_user(user_dummy)
@@ -62,14 +67,18 @@ def address_수원시_팔달구():
 @pytest.fixture
 def hospital_test_A():
     return hm.Hospital.objects.create(
-        name='test_A'
+        name='test_A',
+        latitude=37.517331925853,
+        longitude=127.047377408384
     )
 
 
 @pytest.fixture
 def hospital_test_B():
     return hm.Hospital.objects.create(
-        name='test_B'
+        name='test_B',
+        latitude=37.2826740965805,
+        longitude=127.020135072307
     )
 
 
@@ -79,6 +88,7 @@ def hospital_test_C():
         name='test_C'
     )
 
+
 @pytest.fixture
 def hospital_lat100_long100():
     return hm.Hospital.objects.create(
@@ -86,7 +96,6 @@ def hospital_lat100_long100():
         latitude=100,
         longitude=100
     )
-
 
 
 @pytest.fixture
@@ -130,6 +139,14 @@ def assoc_hospital_B_address_수원(hospital_test_B, address_수원시_팔달구
     return hm.HospitalAddressAssoc.objects.create(
         hospital=hospital_test_B,
         address=address_수원시_팔달구
+    )
+
+
+@pytest.fixture
+def assoc_address_서울_강남_user_dummy(address_서울시_강남구, user_dummy):
+    return um.AddressUserAssoc.objects.create(
+        address=address_서울시_강남구,
+        user=user_dummy
     )
 
 
@@ -225,6 +242,7 @@ def hospital_treatments_test_A(hospital_test_A):
         description=None
     )
 
+
 @pytest.fixture
 def hospital_treatments_A_hospital_B(hospital_test_B):
     return hm.HospitalTreatment.objects.create(
@@ -245,32 +263,37 @@ def article_A_hospital_A(hospital_test_A, user_dummy):
         article_type=cmc.ARTICLE_REVIEW
     )
 
+
 @pytest.fixture
 def treatment_category_A():
     return cmm.TreatmentCategory.objects.create(
-        category = "도수 치료"
+        category="도수 치료"
     )
+
 
 @pytest.fixture
 def article_keyword_A(treatment_category_A):
     return cmm.TreatmentKeyword.objects.create(
-        keyword = "도수 치료",
-        category = treatment_category_A,
+        keyword="도수 치료",
+        category=treatment_category_A,
     )
+
 
 @pytest.fixture
 def attachment_A(hospital_test_A, user_dummy):
     return cm.Attachment.objects.create(
-        bucket_name = "test_bucket_A",
-        path = "test_path_A"
+        bucket_name="test_bucket_A",
+        path="test_path_A"
     )
-    
+
+
 @pytest.fixture
 def attachment_B(hospital_test_A, user_dummy):
     return cm.Attachment.objects.create(
-        bucket_name = "test_bucket_A",
-        path = "test_path_B"
+        bucket_name="test_bucket_A",
+        path="test_path_B"
     )
+
 
 @pytest.fixture
 def article_B_hospital_A(hospital_test_A, user_dummy):
@@ -323,6 +346,7 @@ def insurance_A():
     return um.Insurance.objects.create(
         name='A'
     )
+
 
 @pytest.fixture
 def attachment_A():
