@@ -28,9 +28,12 @@ class HospitalDistance:
             longitude = coordinates[1]
         self.latitude = latitude
         self.longitude = longitude
+        return [latitude, longitude]
 
     def get_queryset(self):
-        self.set_coordinates()
+        set_coordinates = self.set_coordinates()
+        if not set_coordinates:
+            return self.queryset
         return self.queryset.annotate_distance(self.latitude, self.longitude)
 
     def get_default_coordinates(self):
