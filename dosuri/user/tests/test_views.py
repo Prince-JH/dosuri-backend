@@ -93,13 +93,14 @@ class TestUserDetail:
         response = client.get(f'/user/v1/users/me', **headers)
         assert response.status_code == 200
         content = json.loads(response.content)
-        assert content['unread_notice'] == True
-        
+        assert content['unread_notice'] is True
+
         response = client.put(f'/user/v1/users/notice', **headers)
         assert response.status_code == 200
-        
+
         user_dummy = get_user_model().objects.get(pk=user_dummy.pk)
-        assert user_dummy.unread_notice == False
+        assert user_dummy.unread_notice is False
+
 
 class TestKaKaoAuth:
     @pytest.mark.django_db

@@ -1,4 +1,3 @@
-
 import json
 
 import pytest
@@ -10,8 +9,8 @@ from dosuri.community import (
 
 
 class TestArticleList:
-    attach_url='https://img.hankyung.com/photo/202110/01.27720352.1.jpg'
-    auth_attach_url='https://cdn.topstarnews.net/news/photo/first/201705/img_269634_1.jpg'
+    attach_url = 'https://img.hankyung.com/photo/202110/01.27720352.1.jpg'
+    auth_attach_url = 'https://cdn.topstarnews.net/news/photo/first/201705/img_269634_1.jpg'
 
     @pytest.mark.django_db
     def test_list_article_should_return_zero(self, client, tokens_user_dummy):
@@ -26,7 +25,8 @@ class TestArticleList:
         assert len(content['results']) == 0
 
     @pytest.mark.django_db
-    def test_create_review(self, client, hospital_test_A, article_keyword_A, tokens_user_dummy, attachment_A, attachment_B):
+    def test_create_review(self, client, hospital_test_A, article_keyword_A, tokens_user_dummy, attachment_A,
+                           attachment_B):
         headers = {
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
             'content_type': 'application/json'
@@ -73,19 +73,18 @@ class TestArticleList:
             },
             **headers
         )
-        
+
         data = res.json()
         assert res.status_code == 201
         assert data["uuid"] != None
         article = cm.Article.objects.get(uuid=data["uuid"])
-        
+
         assert article != None
         assert article.article_type == cc.ARTICLE_REVIEW
 
-        
         article_keyword_assoc = cm.ArticleKeywordAssoc.objects.filter(article=article)
         assert len(article_keyword_assoc) == 1
-        
+
         article_detail = cm.ArticleDetail.objects.get(article=article)
         assert article_detail != None
         assert article_detail.treatment_effect == 1
@@ -97,13 +96,13 @@ class TestArticleList:
         article_auth = cm.ArticleAuth.objects.get(article=article)
         assert article_auth != None
 
-        
         return article
-    
 
     @pytest.mark.django_db
-    def test_list_article_should_return_one_result(self, client, hospital_test_A, article_keyword_A, tokens_user_dummy, attachment_A, attachment_B):
-        article = self.test_create_review(client, hospital_test_A, article_keyword_A, tokens_user_dummy, attachment_A, attachment_B)
+    def test_list_article_should_return_one_result(self, client, hospital_test_A, article_keyword_A, tokens_user_dummy,
+                                                   attachment_A, attachment_B):
+        article = self.test_create_review(client, hospital_test_A, article_keyword_A, tokens_user_dummy, attachment_A,
+                                          attachment_B)
         headers = {
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
             'content_type': 'application/json'
@@ -114,18 +113,20 @@ class TestArticleList:
         assert len(content['results']) == 1
 
     @pytest.mark.django_db
-    def test_delete_article(self, client, hospital_test_A, article_keyword_A, tokens_user_dummy, attachment_A, attachment_B):
-        article = self.test_create_review(client, hospital_test_A, article_keyword_A, tokens_user_dummy, attachment_A, attachment_B)
+    def test_delete_article(self, client, hospital_test_A, article_keyword_A, tokens_user_dummy, attachment_A,
+                            attachment_B):
+        article = self.test_create_review(client, hospital_test_A, article_keyword_A, tokens_user_dummy, attachment_A,
+                                          attachment_B)
         headers = {
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
             'content_type': 'application/json'
         }
         assert len(cm.Article.objects.all()) == 1
-        response = client.delete('/community/v1/community/articles/'+article.uuid, **headers)
+        response = client.delete('/community/v1/community/articles/' + article.uuid, **headers)
         assert response.status_code == 204
-        
+
         assert len(cm.Article.objects.all()) == 0
-    
+
     @pytest.mark.django_db
     def test_create_question(self, client, tokens_user_dummy, attachment_A, attachment_B):
         headers = {
@@ -145,19 +146,15 @@ class TestArticleList:
             },
             **headers
         )
-        
+
         data = res.json()
         assert res.status_code == 201
         assert data["uuid"] != None
         article = cm.Article.objects.get(uuid=data["uuid"])
-        
+
         assert article != None
         assert article.article_type == cc.ARTICLE_QUESTION
         attachment_asoc = cm.ArticleAttachmentAssoc.objects.filter(article=article, attachment=attachment_A)
         assert len(attachment_asoc) == 1
 
-
-        
         return article
-    
-
