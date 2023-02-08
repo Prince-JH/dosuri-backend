@@ -41,6 +41,12 @@ class ArticleAdmin(admin.ModelAdmin):
     raw_id_fields = ['hospital', 'user']
     list_display = ['content', 'user', 'created_at']
     search_fields = ['content']
+    actions = ['authenticate']
+
+    def authenticate(self, request, queryset):
+        for article in queryset:
+            article.authenticate_article()
+    authenticate.short_description = '후기 인증'
 
 
 admin.site.register(cmm.Article, ArticleAdmin)
