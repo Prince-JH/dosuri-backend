@@ -24,6 +24,12 @@ class UserPointHistoryManager(Manager):
             content=content
         )
 
+    def give_point(self, user, point, content):
+        self.create_history(user, point, content)
+
+    def take_pint(self, user, point, content):
+        self.create_history(user, -point, content)
+
     def get_total_point(self, user):
         qs = self.filter(user=user)
         return qs.order_by('-created_at').first().total_point if qs.exists() else 0
