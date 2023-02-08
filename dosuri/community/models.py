@@ -1,13 +1,15 @@
 from uuid import uuid4
 
 from django.db import models
-from dosuri.user.models import User
+from dosuri.user.models import User, UserPointHistory
 from dosuri.hospital.models import Hospital, Doctor, HospitalTreatment
-from dosuri.community import constants as cc
+from dosuri.community import constants as cmc
 from dosuri.common.models import Attachment
+
 
 def generate_uuid():
     return uuid4().hex
+
 
 class TreatmentCategory(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
@@ -18,10 +20,12 @@ class TreatmentCategory(models.Model):
         db_table = 'treatment_category'
         ordering = ['-id']
 
+
 class TreatmentKeyword(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     keyword = models.CharField(max_length=15, null=False)
-    category = models.ForeignKey(TreatmentCategory, on_delete=models.CASCADE, related_name='treatmeny_keyword', null=True, default=None)
+    category = models.ForeignKey(TreatmentCategory, on_delete=models.CASCADE, related_name='treatmeny_keyword',
+                                 null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -32,7 +36,7 @@ class TreatmentKeyword(models.Model):
 class Article(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='article')
-    status = models.CharField(max_length=15, default=cc.STATUS_INCOMPLETE)
+    status = models.CharField(max_length=15, default=cmc.STATUS_INCOMPLETE)
     article_type = models.CharField(default=None, null=True, max_length=20)
     up_count = models.IntegerField(default=0)
     view_count = models.IntegerField(default=0)
@@ -44,6 +48,14 @@ class Article(models.Model):
         db_table = 'article'
         ordering = ['-id']
 
+    def authenticate_article(self):
+        user = self.user
+        auth = self.article_auth
+        auth.status = cmc.STATUS_COMPLETE
+        auth.save()
+        UserPointHistory.objects.give_point(user, 1000, '후기 인증')
+
+
 class ArticleAttachmentAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_attachment_assoc')
@@ -53,6 +65,7 @@ class ArticleAttachmentAssoc(models.Model):
     class Meta:
         db_table = 'article_attachment_assoc'
         ordering = ['-id']
+
 
 # class ArticleMeta(models.Model):
 #     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
@@ -88,12 +101,13 @@ class ArticleAuth(models.Model):
     article = models.OneToOneField(Article, on_delete=models.CASCADE, related_name='article_auth')
     sensitive_agreement = models.BooleanField(default=False)
     personal_agreement = models.BooleanField(default=False)
-    status = models.CharField(max_length=15, default=cc.STATUS_INCOMPLETE)
+    status = models.CharField(max_length=15, default=cmc.STATUS_INCOMPLETE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'article_auth'
         ordering = ['-id']
+
 
 class AuthAttachmentAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
@@ -104,6 +118,7 @@ class AuthAttachmentAssoc(models.Model):
     class Meta:
         db_table = 'auth_attachment_assoc'
         ordering = ['-id']
+
 
 class ArticleDoctorAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
@@ -130,7 +145,7 @@ class ArticleKeywordAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='treatment_keyword_assoc')
     treatment_keyword = models.ForeignKey(TreatmentKeyword, on_delete=models.CASCADE,
-                                        related_name='treatment_keyword_assoc', null=True)
+                                          related_name='treatment_keyword_assoc', null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -151,6 +166,7 @@ class ArticleLike(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['article', 'user'], name='One like by article')
         ]
+
 
 class ArticleComment(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
@@ -175,7 +191,8 @@ class ArticleThread(models.Model):
     view_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     content = models.CharField(max_length=1200)  ## 댓글 최대글자 한글은 3 bytes (최대 400글자)
-    mention_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='article_thread_mention_user', null=False)
+    mention_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='article_thread_mention_user',
+                                     null=False)
 
     class Meta:
         db_table = 'article_thread'
