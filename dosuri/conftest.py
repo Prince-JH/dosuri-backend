@@ -324,6 +324,13 @@ def article_A_hospital_C(hospital_test_C, user_dummy):
         article_type=cmc.ARTICLE_REVIEW
     )
 
+@pytest.fixture
+def article_auth_A_article_A_hospital_B(article_A_hospital_B, user_dummy):
+    return cmm.ArticleAuth.objects.create(
+        article=article_A_hospital_B,
+        status=cmc.STATUS_INCOMPLETE
+    )
+
 
 @pytest.fixture
 def hospital_search_A_user_dummy(user_dummy):
