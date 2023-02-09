@@ -1,7 +1,12 @@
 from django.contrib import admin
 from django import forms
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
-from dosuri.common import models as cm
+from dosuri.common import (
+    models as cm,
+    utils as cu,
+)
 from dosuri.community import (
     models as cmm,
     constants as cmc,
@@ -43,7 +48,7 @@ class ArticleAuthAdminInline(admin.TabularInline):
 class ArticleAdmin(admin.ModelAdmin):
     inlines = [ArticleAuthAdminInline]
     raw_id_fields = ['hospital', 'user']
-    list_display = ['content', 'user', 'created_at', 'is_authenticated']
+    list_display = ['content', 'image_preview', 'user', 'created_at', 'is_authenticated']
     search_fields = ['content']
     actions = ['authenticate']
 
@@ -54,8 +59,16 @@ class ArticleAdmin(admin.ModelAdmin):
     def is_authenticated(self, obj):
         return True if obj.article_auth.status == cmc.STATUS_COMPLETE else False
 
+    def image_preview(self, obj):
+        images = cm.Attachment.objects.filter(article_attachment_assoc__article=obj)
+        if len(images) == 0:
+            return
+        return mark_safe('<img src = "{url}" width = "100" height = "100"/>'.format(
+            url=cu.generate_signed_path(images[0])))
+
     authenticate.short_description = '후기 인증'
     is_authenticated.short_description = '인증 여부'
+    image_preview.allow_tags = True
 
 
 admin.site.register(cmm.Article, ArticleAdmin)
