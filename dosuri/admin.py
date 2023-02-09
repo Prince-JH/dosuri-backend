@@ -2,7 +2,10 @@ from django.contrib import admin
 from django import forms
 
 from dosuri.common import models as cm
-from dosuri.community import models as cmm
+from dosuri.community import (
+    models as cmm,
+    constants as cmc,
+)
 from dosuri.user import models as um
 from dosuri.hospital import models as hm
 
@@ -23,6 +26,7 @@ class ArticleAuthAdminInline(admin.TabularInline):
     extra = 0
     exclude = ('uuid',)
 
+
 #
 # class RelationForm(forms.ModelForm):
 #     parent = forms.ChoiceField(required=False,
@@ -39,14 +43,19 @@ class ArticleAuthAdminInline(admin.TabularInline):
 class ArticleAdmin(admin.ModelAdmin):
     inlines = [ArticleAuthAdminInline]
     raw_id_fields = ['hospital', 'user']
-    list_display = ['content', 'user', 'created_at']
+    list_display = ['content', 'user', 'created_at', 'is_authenticated']
     search_fields = ['content']
     actions = ['authenticate']
 
     def authenticate(self, request, queryset):
         for article in queryset:
             article.authenticate_article()
+
+    def is_authenticated(self, obj):
+        return True if obj.article_auth.status == cmc.STATUS_COMPLETE else False
+
     authenticate.short_description = '후기 인증'
+    is_authenticated.short_description = '인증 여부'
 
 
 admin.site.register(cmm.Article, ArticleAdmin)
