@@ -49,6 +49,8 @@ class Article(models.Model):
         ordering = ['-id']
 
     def authenticate_article(self):
+        if self.status == cmc.STATUS_COMPLETE:
+            return
         user = self.user
         auth = self.article_auth
         auth.status = cmc.STATUS_COMPLETE
@@ -107,6 +109,9 @@ class ArticleAuth(models.Model):
     class Meta:
         db_table = 'article_auth'
         ordering = ['-id']
+
+    def __str__(self):
+        return self.status
 
 
 class AuthAttachmentAssoc(models.Model):
