@@ -45,6 +45,7 @@ class HospitalList(hmx.HospitalDistance, g.ListCreateAPIView):
     ordering_field = '__all__'
     ordering = ['view_count']
     search_fields = ['name']
+    is_realtime_coordinates = True
     hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
     hospital_distance_range = None
 
