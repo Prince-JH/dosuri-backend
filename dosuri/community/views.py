@@ -94,8 +94,8 @@ class ArticleKeywordAssocList(g.ListAPIView):
 class ArticleDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.IsAuthenticated]
     queryset = m.Article.objects.prefetch_related(
-        'article_comment',
-        'article_comment__article_thread').all()
+        'article_comment', 'article_attachment_assoc',
+        'article_comment__article_thread').select_related('hospital', 'user').all()
     serializer_class = s.ArticleDetail
     lookup_field = 'uuid'
 

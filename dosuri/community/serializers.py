@@ -22,6 +22,13 @@ class CommunityUser(s.ModelSerializer):
         model = get_user_model()
         fields = ['uuid', 'nickname']
 
+class CommunityHospital(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    name: s.Field = s.CharField(read_only=True)
+
+    class Meta:
+        model = hm.Hospital
+        fields = ['uuid', 'name']
 
 # class AuthAttach(s.ModelSerializer):
 #     uuid: s.Field = s.CharField(read_only=True)
@@ -435,10 +442,7 @@ class ArticleDetail(s.ModelSerializer):
     view_count: s.Field = s.IntegerField(default=0, read_only=True)
     # created_at: s.Field = s.DateTimeField(read_only=True)
     created_at: s.Field = s.SerializerMethodField()
-    hospital: s.Field = s.SlugRelatedField(
-        slug_field='name',
-        queryset=hm.Hospital.objects.all()
-    )
+    hospital = CommunityHospital()
     content: s.Field = s.CharField(read_only=False)
     article_attachment_assoc: s.Field = GetArticleAttachmentAssoc(many=True, read_only=True)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
