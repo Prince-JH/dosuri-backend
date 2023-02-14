@@ -14,3 +14,4 @@ requests_toolbelt
 drf_yasg
 django-storages
 elasticsearch
+celery

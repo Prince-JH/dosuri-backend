@@ -222,7 +222,8 @@ class InsuranceUserAssoc(s.ModelSerializer):
     def create(self, validated_data):
         user = validated_data['user']
         message = self.make_message(user)
-        ct.announce_insurance_consult.delay(message)
+        self.send_insurance_consult_sms(message)
+        self.send_insurance_consult_slack(message)
         return super().create(validated_data)
 
     def make_message(self, user):
@@ -237,6 +238,12 @@ class InsuranceUserAssoc(s.ModelSerializer):
                   f'{user.sex}\n' \
                   f'{address.large_area} {address.small_area}'
         return message
+
+    def send_insurance_consult_sms(self, message):
+        cu.send_sms(message)
+
+    def send_insurance_consult_slack(self, message):
+        cu.send_slack(message)
 
 
 @extend_schema_serializer(examples=sch.TOTAL_POINT_EXAMPLE)
