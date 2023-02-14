@@ -74,4 +74,10 @@ class ArticleAdmin(admin.ModelAdmin):
 admin.site.register(cmm.Article, ArticleAdmin)
 admin.site.register(cmm.ArticleAuth)
 
-admin.site.register(um.User)
+
+class UserAdmin(admin.ModelAdmin):
+    list_display = ['username', 'nickname', 'created_at']
+    search_fields = ['content', 'nickname']
+
+
+admin.site.register(um.User, UserAdmin)

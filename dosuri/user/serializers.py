@@ -19,6 +19,7 @@ from dosuri.common import (
     models as cm,
     serializers as cs,
     utils as cu,
+    tasks as ct,
 )
 
 
@@ -108,16 +109,19 @@ class PainAreaUserAssoc(s.ModelSerializer):
         model = um.PainAreaUserAssoc
         exclude = ('id', 'pain_area', 'user', 'created_at', 'uuid')
 
+
 class UserNotice(s.ModelSerializer):
     unread_notice: s.Field = s.BooleanField(read_only=True)
+
     class Meta:
         model = get_user_model()
         fields = ('unread_notice',)
 
     def update(self, instance, validated_data):
-        instance.unread_notice=False
+        instance.unread_notice = False
         instance.save()
         return instance
+
 
 @extend_schema_serializer(examples=sch.USER_DETAIL_EXAMPLE)
 class User(s.ModelSerializer):
@@ -217,20 +221,29 @@ class InsuranceUserAssoc(s.ModelSerializer):
 
     def create(self, validated_data):
         user = validated_data['user']
-        self.send_insurance_consult_sms(user)
+        message = self.make_message(user)
+        self.send_insurance_consult_sms(message)
+        self.send_insurance_consult_slack(message)
         return super().create(validated_data)
 
-    def send_insurance_consult_sms(self, user):
+    def make_message(self, user):
         address_qs = cm.Address.objects.filter(address_user_assoc__user=user)
         if not address_qs.exists():
             raise exc.UserHasNoAddress()
         address = address_qs.first()
-        message = f'{user.name}\n' \
+        message = f'새로운 보험 신청이 등록되었습니다.\n' \
+                  f'{user.name}\n' \
                   f'{user.phone_no}\n' \
-                  f'{user.birthday}\n' \
+                  f'{user.birthday.strftime("%Y/%m/%d")}\n' \
                   f'{user.sex}\n' \
                   f'{address.large_area} {address.small_area}'
+        return message
+
+    def send_insurance_consult_sms(self, message):
         cu.send_sms(message)
+
+    def send_insurance_consult_slack(self, message):
+        cu.send_slack(message)
 
 
 @extend_schema_serializer(examples=sch.TOTAL_POINT_EXAMPLE)

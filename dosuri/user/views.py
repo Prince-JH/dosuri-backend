@@ -93,6 +93,7 @@ class UserDetail(g.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         return self.request.user
 
+
 class UserNotice(g.UpdateAPIView):
     permission_classes = [p.IsAuthenticated]
     queryset = get_user_model().objects.filter()
