@@ -174,3 +174,7 @@ CONTENT_STORAGE = {
         "bucket_name": "dosuri-content"
     }
 }
+ES_CLOUD_ID = os.environ.get('ES_CLOUD_ID')
+ES_USER = os.environ.get('ES_USER')
+ES_PASSWORD = os.environ.get('ES_PASSWORD')
+CELERY_BROKER_URL = f'sqs://{AWS_ACCESS_KEY_ID}:{AWS_SECRET_ACCESS_KEY}@'
