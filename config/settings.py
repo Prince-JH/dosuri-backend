@@ -30,22 +30,6 @@ with open(secret_file, encoding='utf-8') as fin:
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-        }
-    },
-    'loggers': {
-        'django.db.backends': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        },
-    }
-}
 APPEND_SLASH = False
 
 ALLOWED_HOSTS = ['*']
