@@ -20,7 +20,7 @@ botocore==1.29.37
     # via
     #   boto3
     #   s3transfer
-celery==5.2.7
+celery[sqs]==5.2.7
     # via -r requirements.in
 certifi==2022.9.24
     # via
@@ -145,8 +145,6 @@ pyasn1==0.4.8
     #   rsa
 pycparser==2.21
     # via cffi
-pycurl==7.45.2
-    # via -r requirements.in
 pyjwt==2.5.0
     # via
     #   djangorestframework-simplejwt
