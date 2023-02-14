@@ -391,6 +391,7 @@ class GetArticle(s.ModelSerializer):
         slug_field='name',
         # queryset=hm.Hospital.objects.all()
     )
+    hospital_uuid: s.Field = s.SerializerMethodField()
     content: s.Field = s.CharField(read_only=False)
     article_attachment_assoc: s.Field = GetArticleAttachmentAssoc(many=True, read_only=True)
     attachment: cs.PutAttachment(read_only=True, many=True)
@@ -403,6 +404,10 @@ class GetArticle(s.ModelSerializer):
     class Meta:
         model = dosuri.community.models.Article
         exclude = ('id', 'status')
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_hospital_uuid(self, instance):
+        return instance.hospital.uuid
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_created_at(self,
@@ -442,7 +447,11 @@ class ArticleDetail(s.ModelSerializer):
     view_count: s.Field = s.IntegerField(default=0, read_only=True)
     # created_at: s.Field = s.DateTimeField(read_only=True)
     created_at: s.Field = s.SerializerMethodField()
-    hospital = CommunityHospital()
+    hospital: s.Field = s.SlugRelatedField(
+        read_only=True,
+        slug_field='name'
+    )
+    hospital_uuid: s.Field = s.SerializerMethodField()
     content: s.Field = s.CharField(read_only=False)
     article_attachment_assoc: s.Field = GetArticleAttachmentAssoc(many=True, read_only=True)
     article_keyword_assoc = ArticleKeywordAssoc(many=True, write_only=True, required=False)
@@ -481,6 +490,10 @@ class ArticleDetail(s.ModelSerializer):
         else:
             created_at = str(int((((total_seconds / 3600) / 24) / 30) / 12)) + '년 전'
         return created_at
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_hospital_uuid(self, instance):
+        return instance.hospital.uuid
 
 
 class TreatmentKeyword(s.ModelSerializer):
