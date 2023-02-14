@@ -241,6 +241,9 @@ class InsuranceUserAssoc(s.ModelSerializer):
     def send_insurance_consult_sms(self, message):
         cu.send_sms(message)
 
+    def send_insurance_consult_slack(self, message):
+        cu.send_slack(message)
+
 
 @extend_schema_serializer(examples=sch.TOTAL_POINT_EXAMPLE)
 class UserTotalPoint(s.Serializer):

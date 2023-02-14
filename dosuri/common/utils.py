@@ -1,7 +1,9 @@
+import json
 import traceback
 from datetime import datetime, timedelta
 
 import boto3
+import requests
 from botocore.exceptions import ClientError
 from django.conf import settings
 from urllib import parse
@@ -38,6 +40,15 @@ def send_sms(message):
         Message=message,
         TopicArn='arn:aws:sns:ap-northeast-1:024317434110:dosuri-sms'
     )
+
+
+def send_slack(message):
+    url = 'https://hooks.slack.com/services/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'
+    headers = {
+        'Content-Type': 'application/json; charset=utf-8'
+    }
+    data = {'text': message}
+    return requests.post(url=url, data=json.dumps(data), headers=headers)
 
 
 def generate_presigned_url(bucket_name, key):
