@@ -13,3 +13,8 @@ export AWS_SECRET_ACCESS_KEY='3Z52FQX6VtKZy5kIeNOPW72scwB7FmPChUaIAaV+'
 export DOSURI_IMAGE_PUBLIC_KEY_ID='K3AE0DPLGOWKFV'
 export DOSURI_IMAGE_PRIVATE_KEY_PATH='private_key.pem'
 export HOST_DOMAIN='dosuri.site'
+export ES_ENDPOINT='localhost'
+export ES_USERNAME='elastic'
+export ES_PASSWORD='dosuri'
+export DEV_ENV='prod'
+
