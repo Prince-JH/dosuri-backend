@@ -33,7 +33,7 @@ def es_middleware(get_response):
             request_headers={}
 
         response = get_response(request)
-        
+
         if request.user.is_authenticated:
             username=request.user.username
         else:
@@ -68,8 +68,7 @@ def es_middleware(get_response):
             'execution_time': "{:.6f}".format(execution_time),
         }
         try:
-            pass
-            #es.index(index="api_call_index", body=data)
+            es.index(index="api_call_index", body=data)
         except:
             import traceback
             traceback.print_exc()
