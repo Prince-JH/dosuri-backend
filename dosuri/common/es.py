@@ -44,7 +44,7 @@ def es_middleware(get_response):
             "@timestamp" : datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z',
             'execution_time': "{:.6f}".format(execution_time),
         }
-        es.index(index="api_call_index", doc_type="_doc", body=data)
+        es.index(index="api_call_index", body=data)
 
         return response
 
