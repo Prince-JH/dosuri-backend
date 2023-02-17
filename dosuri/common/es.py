@@ -26,8 +26,6 @@ def es_middleware(get_response):
             username='anomymous'
             
         api_failed=False
-        if response.status_code < 200 or response.status_code >= 400:
-            api_failed=True
         
         if request.GET:
             request_params=dict(request.GET)
@@ -40,6 +38,8 @@ def es_middleware(get_response):
             request_headers={}
 
         response = get_response(request)
+        if response.status_code < 200 or response.status_code >= 400:
+            api_failed=True
 
         if response.headers:
             response_headers=dict(response.headers)
