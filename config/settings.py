@@ -17,6 +17,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+DEV_ENV = os.environ.get('DEV_ENV')
 secret_file = os.path.join(f'{BASE_DIR}/config', 'secret.json')
 
 DOSURI_IMAGE_PUBLIC_KEY_ID = os.environ.get('DOSURI_IMAGE_PUBLIC_KEY_ID')
@@ -55,17 +56,29 @@ INSTALLED_APPS = [
 #     INSTALLED_APPS.append('drf_spectacular')
 
 AUTH_USER_MODEL = 'dosuri.User'
-
-MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
+if DEV_ENV == 'prod':
+    MIDDLEWARE = [
+        'corsheaders.middleware.CorsMiddleware',
+        'django.middleware.security.SecurityMiddleware',
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.middleware.common.CommonMiddleware',
+        'django.middleware.csrf.CsrfViewMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'django.contrib.messages.middleware.MessageMiddleware',
+        'django.middleware.clickjacking.XFrameOptionsMiddleware',
+        'dosuri.common.es.es_middleware'
+    ]
+else:
+    MIDDLEWARE = [
+        'corsheaders.middleware.CorsMiddleware',
+        'django.middleware.security.SecurityMiddleware',
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.middleware.common.CommonMiddleware',
+        'django.middleware.csrf.CsrfViewMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'django.contrib.messages.middleware.MessageMiddleware',
+        'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    ]
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'dosuri.common.pagings.PageSizeResultsSetPagination',
@@ -173,7 +186,7 @@ CONTENT_STORAGE = {
         "bucket_name": "dosuri-content"
     }
 }
-ES_CLOUD_ID = os.environ.get('ES_CLOUD_ID')
-ES_USER = os.environ.get('ES_USER')
+ES_ENDPOINT = os.environ.get('ES_ENDPOINT')
+ES_USERNAME = os.environ.get('ES_USERNAME')
 ES_PASSWORD = os.environ.get('ES_PASSWORD')
 CELERY_BROKER_URL = f'sqs://{AWS_ACCESS_KEY_ID}:{AWS_SECRET_ACCESS_KEY}@'
