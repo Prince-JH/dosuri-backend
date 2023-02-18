@@ -36,13 +36,9 @@ class Auth(s.Serializer):
         auth_domain = validated_data['type']
 
         origin = self.context['request'].build_absolute_uri()
-        if 'server.dosuri.site' in origin:
-            redirect_uri = 'https://dosuri.site/oauth/callback/kakao'
-        else:
-            redirect_uri = 'http://localhost:3000/oauth/callback/kakao'
 
         if auth_domain == c.SOCIAL_KAKAO:
-            auth_factory = a.KaKaoAuth(token, redirect_uri)
+            auth_factory = a.KaKaoAuth(token, origin)
         kakao_user_info = auth_factory.authenticate()
         username = kakao_user_info['kakao_account']['email']
 
