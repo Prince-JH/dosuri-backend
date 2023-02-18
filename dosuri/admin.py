@@ -77,7 +77,7 @@ admin.site.register(cmm.ArticleAuth)
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ['username', 'nickname', 'created_at']
-    search_fields = ['nickname']
+    search_fields = ['username', 'nickname']
 
 
 admin.site.register(um.User, UserAdmin)
