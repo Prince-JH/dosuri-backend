@@ -13,3 +13,5 @@ DATABASES = {
 CONTENT_STORAGE = {
     'class': 'django.core.files.storage.FileSystemStorage'
 }
+
+SERVER_URL = 'dosuri.site'
