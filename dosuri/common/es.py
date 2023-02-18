@@ -7,6 +7,7 @@ from rest_framework.fields import DateTimeField
 from django.conf import settings
 from elasticsearch import Elasticsearch
 
+
 es = Elasticsearch(settings.ES_ENDPOINT+':9200', http_auth=(settings.ES_USERNAME, settings.ES_PASSWORD))
 
 # custom middlewawre - factory method pattern
@@ -15,11 +16,14 @@ def es_middleware(get_response):
 
     def middleware(request):
         start_time=time.time()
-        if request.body:
-            request_data=json.loads(request.body.decode())
-        else:
-            request_data={}
-            
+        try:
+            if request.body:
+                request_data=json.loads(request.body.decode())
+            else:
+                request_data={}
+        except json.decoder.JSONDecodeError:
+            return get_response(request)
+
         api_failed=False
         
         if request.GET:
@@ -32,8 +36,12 @@ def es_middleware(get_response):
         else:
             request_headers={}
 
+        
         response = get_response(request)
 
+
+
+        keys = response.__dict__.keys()
         if request.user.is_authenticated:
             username=request.user.username
         else:
@@ -41,15 +49,16 @@ def es_middleware(get_response):
         if response.status_code < 200 or response.status_code >= 400:
             api_failed=True
 
-        if response.headers:
+        if "headers" in keys:
             response_headers=dict(response.headers)
         else:
             response_headers={}
-        
-        if response.data:
+            
+        if "data" in keys:
             response_data = response.data
         else:
             response_data = {}
+
 
         finished_time=time.time()
         execution_time=finished_time - start_time
