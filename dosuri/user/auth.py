@@ -50,9 +50,10 @@ class SocialAuth:
 
 
 class KaKaoAuth(SocialAuth):
-    def __init__(self, code, redirect_uri):
+    def __init__(self, code, origin):
         self.code = code
-        self.redirect_uri = redirect_uri
+        self.origin = origin
+        self.redirect_uri = self.get_redirect_uri(self.origin)
 
     def authenticate(self):
         access_token = self.get_access_token()
@@ -81,3 +82,9 @@ class KaKaoAuth(SocialAuth):
         }
 
         return self.get(url, self.set_api_header(**header))
+
+    def get_redirect_uri(self, origin):
+        if settings.SERVER_URL in origin:
+            return settings.KAKAO_REDIRECT_URI
+        else:
+            return 'http://localhost:3000/oauth/callback/kakao'
