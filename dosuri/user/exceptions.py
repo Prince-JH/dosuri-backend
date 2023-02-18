@@ -9,3 +9,8 @@ class NicknameDuplicated(exc.APIException):
 class UserHasNoAddress(exc.APIException):
     default_detail = 'User does not have address info.'
     status_code = 400
+
+
+class KakaoApiException(exc.APIException):
+    default_detail = 'Kakao api error.'
+    status_code = 400

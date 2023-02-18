@@ -161,7 +161,7 @@ USE_TZ = True
 STATIC_ROOT = 'static'
 STATIC_URL = '/static/'
 SITE_URL = os.environ.get('SITE_URL')
-SERVER_URL = os.environ.get('SERVER_URL')
+SERVER_URL = os.environ.get('SERVER_URL', '')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

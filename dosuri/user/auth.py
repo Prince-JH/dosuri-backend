@@ -7,10 +7,12 @@ from rest_framework import exceptions as exc
 from django.conf import settings
 
 from django.contrib.auth.backends import BaseBackend
+from rest_framework.exceptions import APIException
 
 from dosuri.user import (
     models as um,
-    constants as c
+    constants as c,
+    exceptions as uexc
 )
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -61,19 +63,21 @@ class KaKaoAuth(SocialAuth):
         return user_info
 
     def get_access_token(self):
-        url = 'https://kauth.kakao.com/oauth/token'
-        header = {
-            'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
-        }
-        body = {
-            'grant_type': 'authorization_code',
-            'client_id': settings.KAKAO_REST_API_KEY,
-            'redirect_uri': self.redirect_uri,
-            # 'redirect_uri': f'{settings.SITE_URL}/oauth/callback/kakao',
-            'code': self.code
-        }
-        res = self.post(url, self.set_api_header(**header), body)
-        return res['access_token']
+        try:
+            url = 'https://kauth.kakao.com/oauth/token'
+            header = {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+            }
+            body = {
+                'grant_type': 'authorization_code',
+                'client_id': settings.KAKAO_REST_API_KEY,
+                'redirect_uri': self.redirect_uri,
+                'code': self.code
+            }
+            res = self.post(url, self.set_api_header(**header), body)
+            return res['access_token']
+        except APIException:
+            raise uexc.KakaoApiException()
 
     def get_user_info(self, access_token):
         url = 'https://kapi.kakao.com/v2/user/me'
