@@ -1,0 +1,23 @@
+version: "3.9"
+services:
+  app:
+    image: dosuri:latest
+    restart: always
+
+  celery-worker:
+    image: dosuri:latest
+    restart: always
+    command: celery -A dosuri worker --loglevel=info
+    depends_on:
+      - app
+
+  mq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    restart: always
+    environment:
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+
