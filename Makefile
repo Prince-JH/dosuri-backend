@@ -4,6 +4,9 @@ test:
 	cd dosuri/community && pytest
 	python3 manage.py test --settings=config.settings_test
 
+image:
+	docker build . -f docker/Dockerfile -t dosuri:latest --platform=linux/amd64
+
 test-db:
 	docker volume create pgdata-test
 	docker run -d -p 5432:5432 -v pgdata-test:/home/postgres/pgdata -e POSTGRES_PASSWORD=dosuri postgres
