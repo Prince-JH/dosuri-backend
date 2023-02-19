@@ -5,11 +5,11 @@ test:
 	python3 manage.py test --settings=config.settings_test
 
 image:
-	docker build . -f docker/Dockerfile -t public.ecr.aws/r0u1w0s6/dosuri:latest --platform=linux/amd64
+	docker build . -f docker/Dockerfile -t 024317434110.dkr.ecr.ap-northeast-2.amazonaws.com/dosuri:latest --platform=linux/amd64
 
 push:
-	aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/r0u1w0s6
-	docker push public.ecr.aws/r0u1w0s6/dosuri
+	aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 024317434110.dkr.ecr.ap-northeast-2.amazonaws.com
+	docker push 024317434110.dkr.ecr.ap-northeast-2.amazonaws.com/dosuri
 
 test-db:
 	docker volume create pgdata-test
