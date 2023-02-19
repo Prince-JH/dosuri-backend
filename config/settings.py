@@ -179,6 +179,4 @@ CONTENT_STORAGE = {
     }
 }
 ES_ENDPOINT = os.environ.get('ES_ENDPOINT')
-ES_USERNAME = os.environ.get('ES_USERNAME')
-ES_PASSWORD = os.environ.get('ES_PASSWORD')
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
