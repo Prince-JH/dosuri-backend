@@ -1,15 +1,5 @@
 version: "3.9"
 services:
-  web:
-    image: nginx:latest
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx-conf:/etc/nginx/conf.d/
-    restart: always
-    depends_on:
-      - app
-
   app:
     image: dosuri:latest
     restart: always
