@@ -97,4 +97,4 @@ jobs:
           environment_name: Dosuri-env-docker
           region: ${{ secrets.AWS_REGION }}
           version_label: ${{github.SHA}}
-          deployment_package: docker/docker-compose.yml
+          deployment_package: docker/docker-compose.yaml
