@@ -11,11 +11,11 @@ services:
       - app
 
   app:
-    build: .
+    image: dosuri:latest
     restart: always
 
   celery-worker:
-    build: .
+    image: dosuri:latest
     restart: always
     command: celery -A dosuri worker --loglevel=info
     depends_on:
