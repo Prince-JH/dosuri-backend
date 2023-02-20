@@ -160,6 +160,8 @@ USE_TZ = True
 
 STATIC_ROOT = 'static'
 STATIC_URL = '/static/'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3StaticStorage'
+
 SITE_URL = os.environ.get('SITE_URL')
 SERVER_URL = os.environ.get('SERVER_URL', '')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'dosuri')
@@ -183,4 +185,3 @@ ES_USERNAME = os.environ.get('ES_USERNAME')
 ES_PASSWORD = os.environ.get('ES_PASSWORD')
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3StaticStorage'
