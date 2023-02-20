@@ -180,3 +180,5 @@ CONTENT_STORAGE = {
 }
 ES_ENDPOINT = os.environ.get('ES_ENDPOINT')
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3StaticStorage'
