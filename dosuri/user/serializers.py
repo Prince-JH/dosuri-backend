@@ -218,9 +218,9 @@ class InsuranceUserAssoc(s.ModelSerializer):
     def create(self, validated_data):
         user = validated_data['user']
         message = self.make_message(user)
-        # ct.announce_insurance_consult.delay(message)
-        self.send_insurance_consult_sms(message)
-        self.send_insurance_consult_slack(message)
+        ct.announce_insurance_consult.delay(message)
+        # self.send_insurance_consult_sms(message)
+        # self.send_insurance_consult_slack(message)
         return super().create(validated_data)
 
     def make_message(self, user):
