@@ -117,7 +117,7 @@ class DoctorPositionFilter(fsc.DoctorPositionFilterSchema, filters.BaseFilterBac
 class HospitalSearchFilter(filters.SearchFilter):
     def filter_queryset(self, request, queryset, view):
         query = request.GET.get('search')
-        if query[-1] == '역':
+        if query and query[-1] == '역':
             client = cg.KaKaoGeoClient()
             coordinates = client.get_coordinates('station', query)
             if not coordinates:
