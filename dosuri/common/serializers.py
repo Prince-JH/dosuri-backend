@@ -30,7 +30,7 @@ class Address(s.ModelSerializer):
 
 
 class Attachment(s.ModelSerializer):
-    uuid: s.Field = s.CharField(read_only=True)
+    uuid: s.Field = s.CharField(required=False)
     bucket_name: s.Field = s.CharField(write_only=True, allow_null=False)
     path: s.Field = s.CharField(write_only=True, allow_null=False)
     created_at: s.Field = s.DateTimeField(read_only=True)
