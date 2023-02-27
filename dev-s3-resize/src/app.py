@@ -50,16 +50,16 @@ def lambda_handler(event, context):
         image = bucket.Object(key).get()['Body'].read()
 
         values = key.split('/')
-        uuid = values[1]
-        webp_key = resize_image(image, resize_bucket_name, key)
-        notify_job_finished(uuid, resize_bucket_name, webp_key)
+        uuid = values[0]
+        key = resize_image(image, resize_bucket_name, key)
+        notify_job_finished(uuid, resize_bucket_name, key)
 
 
-def notify_job_finished(uuid, resize_bucket_name, webp_key):
+def notify_job_finished(uuid, resize_bucket_name, key):
     url = f"{os.environ.get('DOSURI_URL', 'https://dev-server.dosuri.site')}/common/v1/attachment/{uuid}"
     data = {
-        'bucket': resize_bucket_name,
-        'path': f'{webp_key}'
+        'bucket_name': resize_bucket_name,
+        'path': f'{key}'
     }
     header = {
         'Content-Type': 'application/json; charset=utf-8',
