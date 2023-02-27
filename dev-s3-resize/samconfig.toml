@@ -1,0 +1,13 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "sam-dev-image-resize"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1jan5vpjr8msr"
+s3_prefix = "sam-dev-image-resize"
+region = "ap-northeast-2"
+confirm_changeset = false
+capabilities = "CAPABILITY_IAM"
+disable_rollback = true
+parameter_overrides = "DosuriUrl=\"https://dev-server.dosuri.site\" SourceBucketName=\"dev-dosuri-image\" DestinationBucketName=\"dev-dosuri-image-resized\""
+image_repositories = []
