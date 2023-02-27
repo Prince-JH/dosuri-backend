@@ -280,7 +280,7 @@ def article_keyword_A(treatment_category_A):
 
 
 @pytest.fixture
-def attachment_A(hospital_test_A):
+def attachment_A():
     return cm.Attachment.objects.create(
         bucket_name="test_bucket_A",
         path="test_path_A"
@@ -288,7 +288,7 @@ def attachment_A(hospital_test_A):
 
 
 @pytest.fixture
-def attachment_B(hospital_test_A):
+def attachment_B():
     return cm.Attachment.objects.create(
         bucket_name="test_bucket_A",
         path="test_path_B"
