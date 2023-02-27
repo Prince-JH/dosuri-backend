@@ -41,10 +41,10 @@ class HospitalList(hmx.HospitalDistance, g.ListCreateAPIView):
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
                                                                                       'hospital_attachment_assoc__attachment').annotate_extra_fields()
     serializer_class = s.Hospital
-    filter_backends = [hf.ExtraOrderingByIdFilter, rf.SearchFilter, hf.HospitalDistanceFilter]
+    filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalSearchFilter, hf.HospitalDistanceFilter]
     ordering_field = '__all__'
     ordering = ['view_count']
-    search_fields = ['name']
+    search_fields = ['name', 'area']
     is_realtime_coordinates = True
     hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
     hospital_distance_range = None
