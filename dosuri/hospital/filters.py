@@ -10,6 +10,7 @@ from dosuri.community import (
     models as cmm,
     constants as cmc,
 )
+from dosuri.common import geocoding as cg
 from django.db.models.functions import Radians, Power, Sin, Cos, ATan2, Sqrt, Radians
 from django.db.models import F
 
@@ -20,13 +21,13 @@ class HospitalDistanceFilter(fsc.HospitalDistanceFilterSchema,
     latitude_param = 'latitude'
     longitude_param = 'longitude'
 
-    def filter_queryset(self, request, queryset, view, now=None):
-        latitude = getattr(view, 'latitude', None)
-        longitude = getattr(view, 'longitude', None)
+    def filter_queryset(self, request, queryset, view, now=None, **kwargs):
+        latitude = kwargs.get('latitude') or getattr(view, 'latitude', None)
+        longitude = kwargs.get('longitude') or getattr(view, 'longitude', None)
         if not latitude or not longitude:
             return queryset
 
-        distance = self.get_distance_param(view)
+        distance = kwargs.get('distance') or self.get_distance_param(view)
 
         if not distance:
             return queryset
@@ -115,11 +116,16 @@ class DoctorPositionFilter(fsc.DoctorPositionFilterSchema, filters.BaseFilterBac
 
 class HospitalSearchFilter(filters.SearchFilter):
     def filter_queryset(self, request, queryset, view):
-        word = request.GET.get('search')
-        if word:
-            hm.HospitalSearch.objects.save_search(request.user, word)
-
-        return super().filter_queryset(request, queryset, view)
+        query = request.GET.get('search')
+        if query and query[-1] == '역':
+            client = cg.KaKaoGeoClient()
+            coordinates = client.get_coordinates('station', query)
+            if not coordinates:
+                return queryset.none()
+            return HospitalDistanceFilter().filter_queryset(request, queryset, view, latitude=coordinates[0],
+                                                            longitude=coordinates[1], distance=1)
+        else:
+            return super().filter_queryset(request, queryset, view)
 
 
 class ExtraOrderingByIdFilter(filters.OrderingFilter):

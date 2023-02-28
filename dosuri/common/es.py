@@ -55,7 +55,11 @@ def es_middleware(get_response):
             response_headers={}
             
         if "data" in keys:
+            if 'address' in response.data.keys():
+                if not isinstance(response.data['address'], str):
+                    response.data['address'] = response.data['address']['large_area'] + ' ' + response.data['address']['small_area']
             response_data = response.data
+            
         else:
             response_data = {}
 
