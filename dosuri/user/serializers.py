@@ -8,7 +8,6 @@ from rest_framework import serializers as s
 
 from dosuri.user import (
     auth as a,
-    views as v,
     models as um,
     constants as c,
     serializer_schemas as sch,
@@ -124,7 +123,7 @@ class User(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     username: s.Field = s.CharField(read_only=True)
     nickname: s.Field = s.CharField()
-    name: s.Field = s.CharField()
+    name: s.Field = s.CharField(allow_blank=True, allow_null=True)
     phone_no: s.Field = s.CharField()
     address: s.Field = cs.ReadWriteSerializerMethodField()
     birthday: s.Field = s.DateTimeField()
@@ -218,9 +217,7 @@ class InsuranceUserAssoc(s.ModelSerializer):
     def create(self, validated_data):
         user = validated_data['user']
         message = self.make_message(user)
-        # ct.announce_insurance_consult.delay(message)
-        self.send_insurance_consult_sms(message)
-        self.send_insurance_consult_slack(message)
+        ct.announce_insurance_consult.delay(message)
         return super().create(validated_data)
 
     def make_message(self, user):
@@ -235,12 +232,6 @@ class InsuranceUserAssoc(s.ModelSerializer):
                   f'{user.sex}\n' \
                   f'{address.large_area} {address.small_area}'
         return message
-
-    def send_insurance_consult_sms(self, message):
-        cu.send_sms(message)
-
-    def send_insurance_consult_slack(self, message):
-        cu.send_slack(message)
 
 
 @extend_schema_serializer(examples=sch.TOTAL_POINT_EXAMPLE)

@@ -38,7 +38,7 @@ class TreatmentKeywordList(g.ListAPIView):
 
 
 class ArticleList(g.ListCreateAPIView):
-    permission_classes = [p.IsAuthenticated]
+    permission_classes = [p.AllowAny]
     queryset = m.Article.objects.all()
     serializer_class = s.Article
     read_serializer_class = s.GetArticle

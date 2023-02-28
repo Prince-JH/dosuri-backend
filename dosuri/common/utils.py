@@ -38,7 +38,7 @@ def generate_signed_path(obj):
 def send_sms(message):
     sns_client.publish(
         Message=message,
-        TopicArn='arn:aws:sns:ap-northeast-1:024317434110:dosuri-sms'
+        TopicArn=settings.AWS_SNS_TOPIC_ARN
     )
 
 

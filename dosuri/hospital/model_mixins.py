@@ -12,7 +12,7 @@ class HospitalDistance:
         if not address:
             return self.get_default_coordinates()
         client = cg.KaKaoGeoClient()
-        return client.get_coordinates(address)
+        return client.get_coordinates('address', address)
 
     def set_coordinates(self):
         is_realtime_coordinates = getattr(self, 'is_realtime_coordinates', False)
