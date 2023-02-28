@@ -17,6 +17,8 @@ def es_middleware(get_response):
     def middleware(request):
         start_time=time.time()
         try:
+            if request.path == '/swagger' or request.path == '/schema': ## 스웨거 로깅 X
+                return get_response(request)
             if request.body:
                 request_data=json.loads(request.body.decode())
             else:
@@ -57,12 +59,11 @@ def es_middleware(get_response):
         if "data" in keys:
             if 'address' in response.data.keys():
                 if not isinstance(response.data['address'], str):
-                    response.data['address'] = response.data['address']['large_area'] + ' ' + response.data['address']['small_area']
+                    response.data['address'] = response.data['address'].get('large_area',"") + ' ' + response.data['address'].get('small_area', "")
             response_data = response.data
             
         else:
             response_data = {}
-
 
         finished_time=time.time()
         execution_time=finished_time - start_time
@@ -80,6 +81,8 @@ def es_middleware(get_response):
             "@timestamp" : datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z',
             'execution_time': "{:.6f}".format(execution_time),
         }
+        
+        
         try:
             es.index(index="api_call_index", body=data)
         except:
