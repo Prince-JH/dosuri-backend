@@ -124,7 +124,7 @@ class User(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     username: s.Field = s.CharField(read_only=True)
     nickname: s.Field = s.CharField()
-    name: s.Field = s.CharField()
+    name: s.Field = s.CharField(allow_blank=True, allow_null=True)
     phone_no: s.Field = s.CharField()
     address: s.Field = cs.ReadWriteSerializerMethodField()
     birthday: s.Field = s.DateTimeField()
