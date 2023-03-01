@@ -226,10 +226,9 @@ class InsuranceUserAssoc(s.ModelSerializer):
             raise exc.UserHasNoAddress()
         address = address_qs.first()
         message = f'새로운 보험 신청이 등록되었습니다.\n' \
-                  f'{user.name}\n' \
+                  f'{user.name} ({user.sex})\n' \
                   f'{user.phone_no}\n' \
                   f'{user.birthday.strftime("%Y/%m/%d")}\n' \
-                  f'{user.sex}\n' \
                   f'{address.large_area} {address.small_area}'
         return message
 
