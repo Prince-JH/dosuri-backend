@@ -24,26 +24,40 @@ from dosuri.common import (
 
 class Auth(s.Serializer):
     user_uuid: s.Field = s.CharField(read_only=True)
-    token: s.Field = s.CharField(write_only=True)
+    username: s.Field = s.CharField(write_only=True, required=False)
+    password: s.Field = s.CharField(write_only=True, required=False)
+    token: s.Field = s.CharField(write_only=True, required=False)
     type: s.Field = s.CharField(write_only=True)
     access_token: s.Field = s.CharField(read_only=True)
     refresh_token: s.Field = s.CharField(read_only=True)
     is_new: s.Field = s.BooleanField(read_only=True)
 
     def create(self, validated_data):
-        token = validated_data['token']
-        auth_domain = validated_data['type']
+        auth_type = validated_data['type']
 
         origin = self.context['request'].build_absolute_uri()
 
-        if auth_domain == c.SOCIAL_KAKAO:
-            auth_factory = a.KaKaoAuth(token, origin)
-        kakao_user_info = auth_factory.authenticate()
-        username = kakao_user_info['kakao_account']['email']
+        if auth_type == c.AUTH_PASSWORD:
+            username = validated_data['username']
+            password = validated_data['password']
+            qs = um.User.objects.filter(username=username, password=password)
+            if not qs.exists():
+                raise exc.WrongUsernameOrPasswordException()
+            user = qs.first()
+            user_info = {}
 
-        user = um.User.objects.get_or_create(username=username)[0]
+        elif auth_type == c.AUTH_KAKAO:
+            token = validated_data.get('token')
+            if not token:
+                raise exc.RequireTokenException()
+            auth_factory = a.KaKaoAuth(token, origin)
+            kakao_user_info = auth_factory.authenticate()
+            username = kakao_user_info['kakao_account']['email']
+
+            user = um.User.objects.get_or_create(username=username)[0]
+            user_info = self.get_user_info_from_kakao(kakao_user_info)
+
         is_new = user.is_new()
-        user_info = self.get_user_info_from_kakao(kakao_user_info)
         if is_new:
             user_info['nickname'] = uu.get_random_nickname()
             um.User.objects.update_user_info(user, user_info)

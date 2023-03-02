@@ -138,6 +138,33 @@ class TestKaKaoAuth:
         assert content['is_new'] is False
 
 
+class TestPasswordAuth:
+    @pytest.mark.django_db
+    def test_auth_correct_password_should_return_tokens(self, client, user_dummy_password):
+        data = {
+            'username': user_dummy_password.username,
+            'password': user_dummy_password.password,
+            'type': 'password',
+        }
+        response = client.post('/user/v1/auth', data=data, content_type='application/json')
+        content = json.loads(response.content)
+        assert response.status_code == 201
+        assert content['is_new'] is True
+        assert get_user_model().objects.all().count() == 1
+
+    @pytest.mark.django_db
+    def test_auth_wrong_password_should_return_tokens(self, client, user_dummy_password):
+        data = {
+            'username': user_dummy_password.username,
+            'password': 'wrong_password',
+            'type': 'password',
+        }
+        response = client.post('/user/v1/auth', data=data, content_type='application/json')
+        content = json.loads(response.content)
+        assert response.status_code == 400
+        assert content['detail'] == 'Wrong username or password.'
+
+
 class TestUserNickname:
     @pytest.mark.django_db
     def test_not_duplicated_nickname(self, client):

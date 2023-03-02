@@ -13,7 +13,7 @@ urlpatterns = [
     path('v1/token/verify', TokenVerifyView.as_view(), name='token-obtain-pair'),
     path('v1/token/refresh', TokenRefreshView.as_view(), name='token-refresh'),
 
-    path('v1/auth', v.Auth.as_view(), name='kakao-auth'),
+    path('v1/auth', v.Auth.as_view(), name='auth'),
     path('v1/users', v.UserList.as_view(), name='user'),
     path('v1/users/token', v.UserToken.as_view(), name='user'),
     path('v1/users/nickname', v.UserNickname.as_view(), name='user-nickname'),
