@@ -31,6 +31,15 @@ def user_dummy_1():
 
 
 @pytest.fixture
+def user_dummy_password():
+    return get_user_model().objects.create_user(
+        username='dummy@dummy.com',
+        nickname='dummy',
+        password='password'
+    )
+
+
+@pytest.fixture
 def user_dummies():
     return [get_user_model().objects.create_user(
         username=f'dummy{i}@dummy.com',
@@ -323,6 +332,7 @@ def article_A_hospital_C(hospital_test_C, user_dummy):
         user=user_dummy,
         article_type=cmc.ARTICLE_REVIEW
     )
+
 
 @pytest.fixture
 def article_auth_A_article_A_hospital_B(article_A_hospital_B, user_dummy):

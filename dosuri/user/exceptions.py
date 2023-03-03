@@ -14,3 +14,13 @@ class UserHasNoAddress(exc.APIException):
 class KakaoApiException(exc.APIException):
     default_detail = 'Kakao api error.'
     status_code = 400
+
+
+class RequireTokenException(exc.APIException):
+    default_detail = 'Require token.'
+    status_code = 400
+
+
+class WrongUsernameOrPasswordException(exc.APIException):
+    default_detail = 'Wrong username or password.'
+    status_code = 400

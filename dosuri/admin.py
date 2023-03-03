@@ -60,7 +60,7 @@ class ArticleAdmin(admin.ModelAdmin):
         return True if obj.article_auth.status == cmc.STATUS_COMPLETE else False
 
     def image_preview(self, obj):
-        images = cm.Attachment.objects.filter(article_attachment_assoc__article=obj)
+        images = cm.Attachment.objects.filter(auth_attachment_assoc__article_auth__article=obj)
         if len(images) == 0:
             return
         return mark_safe('<img src = "{url}" width = "100" height = "100"/>'.format(
