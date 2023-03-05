@@ -15,6 +15,8 @@ from dosuri.user import models as um
 from dosuri.hospital import models as hm
 
 admin.site.register(cm.Address)
+admin.site.register(cm.Attachment)
+admin.site.register(cmm.ArticleAttachmentAssoc)
 admin.site.register(hm.Hospital)
 admin.site.register(hm.HospitalTreatment)
 admin.site.register(hm.HospitalCalendar)
