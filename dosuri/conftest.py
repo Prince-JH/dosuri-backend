@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 import pytest
 from django.contrib.auth import get_user_model
 
@@ -18,7 +20,8 @@ from dosuri.user import models as um
 def user_dummy():
     return get_user_model().objects.create_user(
         username='dummy@dummy.com',
-        nickname='dummy'
+        nickname='dummy',
+        birthday=datetime.now()
     )
 
 
@@ -362,4 +365,23 @@ def hospital_search_B_user_dummy(user_dummy):
 def insurance_A():
     return um.Insurance.objects.create(
         name='A'
+    )
+
+@pytest.fixture
+def insurance_user_assoc_old(insurance_A, user_dummy):
+    assoc = um.InsuranceUserAssoc.objects.create(
+        insurance=insurance_A,
+        user=user_dummy
+    )
+    assoc.created_at = datetime(2021, 8, 1, 0, 0, 0, tzinfo=timezone.utc)
+    assoc.save()
+    return assoc
+
+
+@pytest.fixture
+def insurance_user_assoc_new(insurance_A, user_dummy):
+    return um.InsuranceUserAssoc.objects.create(
+        insurance=insurance_A,
+        user=user_dummy,
+        created_at=datetime(2021, 8, 1, 0, 0, 0, tzinfo=timezone.utc)
     )

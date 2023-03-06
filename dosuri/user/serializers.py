@@ -1,7 +1,8 @@
-import datetime
+from datetime import datetime, timedelta
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from drf_spectacular.utils import extend_schema_serializer
 
 from rest_framework import serializers as s
@@ -86,7 +87,7 @@ class Auth(s.Serializer):
         birth_year = kakao_user_info['kakao_account'].get('birthyear')
         birthday = kakao_user_info['kakao_account'].get('birthday')
         if birth_year and birthday:
-            birthday = datetime.datetime.strptime(f'{birth_year}-{birthday}', '%Y-%m%d').astimezone()
+            birthday = datetime.strptime(f'{birth_year}-{birthday}', '%Y-%m%d').astimezone()
         else:
             birthday = None
         return {'name': name, 'phone_no': phone_no, 'sex': sex, 'birthday': birthday}
@@ -229,7 +230,12 @@ class InsuranceUserAssoc(s.ModelSerializer):
         exclude = ('id', 'created_at')
 
     def create(self, validated_data):
+        insurance = validated_data['insurance']
         user = validated_data['user']
+        qs = self.Meta.model.objects.filter(insurance=insurance, user=user,
+                                            created_at__gte=timezone.now() - timedelta(days=1))
+        if qs.exists():
+            return qs.first()
         message = self.make_message(user)
         ct.announce_insurance_consult.delay(message)
         return super().create(validated_data)
