@@ -389,3 +389,17 @@ class TestHomeHospital:
 
         assert response.status_code == 200
         assert len(content['results']) == 1
+
+
+class TestHospitalName:
+    @pytest.mark.django_db
+    def test_list_home_hospital_without_token(self, client, hospital_test_A):
+        headers = {
+            'content_type': 'application/json'
+        }
+        response = client.get(f'/hospital/v1/hospitals/names?search=A', **headers)
+
+        assert response.status_code == 200
+        content = json.loads(response.content)
+        assert content['count'] == 1
+        assert content['results'][0]['uuid'] == hospital_test_A.uuid
