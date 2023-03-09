@@ -82,6 +82,15 @@ class PostHospital(s.ModelSerializer):
         return hospital
 
 
+class HospitalName(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    name: s.Field = s.CharField(read_only=True)
+
+    class Meta:
+        model = hm.Hospital
+        fields = ('uuid', 'name')
+
+
 class Hospital(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     address: s.Field = s.CharField()

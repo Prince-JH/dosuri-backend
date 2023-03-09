@@ -407,7 +407,8 @@ class GetArticle(s.ModelSerializer):
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_hospital_uuid(self, instance):
-        return instance.hospital.uuid
+        if instance.hospital:
+            return instance.hospital.uuid
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_created_at(self,
@@ -493,7 +494,8 @@ class ArticleDetail(s.ModelSerializer):
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_hospital_uuid(self, instance):
-        return instance.hospital.uuid
+        if instance.hospital:
+            return instance.hospital.uuid
 
 
 class TreatmentKeyword(s.ModelSerializer):

@@ -191,6 +191,16 @@ class TestUserNickname:
 
 class TestInsuranceUserAssoc:
     @pytest.mark.django_db
+    def test_create_request_within_day(self, client, celery_app, celery_config, tokens_user_dummy,
+                                       insurance_user_assoc_new, assoc_address_서울_강남_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        client.post('/user/v1/insurance-user-assocs', **headers)
+        assert um.InsuranceUserAssoc.objects.all().count() == 1
+
+    @pytest.mark.django_db
     def test_create_without_address_info(self, client, tokens_user_dummy, insurance_A):
         headers = {
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
