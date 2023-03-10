@@ -17,4 +17,4 @@ def announce_insurance_consult_to_user(phone_no):
               '실손보험 담당자가 곧 연락드릴 예정입니다. \n' \
               '곽혜경 010-9071-4800'
     naver_client = cs.NaverCloudClient()
-    naver_client.send_sms(message, phone_no)
+    naver_client.send_sms(message, [phone_no])
