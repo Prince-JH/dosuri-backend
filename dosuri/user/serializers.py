@@ -238,6 +238,8 @@ class InsuranceUserAssoc(s.ModelSerializer):
             return qs.first()
         message = self.make_message(user)
         ct.announce_insurance_consult.delay(message)
+        if user.phone_no:
+            ct.announce_insurance_consult_to_user.delay(user.phone_no)
         return super().create(validated_data)
 
     def make_message(self, user):
@@ -245,7 +247,7 @@ class InsuranceUserAssoc(s.ModelSerializer):
         if not address_qs.exists():
             raise exc.UserHasNoAddress()
         address = address_qs.first()
-        message = f'새로운 보험 신청이 등록되었습니다.\n' \
+        message = f'새로운 보험 신청\n' \
                   f'{user.name} ({user.sex})\n' \
                   f'{user.phone_no}\n' \
                   f'{user.birthday.strftime("%Y/%m/%d")}\n' \
