@@ -338,6 +338,15 @@ def article_A_hospital_C(hospital_test_C, user_dummy):
 
 
 @pytest.fixture
+def article_question(user_dummy):
+    return cmm.Article.objects.create(
+        content='A',
+        user=user_dummy,
+        article_type=cmc.ARTICLE_QUESTION
+    )
+
+
+@pytest.fixture
 def article_auth_A_article_A_hospital_B(article_A_hospital_B, user_dummy):
     return cmm.ArticleAuth.objects.create(
         article=article_A_hospital_B,
