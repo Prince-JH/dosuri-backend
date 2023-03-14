@@ -12,7 +12,7 @@ from dosuri.user import (
     models as um,
     constants as c,
     serializer_schemas as sch,
-    exceptions as exc,
+    exceptions as uexc,
     utils as uu,
 )
 from dosuri.common import (
@@ -43,14 +43,14 @@ class Auth(s.Serializer):
             password = validated_data['password']
             qs = um.User.objects.filter(username=username, password=password)
             if not qs.exists():
-                raise exc.WrongUsernameOrPasswordException()
+                raise uexc.WrongUsernameOrPasswordException()
             user = qs.first()
             user_info = {}
 
         elif auth_type == c.AUTH_KAKAO:
             token = validated_data.get('token')
             if not token:
-                raise exc.RequireTokenException()
+                raise uexc.RequireTokenException()
             auth_factory = a.KaKaoAuth(token, origin)
             kakao_user_info = auth_factory.authenticate()
             username = kakao_user_info['kakao_account']['email']
@@ -245,7 +245,7 @@ class InsuranceUserAssoc(s.ModelSerializer):
     def make_message(self, user):
         address_qs = cm.Address.objects.filter(address_user_assoc__user=user)
         if not address_qs.exists():
-            raise exc.UserHasNoAddress()
+            raise uexc.UserHasNoAddress()
         address = address_qs.first()
         message = f'새로운 보험 신청\n' \
                   f'{user.name} ({user.sex})\n' \
@@ -292,6 +292,25 @@ class UserResignHistory(s.ModelSerializer):
     class Meta:
         model = um.UserResignHistory
         exclude = ('id', 'username', 'uuid')
+
+    def create(self, validated_data):
+        user = validated_data['user']
+        username = user.username
+        instance = self.Meta.model.objects.create(username=username, reason=validated_data['reason'])
+        user.resign()
+
+        return instance
+
+
+class UserAddress(s.ModelSerializer):
+    uuid: s.Field = s.CharField()
+    reason: s.Field = s.CharField()
+    reason: s.Field = s.CharField()
+    reason: s.Field = s.CharField()
+
+    class Meta:
+        model = um.UserAddress
+        exclude = ('id', 'user', 'created_at')
 
     def create(self, validated_data):
         user = validated_data['user']
