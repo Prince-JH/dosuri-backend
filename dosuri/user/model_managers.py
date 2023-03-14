@@ -1,5 +1,9 @@
 from django.contrib.auth.models import UserManager
 from django.db.models import Manager
+from dosuri.user import (
+    constants as uc,
+    exceptions as uexc,
+)
 
 
 class DosuriUserManager(UserManager):
@@ -56,3 +60,21 @@ class AddressUserAssocManager(Manager):
             return f'{address.large_area}{address.small_area}'
         except self.model.DoesNotExist:
             return
+
+
+class UserAddressManager(Manager):
+    def create_home_address(self, user, name, address, latitude, longitude):
+        if self.filter(user=user, address_type=uc.ADDRESS_HOME).exists():
+            raise uexc.HomeAddressExists()
+        self.create(user=user, name=name, address=address, address_type=uc.ADDRESS_HOME, latitude=latitude,
+                    longitude=longitude)
+
+    def create_office_address(self, user, name, address, latitude, longitude):
+        if self.filter(user=user, address_type=uc.ADDRESS_OFFICE).exists():
+            raise uexc.OfficeAddressExists()
+        self.create(user=user, name=name, address=address, address_type=uc.ADDRESS_HOME, latitude=latitude,
+                    longitude=longitude)
+
+    def create_etc_address(self, user, name, address, latitude, longitude):
+        self.create(user=user, name=name, address=address, address_type=uc.ADDRESS_ETC, latitude=latitude,
+                    longitude=longitude)
