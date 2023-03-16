@@ -72,7 +72,7 @@ class UserAddressManager(Manager):
     def create_office_address(self, user, name, address, latitude, longitude):
         if self.filter(user=user, address_type=uc.ADDRESS_OFFICE).exists():
             raise uexc.OfficeAddressExists()
-        self.create(user=user, name=name, address=address, address_type=uc.ADDRESS_HOME, latitude=latitude,
+        self.create(user=user, name=name, address=address, address_type=uc.ADDRESS_OFFICE, latitude=latitude,
                     longitude=longitude)
 
     def create_etc_address(self, user, name, address, latitude, longitude):

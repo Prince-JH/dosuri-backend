@@ -1,6 +1,10 @@
 import pytest
 
-from dosuri.user import models as um
+from dosuri.user import (
+    models as um,
+    constants as uc,
+    exceptions as uexc,
+)
 
 
 class TestUser:
@@ -37,3 +41,34 @@ class TestUserPointHistory:
 
         assert total_point
 
+
+class TestUserAddressManager:
+    @pytest.mark.django_db
+    def test_create_home_address(self, user_dummy):
+        um.UserAddress.objects.create_home_address(user_dummy, 'home', '수원시 팔달구 아주로 17', 123.123, 123.123)
+
+        assert um.UserAddress.objects.all().count() == 1
+        assert um.UserAddress.objects.all().first().address_type == uc.ADDRESS_HOME
+
+    @pytest.mark.django_db
+    def test_create_home_address_when_already_exists(self, user_dummy, user_dummy_address_home):
+        with pytest.raises(uexc.HomeAddressExists):
+            um.UserAddress.objects.create_home_address(user_dummy, 'home', '수원시 팔달구 아주로 17', 123.123, 123.123)
+
+    @pytest.mark.django_db
+    def test_create_office_address(self, user_dummy):
+        um.UserAddress.objects.create_office_address(user_dummy, 'office', '서초대로 343 신덕빌딩', 123.123, 123.123)
+
+        assert um.UserAddress.objects.all().count() == 1
+        assert um.UserAddress.objects.all().first().address_type == uc.ADDRESS_OFFICE
+
+    @pytest.mark.django_db
+    def test_create_home_address_when_already_exists(self, user_dummy, user_dummy_address_office):
+        with pytest.raises(uexc.OfficeAddressExists):
+            um.UserAddress.objects.create_office_address(user_dummy, 'office', '서초대로 343 신덕빌딩', 123.123, 123.123)
+
+    @pytest.mark.django_db
+    def test_create_etc_address_when_already_exists(self, user_dummy, user_dummy_address_etc):
+        um.UserAddress.objects.create_etc_address(user_dummy, 'etc', '집앞', 123.123, 123.123)
+
+        assert um.UserAddress.objects.all().count() == 2
