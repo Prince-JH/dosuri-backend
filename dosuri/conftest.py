@@ -394,3 +394,16 @@ def insurance_user_assoc_new(insurance_A, user_dummy):
         user=user_dummy,
         created_at=datetime(2021, 8, 1, 0, 0, 0, tzinfo=timezone.utc)
     )
+
+
+@pytest.fixture
+def user_dummy_address_home(user_dummy):
+    return um.UserAddress.objects.create_home_address(user_dummy, 'home', '수원시 팔달구 아주로 17', 123.123, 123.123)
+
+@pytest.fixture
+def user_dummy_address_office(user_dummy):
+    return um.UserAddress.objects.create_office_address(user_dummy, 'office', '서초대로 343 신덕빌딩', 123.123, 123.123)
+
+@pytest.fixture
+def user_dummy_address_etc(user_dummy):
+    return um.UserAddress.objects.create_etc_address(user_dummy, 'home', '강남구 삼성동 106', 123.123, 123.123)
