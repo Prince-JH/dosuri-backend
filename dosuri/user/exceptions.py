@@ -24,3 +24,13 @@ class RequireTokenException(exc.APIException):
 class WrongUsernameOrPasswordException(exc.APIException):
     default_detail = 'Wrong username or password.'
     status_code = 400
+
+
+class HomeAddressExists(exc.APIException):
+    default_detail = 'Home address exists.'
+    status_code = 400
+
+
+class OfficeAddressExists(exc.APIException):
+    default_detail = 'Office address exists.'
+    status_code = 400
