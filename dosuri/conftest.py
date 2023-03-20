@@ -376,6 +376,7 @@ def insurance_A():
         name='A'
     )
 
+
 @pytest.fixture
 def insurance_user_assoc_old(insurance_A, user_dummy):
     assoc = um.InsuranceUserAssoc.objects.create(
@@ -400,9 +401,11 @@ def insurance_user_assoc_new(insurance_A, user_dummy):
 def user_dummy_address_home(user_dummy):
     return um.UserAddress.objects.create_home_address(user_dummy, 'home', '수원시 팔달구 아주로 17', 123.123, 123.123)
 
+
 @pytest.fixture
 def user_dummy_address_office(user_dummy):
     return um.UserAddress.objects.create_office_address(user_dummy, 'office', '서초대로 343 신덕빌딩', 123.123, 123.123)
+
 
 @pytest.fixture
 def user_dummy_address_etc(user_dummy):

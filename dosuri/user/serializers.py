@@ -10,7 +10,7 @@ from rest_framework import serializers as s
 from dosuri.user import (
     auth as a,
     models as um,
-    constants as c,
+    constants as uc,
     serializer_schemas as sch,
     exceptions as uexc,
     utils as uu,
@@ -38,7 +38,7 @@ class Auth(s.Serializer):
 
         origin = self.context['request'].build_absolute_uri()
 
-        if auth_type == c.AUTH_PASSWORD:
+        if auth_type == uc.AUTH_PASSWORD:
             username = validated_data['username']
             password = validated_data['password']
             qs = um.User.objects.filter(username=username, password=password)
@@ -47,7 +47,7 @@ class Auth(s.Serializer):
             user = qs.first()
             user_info = {}
 
-        elif auth_type == c.AUTH_KAKAO:
+        elif auth_type == uc.AUTH_KAKAO:
             token = validated_data.get('token')
             if not token:
                 raise uexc.RequireTokenException()
@@ -303,19 +303,36 @@ class UserResignHistory(s.ModelSerializer):
 
 
 class UserAddress(s.ModelSerializer):
-    uuid: s.Field = s.CharField()
-    reason: s.Field = s.CharField()
-    reason: s.Field = s.CharField()
-    reason: s.Field = s.CharField()
+    uuid: s.Field = s.CharField(read_only=True)
+    name: s.Field = s.CharField(allow_null=True)
+    address: s.Field = s.CharField()
+    address_type: s.Field = s.ChoiceField(choices=[uc.ADDRESS_HOME, uc.ADDRESS_OFFICE, uc.ADDRESS_ETC])
+    latitude: s.Field = s.CharField()
+    longitude: s.Field = s.CharField()
 
     class Meta:
         model = um.UserAddress
         exclude = ('id', 'user', 'created_at')
 
     def create(self, validated_data):
-        user = validated_data['user']
-        username = user.username
-        instance = self.Meta.model.objects.create(username=username, reason=validated_data['reason'])
-        user.resign()
+        address_type = validated_data['address_type']
+        if address_type == uc.ADDRESS_HOME:
+            instance = self.Meta.model.objects.create_home_address(user=validated_data['user'],
+                                                                   name=validated_data['name'],
+                                                                   address=validated_data['address'],
+                                                                   latitude=validated_data['latitude'],
+                                                                   longitude=validated_data['longitude'])
 
+        elif address_type == uc.ADDRESS_OFFICE:
+            instance = self.Meta.model.objects.create_office_address(user=validated_data['user'],
+                                                                     name=validated_data['name'],
+                                                                     address=validated_data['address'],
+                                                                     latitude=validated_data['latitude'],
+                                                                     longitude=validated_data['longitude'])
+        elif address_type == uc.ADDRESS_ETC:
+            instance = self.Meta.model.objects.create_etc_address(user=validated_data['user'],
+                                                                  name=validated_data['name'],
+                                                                  address=validated_data['address'],
+                                                                  latitude=validated_data['latitude'],
+                                                                  longitude=validated_data['longitude'])
         return instance

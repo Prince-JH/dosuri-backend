@@ -232,3 +232,66 @@ class TestUserTotalPoint:
         assert response.status_code == 200
         content = json.loads(response.content)
         assert content['total_point'] == 100
+
+
+class TestUserAddress:
+    @pytest.mark.django_db
+    def test_list_address_should_return_zero(self, client, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get('/user/v1/users/me/addresses', **headers)
+
+        assert response.status_code == 200
+        content = json.loads(response.content)
+        assert len(content['results']) == 0
+
+    @pytest.mark.django_db
+    def test_list_address_should_return_one(self, client, tokens_user_dummy, user_dummy_address_home):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get('/user/v1/users/me/addresses', **headers)
+
+        assert response.status_code == 200
+        content = json.loads(response.content)
+        assert len(content['results']) == 1
+
+    @pytest.mark.django_db
+    def test_create_home_address(self, client, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        data = {
+            'name': None,
+            'address': '수원시 팔달구 아주로 111',
+            'address_type': 'home',
+            'latitude': 123.123,
+            'longitude': 124.124
+        }
+        response = client.post('/user/v1/users/me/addresses', data=data, **headers)
+
+        assert response.status_code == 201
+        assert um.UserAddress.objects.all().count() == 1
+
+    @pytest.mark.django_db
+    def test_create_home_address_when_already_exists(self, client, tokens_user_dummy, user_dummy_address_home):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        data = {
+            'name': None,
+            'address': '수원시 팔달구 아주로 111',
+            'address_type': 'home',
+            'latitude': 123.123,
+            'longitude': 124.124
+        }
+        response = client.post('/user/v1/users/me/addresses', data=data, **headers)
+
+        assert response.status_code == 400
+        content = json.loads(response.content)
+        assert content['detail'] == 'Home address exists.'
