@@ -315,24 +315,4 @@ class UserAddress(s.ModelSerializer):
         exclude = ('id', 'user', 'created_at')
 
     def create(self, validated_data):
-        address_type = validated_data['address_type']
-        if address_type == uc.ADDRESS_HOME:
-            instance = self.Meta.model.objects.create_home_address(user=validated_data['user'],
-                                                                   name=validated_data['name'],
-                                                                   address=validated_data['address'],
-                                                                   latitude=validated_data['latitude'],
-                                                                   longitude=validated_data['longitude'])
-
-        elif address_type == uc.ADDRESS_OFFICE:
-            instance = self.Meta.model.objects.create_office_address(user=validated_data['user'],
-                                                                     name=validated_data['name'],
-                                                                     address=validated_data['address'],
-                                                                     latitude=validated_data['latitude'],
-                                                                     longitude=validated_data['longitude'])
-        elif address_type == uc.ADDRESS_ETC:
-            instance = self.Meta.model.objects.create_etc_address(user=validated_data['user'],
-                                                                  name=validated_data['name'],
-                                                                  address=validated_data['address'],
-                                                                  latitude=validated_data['latitude'],
-                                                                  longitude=validated_data['longitude'])
-        return instance
+        return self.Meta.model.objects.create_address(validated_data)
