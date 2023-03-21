@@ -302,6 +302,7 @@ class UserResignHistory(s.ModelSerializer):
         return instance
 
 
+@extend_schema_serializer(examples=sch.USER_ADDRESS_EXAMPLE)
 class UserAddress(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     name: s.Field = s.CharField(allow_null=True)
