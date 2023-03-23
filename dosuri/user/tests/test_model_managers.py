@@ -72,3 +72,13 @@ class TestUserAddressManager:
         um.UserAddress.objects.create_etc_address(user_dummy, 'etc', '집앞', 123.123, 123.123)
 
         assert um.UserAddress.objects.all().count() == 2
+
+    @pytest.mark.django_db
+    def test_set_main_address(self, user_dummy, user_dummy_address_etc):
+        address = um.UserAddress.objects.create_etc_address(user_dummy, 'etc', '집앞', 123.123, 123.123)
+        um.UserAddress.objects.set_main_address(address)
+        user_dummy_address_etc.refresh_from_db()
+
+        assert um.UserAddress.objects.all().count() == 2
+        assert address.is_main
+        assert not user_dummy_address_etc.is_main

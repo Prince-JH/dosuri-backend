@@ -308,6 +308,7 @@ class UserAddress(s.ModelSerializer):
     name: s.Field = s.CharField(allow_null=True)
     address: s.Field = s.CharField()
     address_type: s.Field = s.ChoiceField(choices=[uc.ADDRESS_HOME, uc.ADDRESS_OFFICE, uc.ADDRESS_ETC])
+    is_main: s.Field = s.BooleanField(default=False)
     latitude: s.Field = s.CharField()
     longitude: s.Field = s.CharField()
 
@@ -317,3 +318,8 @@ class UserAddress(s.ModelSerializer):
 
     def create(self, validated_data):
         return self.Meta.model.objects.create_address(validated_data)
+
+    def update(self, instance, validated_data):
+        if validated_data['is_main']:
+            self.Meta.model.objects.set_main_address(instance)
+        return super().update(instance, validated_data)

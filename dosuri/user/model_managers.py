@@ -63,6 +63,11 @@ class AddressUserAssocManager(Manager):
 
 
 class UserAddressManager(Manager):
+    def set_main_address(self, instance):
+        self.filter(user=instance.user).update(is_main=False)
+        instance.is_main = True
+        instance.save()
+
     def create_address(self, data):
         if data['address_type'] == uc.ADDRESS_HOME:
             instance = self.create_home_address(user=data['user'],
@@ -100,3 +105,4 @@ class UserAddressManager(Manager):
     def create_etc_address(self, user, name, address, latitude, longitude):
         return self.create(user=user, name=name, address=address, address_type=uc.ADDRESS_ETC, latitude=latitude,
                            longitude=longitude)
+
