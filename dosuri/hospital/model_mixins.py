@@ -26,8 +26,8 @@ class HospitalDistance:
             coordinates = self.get_coordinates()
             latitude = coordinates[0]
             longitude = coordinates[1]
-        self.latitude = latitude
-        self.longitude = longitude
+        setattr(self, 'latitude', latitude)
+        setattr(self, 'longitude', longitude)
         return [latitude, longitude]
 
     def get_queryset(self):
