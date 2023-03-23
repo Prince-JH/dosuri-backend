@@ -178,7 +178,7 @@ class UserAddressList(g.ListCreateAPIView):
     serializer_class = s.UserAddress
     filter_backends = [rf.OrderingFilter]
     ordering_field = '__all__'
-    ordering = ['view_count']
+    ordering = ['-created_at']
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

@@ -79,7 +79,8 @@ USER_ADDRESS_EXAMPLE = [
             "address": "string",
             "address_type": "home | office",
             "latitude": "string",
-            "longitude": "string"
+            "longitude": "string",
+            "is_main": True,
         },
         request_only=True
     ),
@@ -92,7 +93,8 @@ USER_ADDRESS_EXAMPLE = [
             "address": "string",
             "address_type": "etc",
             "latitude": "string",
-            "longitude": "string"
+            "longitude": "string",
+            "is_main": False
         },
         request_only=True
     )
