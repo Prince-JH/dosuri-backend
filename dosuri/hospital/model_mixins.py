@@ -1,3 +1,5 @@
+import random
+
 from django.contrib.auth.models import AnonymousUser
 
 from dosuri.common import geocoding as cg
@@ -6,12 +8,12 @@ from dosuri.user import models as um
 
 class HospitalDistance:
     def get_coordinates(self):
+        client = cg.KaKaoGeoClient()
         if isinstance(self.request.user, AnonymousUser):
-            return self.get_default_coordinates()
+            return self.get_default_coordinates(client)
         address = um.AddressUserAssoc.objects.get_user_address(self.request.user)
         if not address:
-            return self.get_default_coordinates()
-        client = cg.KaKaoGeoClient()
+            return self.get_default_coordinates(client)
         return client.get_coordinates('address', address)
 
     def set_coordinates(self):
@@ -36,10 +38,6 @@ class HospitalDistance:
             return self.queryset
         return self.queryset.annotate_distance(self.latitude, self.longitude)
 
-    def get_default_coordinates(self):
-        '''
-        서울시 강남구의 좌표
-        '''
-        latitude = 37.517331925853
-        longitude = 127.047377408384
-        return [latitude, longitude]
+    def get_default_coordinates(self, client):
+        station = random.choice(['강남역', '봉천역', '발산역', '노원역', '잠실역'])
+        return client.get_coordinates('station', station)
