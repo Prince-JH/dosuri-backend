@@ -6,7 +6,6 @@ from rest_framework import (
     status,
 )
 
-from dosuri.common import models as cm
 from dosuri.hospital import models as hm
 from dosuri.community import (
     models as m,
@@ -17,7 +16,6 @@ from rest_framework.response import Response
 from django.db.models import Count
 
 from datetime import datetime, timedelta
-from django.contrib.postgres.aggregates import ArrayAgg
 
 
 class HotArticleList(g.ListAPIView):

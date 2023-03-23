@@ -26,3 +26,10 @@ class TestArticleModel:
         point = um.UserPointHistory.objects.get_total_point(user_dummy)
 
         assert point == 0
+
+    @pytest.mark.django_db
+    def test_authenticate_question(self, user_dummy, article_question):
+        article_question.authenticate_article()
+        point = um.UserPointHistory.objects.get_total_point(user_dummy)
+
+        assert point == 0

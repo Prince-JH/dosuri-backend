@@ -34,7 +34,8 @@ class NaverCloudClient:
         return signingKey
 
     def send_sms(self, message, phone_numbers=settings.INSURANCE_PHONE_NUMBERS):
-        phone_numbers = json.loads(phone_numbers)
+        if not isinstance(phone_numbers, list):
+            phone_numbers = json.loads(phone_numbers)
         timestamp = str(int(time.time() * 1000))
         url = 'https://sens.apigw.ntruss.com/sms/v2/services/ncp:sms:kr:303008356722:dosuri/messages'
         data = {

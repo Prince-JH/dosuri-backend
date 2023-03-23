@@ -130,3 +130,16 @@ class UserResignHistory(models.Model):
     class Meta:
         db_table = 'user_resign_history'
         ordering = ['-id']
+
+
+class UserAddress(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='user_address')
+    name = models.CharField(max_length=32, null=True)
+    address = models.CharField(max_length=64)
+    address_type = models.CharField(max_length=64)
+    created_at = models.DateTimeField(auto_now_add=True)
+    latitude = models.FloatField(default=0)  # 위도, y_pos
+    longitude = models.FloatField(default=0)  # 경도, x_pos
+
+    objects = umm.UserAddressManager()

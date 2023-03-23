@@ -1,7 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AnonymousUser
-from django.db.models import Subquery, OuterRef
-from django.db.models.functions import Coalesce
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import (
     generics as g,
@@ -167,6 +164,15 @@ class UserResignHistoryList(g.CreateAPIView):
     permission_classes = [p.IsAuthenticated]
     queryset = um.UserResignHistory.objects.all()
     serializer_class = s.UserResignHistory
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class UserAddressList(g.ListCreateAPIView):
+    permission_classes = [p.IsAuthenticated]
+    queryset = um.UserAddress.objects.all()
+    serializer_class = s.UserAddress
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

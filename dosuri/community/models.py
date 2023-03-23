@@ -49,6 +49,8 @@ class Article(models.Model):
         ordering = ['-id']
 
     def authenticate_article(self):
+        if self.article_type == cmc.ARTICLE_QUESTION:
+            return
         if self.status == cmc.STATUS_COMPLETE:
             return
         user = self.user

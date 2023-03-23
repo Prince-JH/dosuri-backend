@@ -10,9 +10,9 @@ from rest_framework import serializers as s
 from dosuri.user import (
     auth as a,
     models as um,
-    constants as c,
+    constants as uc,
     serializer_schemas as sch,
-    exceptions as exc,
+    exceptions as uexc,
     utils as uu,
 )
 from dosuri.common import (
@@ -38,19 +38,19 @@ class Auth(s.Serializer):
 
         origin = self.context['request'].build_absolute_uri()
 
-        if auth_type == c.AUTH_PASSWORD:
+        if auth_type == uc.AUTH_PASSWORD:
             username = validated_data['username']
             password = validated_data['password']
             qs = um.User.objects.filter(username=username, password=password)
             if not qs.exists():
-                raise exc.WrongUsernameOrPasswordException()
+                raise uexc.WrongUsernameOrPasswordException()
             user = qs.first()
             user_info = {}
 
-        elif auth_type == c.AUTH_KAKAO:
+        elif auth_type == uc.AUTH_KAKAO:
             token = validated_data.get('token')
             if not token:
-                raise exc.RequireTokenException()
+                raise uexc.RequireTokenException()
             auth_factory = a.KaKaoAuth(token, origin)
             kakao_user_info = auth_factory.authenticate()
             username = kakao_user_info['kakao_account']['email']
@@ -238,14 +238,16 @@ class InsuranceUserAssoc(s.ModelSerializer):
             return qs.first()
         message = self.make_message(user)
         ct.announce_insurance_consult.delay(message)
+        if user.phone_no:
+            ct.announce_insurance_consult_to_user.delay(user.phone_no)
         return super().create(validated_data)
 
     def make_message(self, user):
         address_qs = cm.Address.objects.filter(address_user_assoc__user=user)
         if not address_qs.exists():
-            raise exc.UserHasNoAddress()
+            raise uexc.UserHasNoAddress()
         address = address_qs.first()
-        message = f'새로운 보험 신청이 등록되었습니다.\n' \
+        message = f'새로운 보험 신청\n' \
                   f'{user.name} ({user.sex})\n' \
                   f'{user.phone_no}\n' \
                   f'{user.birthday.strftime("%Y/%m/%d")}\n' \
@@ -298,3 +300,20 @@ class UserResignHistory(s.ModelSerializer):
         user.resign()
 
         return instance
+
+
+@extend_schema_serializer(examples=sch.USER_ADDRESS_EXAMPLE)
+class UserAddress(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    name: s.Field = s.CharField(allow_null=True)
+    address: s.Field = s.CharField()
+    address_type: s.Field = s.ChoiceField(choices=[uc.ADDRESS_HOME, uc.ADDRESS_OFFICE, uc.ADDRESS_ETC])
+    latitude: s.Field = s.CharField()
+    longitude: s.Field = s.CharField()
+
+    class Meta:
+        model = um.UserAddress
+        exclude = ('id', 'user', 'created_at')
+
+    def create(self, validated_data):
+        return self.Meta.model.objects.create_address(validated_data)
