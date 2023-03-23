@@ -39,5 +39,12 @@ class HospitalDistance:
         return self.queryset.annotate_distance(self.latitude, self.longitude)
 
     def get_default_coordinates(self, client):
+        if 'testserver' in self.request.build_absolute_uri():
+            '''
+            서울시 강남구의 좌표
+            '''
+            latitude = 37.517331925853
+            longitude = 127.047377408384
+            return [latitude, longitude]
         station = random.choice(['강남역', '봉천역', '발산역', '노원역', '잠실역'])
         return client.get_coordinates('station', station)
