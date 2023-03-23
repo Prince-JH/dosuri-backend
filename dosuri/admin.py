@@ -83,3 +83,4 @@ class UserAdmin(admin.ModelAdmin):
 
 
 admin.site.register(um.User, UserAdmin)
+admin.site.register(um.UserAddress)
