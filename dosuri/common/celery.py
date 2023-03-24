@@ -10,9 +10,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings_local')
 app = Celery('dosuri')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
-beat_app = Celery('dosuri-beat')
-beat_app.config_from_object('django.conf:settings', namespace='CELERY')
-beat_app.conf.update(
+app.conf.update(
     BROKER_URL='django://',
     CELERY_TASK_SERIALIZER='json',
     CELERY_ACCEPT_CONTENT=['json'],  # Ignore other content
@@ -33,4 +31,3 @@ beat_app.conf.update(
     }
 )
 app.autodiscover_tasks()
-beat_app.autodiscover_tasks()
