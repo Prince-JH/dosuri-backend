@@ -21,3 +21,22 @@ def announce_insurance_consult_to_user(phone_no):
               '곽혜경 010-9071-4800'
     naver_client = cs.NaverCloudClient()
     naver_client.send_sms(message, [phone_no])
+
+@shared_task
+def article_relocation_every_day():
+
+    return
+
+
+@shared_task
+def test_batch_every_min():
+    import datetime
+    print("TEST_BATCH_RUNNING!")
+    f = open('/home/ec2-user/batch.log', 'w')
+ 
+    # 파일에 텍스트 쓰기
+    f.write(datetime.datetime.now() + ':  Every min batch complete!')
+
+    # 파일 닫기
+    f.close()
+    return
