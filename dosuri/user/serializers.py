@@ -1,7 +1,8 @@
-import datetime
+from datetime import datetime, timedelta
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from drf_spectacular.utils import extend_schema_serializer
 
 from rest_framework import serializers as s
@@ -9,9 +10,9 @@ from rest_framework import serializers as s
 from dosuri.user import (
     auth as a,
     models as um,
-    constants as c,
+    constants as uc,
     serializer_schemas as sch,
-    exceptions as exc,
+    exceptions as uexc,
     utils as uu,
 )
 from dosuri.common import (
@@ -24,26 +25,40 @@ from dosuri.common import (
 
 class Auth(s.Serializer):
     user_uuid: s.Field = s.CharField(read_only=True)
-    token: s.Field = s.CharField(write_only=True)
+    username: s.Field = s.CharField(write_only=True, required=False)
+    password: s.Field = s.CharField(write_only=True, required=False)
+    token: s.Field = s.CharField(write_only=True, required=False)
     type: s.Field = s.CharField(write_only=True)
     access_token: s.Field = s.CharField(read_only=True)
     refresh_token: s.Field = s.CharField(read_only=True)
     is_new: s.Field = s.BooleanField(read_only=True)
 
     def create(self, validated_data):
-        token = validated_data['token']
-        auth_domain = validated_data['type']
+        auth_type = validated_data['type']
 
         origin = self.context['request'].build_absolute_uri()
 
-        if auth_domain == c.SOCIAL_KAKAO:
-            auth_factory = a.KaKaoAuth(token, origin)
-        kakao_user_info = auth_factory.authenticate()
-        username = kakao_user_info['kakao_account']['email']
+        if auth_type == uc.AUTH_PASSWORD:
+            username = validated_data['username']
+            password = validated_data['password']
+            qs = um.User.objects.filter(username=username, password=password)
+            if not qs.exists():
+                raise uexc.WrongUsernameOrPasswordException()
+            user = qs.first()
+            user_info = {}
 
-        user = um.User.objects.get_or_create(username=username)[0]
+        elif auth_type == uc.AUTH_KAKAO:
+            token = validated_data.get('token')
+            if not token:
+                raise uexc.RequireTokenException()
+            auth_factory = a.KaKaoAuth(token, origin)
+            kakao_user_info = auth_factory.authenticate()
+            username = kakao_user_info['kakao_account']['email']
+
+            user = um.User.objects.get_or_create(username=username)[0]
+            user_info = self.get_user_info_from_kakao(kakao_user_info)
+
         is_new = user.is_new()
-        user_info = self.get_user_info_from_kakao(kakao_user_info)
         if is_new:
             user_info['nickname'] = uu.get_random_nickname()
             um.User.objects.update_user_info(user, user_info)
@@ -72,7 +87,7 @@ class Auth(s.Serializer):
         birth_year = kakao_user_info['kakao_account'].get('birthyear')
         birthday = kakao_user_info['kakao_account'].get('birthday')
         if birth_year and birthday:
-            birthday = datetime.datetime.strptime(f'{birth_year}-{birthday}', '%Y-%m%d').astimezone()
+            birthday = datetime.strptime(f'{birth_year}-{birthday}', '%Y-%m%d').astimezone()
         else:
             birthday = None
         return {'name': name, 'phone_no': phone_no, 'sex': sex, 'birthday': birthday}
@@ -215,17 +230,24 @@ class InsuranceUserAssoc(s.ModelSerializer):
         exclude = ('id', 'created_at')
 
     def create(self, validated_data):
+        insurance = validated_data['insurance']
         user = validated_data['user']
+        qs = self.Meta.model.objects.filter(insurance=insurance, user=user,
+                                            created_at__gte=timezone.now() - timedelta(days=1))
+        if qs.exists():
+            return qs.first()
         message = self.make_message(user)
         ct.announce_insurance_consult.delay(message)
+        if user.phone_no:
+            ct.announce_insurance_consult_to_user.delay(user.phone_no)
         return super().create(validated_data)
 
     def make_message(self, user):
         address_qs = cm.Address.objects.filter(address_user_assoc__user=user)
         if not address_qs.exists():
-            raise exc.UserHasNoAddress()
+            raise uexc.UserHasNoAddress()
         address = address_qs.first()
-        message = f'새로운 보험 신청이 등록되었습니다.\n' \
+        message = f'새로운 보험 신청\n' \
                   f'{user.name} ({user.sex})\n' \
                   f'{user.phone_no}\n' \
                   f'{user.birthday.strftime("%Y/%m/%d")}\n' \
@@ -278,3 +300,26 @@ class UserResignHistory(s.ModelSerializer):
         user.resign()
 
         return instance
+
+
+@extend_schema_serializer(examples=sch.USER_ADDRESS_EXAMPLE)
+class UserAddress(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    name: s.Field = s.CharField(allow_null=True)
+    address: s.Field = s.CharField()
+    address_type: s.Field = s.ChoiceField(choices=[uc.ADDRESS_HOME, uc.ADDRESS_OFFICE, uc.ADDRESS_ETC])
+    is_main: s.Field = s.BooleanField(default=False)
+    latitude: s.Field = s.CharField()
+    longitude: s.Field = s.CharField()
+
+    class Meta:
+        model = um.UserAddress
+        exclude = ('id', 'user', 'created_at')
+
+    def create(self, validated_data):
+        return self.Meta.model.objects.create_address(validated_data)
+
+    def update(self, instance, validated_data):
+        if validated_data['is_main']:
+            self.Meta.model.objects.set_main_address(instance)
+        return super().update(instance, validated_data)

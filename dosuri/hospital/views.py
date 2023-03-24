@@ -50,6 +50,16 @@ class HospitalList(hmx.HospitalDistance, g.ListCreateAPIView):
     hospital_distance_range = None
 
 
+class HospitalNameList(hmx.HospitalDistance, g.ListCreateAPIView):
+    permission_classes = [p.AllowAny]
+    queryset = hm.Hospital.objects.all()
+    serializer_class = s.HospitalName
+    filter_backends = [rf.SearchFilter]
+    ordering_field = '__all__'
+    ordering = ['view_count']
+    search_fields = ['name']
+
+
 class HospitalAddressFilteredList(hmx.HospitalDistance, g.ListAPIView):
     permission_classes = [p.AllowAny]
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',

@@ -13,32 +13,26 @@ s3_client = boto3.client('s3')
 
 
 def resize_image(image, resize_bucket_name, key):
-    in_mem_file = BytesIO()
-    # parsed_key = parse_key_wo_extension(key)
-    with Image.open(BytesIO(image)) as im:
-        # webp_key = convert_to_webp(im, parsed_key)
-        # webp_key = f'{parsed_key}.webp'
-        # im.convert('RGB')
-        # im.save(webp_key, 'webp')
-        im.thumbnail((480, 480))
-        im.save(in_mem_file, format=im.format)
-        in_mem_file.seek(0)
-        s3_client.put_object(
-            Body=in_mem_file,
-            Bucket=resize_bucket_name,
-            Key=key
-        )
-    return key
+    in_mem_file = BytesIO(image)
+    img = Image.open(in_mem_file)
+    parsed_key = parse_key_wo_extension(key)
+    img.convert('RGB')
+    img.thumbnail((480, 480))
+    img.save(in_mem_file, 'webp')
+    in_mem_file.seek(0)
+    resized_key = f'{parsed_key}.webp'
+
+    s3_client.put_object(
+        Body=in_mem_file,
+        Bucket=resize_bucket_name,
+        Key=resized_key
+    )
+    in_mem_file.close()
+    return resized_key
 
 
 def parse_key_wo_extension(key):
     return key.split('.')[0]
-
-
-def convert_to_webp(image, key):
-    image.convert('RGB')
-    image.save(f'{key}.webp', 'webp')
-    return f'{key}.webp'
 
 
 def lambda_handler(event, context):

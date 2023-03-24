@@ -138,6 +138,33 @@ class TestKaKaoAuth:
         assert content['is_new'] is False
 
 
+class TestPasswordAuth:
+    @pytest.mark.django_db
+    def test_auth_correct_password_should_return_tokens(self, client, user_dummy_password):
+        data = {
+            'username': user_dummy_password.username,
+            'password': user_dummy_password.password,
+            'type': 'password',
+        }
+        response = client.post('/user/v1/auth', data=data, content_type='application/json')
+        content = json.loads(response.content)
+        assert response.status_code == 201
+        assert content['is_new'] is True
+        assert get_user_model().objects.all().count() == 1
+
+    @pytest.mark.django_db
+    def test_auth_wrong_password_should_return_tokens(self, client, user_dummy_password):
+        data = {
+            'username': user_dummy_password.username,
+            'password': 'wrong_password',
+            'type': 'password',
+        }
+        response = client.post('/user/v1/auth', data=data, content_type='application/json')
+        content = json.loads(response.content)
+        assert response.status_code == 400
+        assert content['detail'] == 'Wrong username or password.'
+
+
 class TestUserNickname:
     @pytest.mark.django_db
     def test_not_duplicated_nickname(self, client):
@@ -163,6 +190,16 @@ class TestUserNickname:
 
 
 class TestInsuranceUserAssoc:
+    @pytest.mark.django_db
+    def test_create_request_within_day(self, client, celery_app, celery_config, tokens_user_dummy,
+                                       insurance_user_assoc_new, assoc_address_서울_강남_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        client.post('/user/v1/insurance-user-assocs', **headers)
+        assert um.InsuranceUserAssoc.objects.all().count() == 1
+
     @pytest.mark.django_db
     def test_create_without_address_info(self, client, tokens_user_dummy, insurance_A):
         headers = {
@@ -195,3 +232,102 @@ class TestUserTotalPoint:
         assert response.status_code == 200
         content = json.loads(response.content)
         assert content['total_point'] == 100
+
+
+class TestUserAddress:
+    @pytest.mark.django_db
+    def test_list_address_should_return_zero(self, client, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get('/user/v1/users/me/addresses', **headers)
+
+        assert response.status_code == 200
+        content = json.loads(response.content)
+        assert len(content['results']) == 0
+
+    @pytest.mark.django_db
+    def test_list_address_should_return_one(self, client, tokens_user_dummy, user_dummy_address_home):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get('/user/v1/users/me/addresses', **headers)
+
+        assert response.status_code == 200
+        content = json.loads(response.content)
+        assert len(content['results']) == 1
+
+    @pytest.mark.django_db
+    def test_create_home_address(self, client, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        data = {
+            'name': None,
+            'address': '수원시 팔달구 아주로 111',
+            'address_type': 'home',
+            'latitude': 123.123,
+            'longitude': 124.124
+        }
+        response = client.post('/user/v1/users/me/addresses', data=data, **headers)
+
+        assert response.status_code == 201
+        assert um.UserAddress.objects.all().count() == 1
+
+    @pytest.mark.django_db
+    def test_create_home_address_when_already_exists(self, client, tokens_user_dummy, user_dummy_address_home):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        data = {
+            'name': None,
+            'address': '수원시 팔달구 아주로 111',
+            'address_type': 'home',
+            'latitude': 123.123,
+            'longitude': 124.124
+        }
+        response = client.post('/user/v1/users/me/addresses', data=data, **headers)
+
+        assert response.status_code == 400
+        content = json.loads(response.content)
+        assert content['detail'] == 'Home address exists.'
+
+    @pytest.mark.django_db
+    def test_create_address_with_invalid_address_type(self, client, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        data = {
+            'name': None,
+            'address': '수원시 팔달구 아주로 111',
+            'address_type': 'invalid type',
+            'latitude': 123.123,
+            'longitude': 124.124
+        }
+        response = client.post('/user/v1/users/me/addresses', data=data, **headers)
+
+        assert response.status_code == 400
+
+    @pytest.mark.django_db
+    def test_update_address_to_main(self, client, tokens_user_dummy, user_dummy_address_home,
+                                    user_dummy_address_office):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        data = {
+            'is_main': True
+        }
+        response = client.patch(f'/user/v1/users/me/addresses/{user_dummy_address_home.uuid}', data=data, **headers)
+        user_dummy_address_home.refresh_from_db()
+        user_dummy_address_office.refresh_from_db()
+        assert response.status_code == 200
+        content = json.loads(response.content)
+        assert content['uuid'] == user_dummy_address_home.uuid
+        assert user_dummy_address_home.is_main
+        assert not user_dummy_address_office.is_main

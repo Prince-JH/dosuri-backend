@@ -1,7 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AnonymousUser
-from django.db.models import Subquery, OuterRef
-from django.db.models.functions import Coalesce
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import (
     generics as g,
@@ -89,6 +86,7 @@ class UserDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.IsAuthenticated]
     queryset = get_user_model().objects.filter()
     serializer_class = s.User
+    lookup_field = 'uuid'
 
     def get_object(self):
         return self.request.user
@@ -130,6 +128,7 @@ class UserPointHistoryDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.IsAuthenticated]
     queryset = um.UserPointHistory.objects.all()
     serializer_class = s.UserPointHistory
+    lookup_field = 'uuid'
 
 
 class UserTotalPoint(g.RetrieveAPIView):
@@ -155,6 +154,7 @@ class UserNotificationDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.IsAuthenticated]
     queryset = um.UserNotification.objects.all()
     serializer_class = s.UserNotification
+    lookup_field = 'uuid'
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -170,3 +170,22 @@ class UserResignHistoryList(g.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class UserAddressList(g.ListCreateAPIView):
+    permission_classes = [p.IsAuthenticated]
+    queryset = um.UserAddress.objects.all()
+    serializer_class = s.UserAddress
+    filter_backends = [rf.OrderingFilter]
+    ordering_field = '__all__'
+    ordering = ['-created_at']
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class UserAddressDetail(g.RetrieveUpdateDestroyAPIView):
+    permission_classes = [p.IsAuthenticated]
+    queryset = um.UserAddress.objects.all()
+    serializer_class = s.UserAddress
+    lookup_field = 'uuid'

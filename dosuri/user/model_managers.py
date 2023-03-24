@@ -1,5 +1,9 @@
 from django.contrib.auth.models import UserManager
 from django.db.models import Manager
+from dosuri.user import (
+    constants as uc,
+    exceptions as uexc,
+)
 
 
 class DosuriUserManager(UserManager):
@@ -56,3 +60,49 @@ class AddressUserAssocManager(Manager):
             return f'{address.large_area}{address.small_area}'
         except self.model.DoesNotExist:
             return
+
+
+class UserAddressManager(Manager):
+    def set_main_address(self, instance):
+        self.filter(user=instance.user).update(is_main=False)
+        instance.is_main = True
+        instance.save()
+
+    def create_address(self, data):
+        if data['address_type'] == uc.ADDRESS_HOME:
+            instance = self.create_home_address(user=data['user'],
+                                                name=data['name'],
+                                                address=data['address'],
+                                                latitude=data['latitude'],
+                                                longitude=data['longitude'])
+
+        elif data['address_type'] == uc.ADDRESS_OFFICE:
+            instance = self.create_office_address(user=data['user'],
+                                                  name=data['name'],
+                                                  address=data['address'],
+                                                  latitude=data['latitude'],
+                                                  longitude=data['longitude'])
+        else:
+            instance = self.create_etc_address(user=data['user'],
+                                               name=data['name'],
+                                               address=data['address'],
+                                               latitude=data['latitude'],
+                                               longitude=data['longitude'])
+        return instance
+
+    def create_home_address(self, user, name, address, latitude, longitude):
+        if self.filter(user=user, address_type=uc.ADDRESS_HOME).exists():
+            raise uexc.HomeAddressExists()
+        return self.create(user=user, name=name, address=address, address_type=uc.ADDRESS_HOME, latitude=latitude,
+                           longitude=longitude)
+
+    def create_office_address(self, user, name, address, latitude, longitude):
+        if self.filter(user=user, address_type=uc.ADDRESS_OFFICE).exists():
+            raise uexc.OfficeAddressExists()
+        return self.create(user=user, name=name, address=address, address_type=uc.ADDRESS_OFFICE, latitude=latitude,
+                           longitude=longitude)
+
+    def create_etc_address(self, user, name, address, latitude, longitude):
+        return self.create(user=user, name=name, address=address, address_type=uc.ADDRESS_ETC, latitude=latitude,
+                           longitude=longitude)
+

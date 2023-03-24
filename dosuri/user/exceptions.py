@@ -14,3 +14,23 @@ class UserHasNoAddress(exc.APIException):
 class KakaoApiException(exc.APIException):
     default_detail = 'Kakao api error.'
     status_code = 400
+
+
+class RequireTokenException(exc.APIException):
+    default_detail = 'Require token.'
+    status_code = 400
+
+
+class WrongUsernameOrPasswordException(exc.APIException):
+    default_detail = 'Wrong username or password.'
+    status_code = 400
+
+
+class HomeAddressExists(exc.APIException):
+    default_detail = 'Home address exists.'
+    status_code = 400
+
+
+class OfficeAddressExists(exc.APIException):
+    default_detail = 'Office address exists.'
+    status_code = 400

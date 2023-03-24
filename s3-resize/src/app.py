@@ -56,7 +56,7 @@ def lambda_handler(event, context):
 
 
 def notify_job_finished(uuid, resize_bucket_name, key):
-    url = f"{os.environ.get('DOSURI_URL', 'https://dev-server.dosuri.site')}/common/v1/attachment/{uuid}"
+    url = f"{os.environ.get('DOSURI_URL', 'https://server.dosuri.site')}/common/v1/attachment/{uuid}"
     data = {
         'bucket_name': resize_bucket_name,
         'path': f'{key}'

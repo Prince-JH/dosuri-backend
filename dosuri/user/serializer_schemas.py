@@ -23,7 +23,7 @@ USER_DETAIL_EXAMPLE = [
                     "name": "그 외"
                 }
             ],
-            "unread_notice":True
+            "unread_notice": True
         },
         request_only=True
     ),
@@ -51,12 +51,11 @@ USER_DETAIL_EXAMPLE = [
                     "name": "그 외"
                 }
             ],
-            "unread_notice":True
+            "unread_notice": True
         },
         response_only=True
     )
 ]
-
 
 TOTAL_POINT_EXAMPLE = [
     OpenApiExample(
@@ -67,5 +66,36 @@ TOTAL_POINT_EXAMPLE = [
             "total_point": 2000
         },
         response_only=True
+    )
+]
+
+USER_ADDRESS_EXAMPLE = [
+    OpenApiExample(
+        'Valid example 1',
+        summary='When home or office',
+        description='',
+        value={
+            "name": None,
+            "address": "string",
+            "address_type": "home | office",
+            "latitude": "string",
+            "longitude": "string",
+            "is_main": True,
+        },
+        request_only=True
+    ),
+    OpenApiExample(
+        'Valid example 2',
+        summary='When etc',
+        description='',
+        value={
+            "name": "전여친 집",
+            "address": "string",
+            "address_type": "etc",
+            "latitude": "string",
+            "longitude": "string",
+            "is_main": False
+        },
+        request_only=True
     )
 ]

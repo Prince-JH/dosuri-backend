@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 import pytest
 from django.contrib.auth import get_user_model
 
@@ -18,7 +20,8 @@ from dosuri.user import models as um
 def user_dummy():
     return get_user_model().objects.create_user(
         username='dummy@dummy.com',
-        nickname='dummy'
+        nickname='dummy',
+        birthday=datetime.now()
     )
 
 
@@ -27,6 +30,15 @@ def user_dummy_1():
     return get_user_model().objects.create_user(
         username='dummy@dummy.net',
         nickname='dummy1'
+    )
+
+
+@pytest.fixture
+def user_dummy_password():
+    return get_user_model().objects.create_user(
+        username='dummy@dummy.com',
+        nickname='dummy',
+        password='password'
     )
 
 
@@ -324,6 +336,16 @@ def article_A_hospital_C(hospital_test_C, user_dummy):
         article_type=cmc.ARTICLE_REVIEW
     )
 
+
+@pytest.fixture
+def article_question(user_dummy):
+    return cmm.Article.objects.create(
+        content='A',
+        user=user_dummy,
+        article_type=cmc.ARTICLE_QUESTION
+    )
+
+
 @pytest.fixture
 def article_auth_A_article_A_hospital_B(article_A_hospital_B, user_dummy):
     return cmm.ArticleAuth.objects.create(
@@ -353,3 +375,38 @@ def insurance_A():
     return um.Insurance.objects.create(
         name='A'
     )
+
+
+@pytest.fixture
+def insurance_user_assoc_old(insurance_A, user_dummy):
+    assoc = um.InsuranceUserAssoc.objects.create(
+        insurance=insurance_A,
+        user=user_dummy
+    )
+    assoc.created_at = datetime(2021, 8, 1, 0, 0, 0, tzinfo=timezone.utc)
+    assoc.save()
+    return assoc
+
+
+@pytest.fixture
+def insurance_user_assoc_new(insurance_A, user_dummy):
+    return um.InsuranceUserAssoc.objects.create(
+        insurance=insurance_A,
+        user=user_dummy,
+        created_at=datetime(2021, 8, 1, 0, 0, 0, tzinfo=timezone.utc)
+    )
+
+
+@pytest.fixture
+def user_dummy_address_home(user_dummy):
+    return um.UserAddress.objects.create_home_address(user_dummy, 'home', '수원시 팔달구 아주로 17', 123.123, 123.123)
+
+
+@pytest.fixture
+def user_dummy_address_office(user_dummy):
+    return um.UserAddress.objects.create_office_address(user_dummy, 'office', '서초대로 343 신덕빌딩', 123.123, 123.123)
+
+
+@pytest.fixture
+def user_dummy_address_etc(user_dummy):
+    return um.UserAddress.objects.create_etc_address(user_dummy, 'home', '강남구 삼성동 106', 123.123, 123.123)

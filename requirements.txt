@@ -21,7 +21,9 @@ botocore==1.29.37
     #   boto3
     #   s3transfer
 celery==5.2.7
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   pytest-celery
 certifi==2022.9.24
     # via
     #   elastic-transport
@@ -157,6 +159,8 @@ pytest==7.1.3
     # via
     #   -r requirements.in
     #   pytest-django
+pytest-celery==0.0.0
+    # via -r requirements.in
 pytest-django==4.5.2
     # via -r requirements.in
 python-dateutil==2.8.2

@@ -13,7 +13,7 @@ urlpatterns = [
     path('v1/token/verify', TokenVerifyView.as_view(), name='token-obtain-pair'),
     path('v1/token/refresh', TokenRefreshView.as_view(), name='token-refresh'),
 
-    path('v1/auth', v.Auth.as_view(), name='kakao-auth'),
+    path('v1/auth', v.Auth.as_view(), name='auth'),
     path('v1/users', v.UserList.as_view(), name='user'),
     path('v1/users/token', v.UserToken.as_view(), name='user'),
     path('v1/users/nickname', v.UserNickname.as_view(), name='user-nickname'),
@@ -26,6 +26,8 @@ urlpatterns = [
     path('v1/users/me/point', v.UserTotalPoint.as_view(), name='user-total-point'),
     path('v1/users/me/notifications', v.UserNotificationList.as_view(), name='user-notification'),
     path('v1/users/me/notifications/<uuid>', v.UserNotificationDetail.as_view(), name='user-notification'),
+    path('v1/users/me/addresses', v.UserAddressList.as_view(), name='user-address'),
+    path('v1/users/me/addresses/<uuid>', v.UserAddressDetail.as_view(), name='user-address-detail'),
 
     path('v1/users/me/resign', v.UserResignHistoryList.as_view(), name='user-resign'),
 

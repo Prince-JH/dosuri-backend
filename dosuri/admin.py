@@ -15,6 +15,8 @@ from dosuri.user import models as um
 from dosuri.hospital import models as hm
 
 admin.site.register(cm.Address)
+admin.site.register(cm.Attachment)
+admin.site.register(cmm.ArticleAttachmentAssoc)
 admin.site.register(hm.Hospital)
 admin.site.register(hm.HospitalTreatment)
 admin.site.register(hm.HospitalCalendar)
@@ -60,7 +62,7 @@ class ArticleAdmin(admin.ModelAdmin):
         return True if obj.article_auth.status == cmc.STATUS_COMPLETE else False
 
     def image_preview(self, obj):
-        images = cm.Attachment.objects.filter(article_attachment_assoc__article=obj)
+        images = cm.Attachment.objects.filter(auth_attachment_assoc__article_auth__article=obj)
         if len(images) == 0:
             return
         return mark_safe('<img src = "{url}" width = "100" height = "100"/>'.format(
@@ -81,3 +83,4 @@ class UserAdmin(admin.ModelAdmin):
 
 
 admin.site.register(um.User, UserAdmin)
+admin.site.register(um.UserAddress)

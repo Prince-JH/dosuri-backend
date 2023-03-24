@@ -9,7 +9,6 @@ from django.conf import settings
 from urllib import parse
 
 # Create an SNS client
-from django.utils import timezone
 
 sns_client = boto3.client(
     "sns",
@@ -49,12 +48,3 @@ def send_slack(message):
     }
     data = {'text': message}
     return requests.post(url=url, data=json.dumps(data), headers=headers)
-
-
-def generate_presigned_url(bucket_name, key):
-    try:
-        return s3_client.generate_presigned_url('get_object',
-                                                Params={'Bucket': bucket_name, 'Key': key},
-                                                ExpiresIn=3600)
-    except ClientError as e:
-        return None
