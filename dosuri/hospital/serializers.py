@@ -14,6 +14,9 @@ from dosuri.community import (
     models as cmm,
 
 )
+from dosuri.user import (
+    models as um
+)
 from drf_spectacular.utils import extend_schema_serializer, OpenApiExample, extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 
@@ -420,6 +423,7 @@ class GoodReviewHospital(s.ModelSerializer):
 
 @extend_schema_serializer(examples=sch.HOME_HOSPITAL_EXAMPLE)
 class HomeHospital(s.Serializer):
+    address: s.Field = s.CharField()
     top_hospitals: s.Field = s.ListField()
     new_hospitals: s.Field = s.ListField()
     good_price_hospitals: s.Field = s.ListField()

@@ -25,7 +25,7 @@ from dosuri.hospital import (
     filters as hf,
     pagings as hp,
     constants as hc,
-    model_mixins as hmx,
+    view_mixins as hmx,
 )
 from dosuri.common import filters as f
 
@@ -336,8 +336,6 @@ class HomeHospitalList(hmx.HospitalDistance, g.ListAPIView):
         queryset = self.filter_queryset(self.get_queryset()).prefetch_related('hospital_attachment_assoc',
                                                                               'hospital_attachment_assoc__attachment')
 
-        # queryset = queryset.get_address_filtered_queryset(request.user)
-
         top_hospital_queryset = self.get_top_hospital_queryset(queryset)
         top_hospital_serializer = s.AroundHospital(top_hospital_queryset, many=True)
 
@@ -350,7 +348,8 @@ class HomeHospitalList(hmx.HospitalDistance, g.ListAPIView):
         # good_review_hospital_queryset = self.get_good_review_hospital_queryset(address_filtered_queryset)
         # good_review_hospital_serializer = s.AroundHospital(good_review_hospital_queryset, many=True)
 
-        serializer = self.get_serializer({'top_hospitals': top_hospital_serializer.data,
+        serializer = self.get_serializer({'address': self.address,
+                                          'top_hospitals': top_hospital_serializer.data,
                                           'new_hospitals': new_hospital_serializer.data,
                                           'good_price_hospitals': good_price_hospital_serializer.data})
         return Response(serializer.data)
