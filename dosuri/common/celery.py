@@ -11,7 +11,6 @@ app = Celery('dosuri')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
 app.conf.update(
-    BROKER_URL='django://',
     CELERY_TASK_SERIALIZER='json',
     CELERY_ACCEPT_CONTENT=['json'],  # Ignore other content
     CELERY_RESULT_SERIALIZER='json',
