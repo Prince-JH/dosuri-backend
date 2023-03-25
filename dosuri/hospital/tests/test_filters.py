@@ -34,7 +34,7 @@ class DummyNoneDistanceView:
 class TestReviewCountOrderingFilter:
     @pytest.mark.django_db
     def test_hospital_queryset_order_by_article_count(
-            self, rf, hospital_test_A, hospital_test_B, hospital_test_C, article_A_hospital_A, article_B_hospital_A,
+            self, rf, hospital_test_강남, hospital_test_수원, hospital_test_C, article_A_hospital_A, article_B_hospital_A,
             article_A_hospital_B):
         url = f'/'
         request = rf.get(url)
@@ -45,15 +45,15 @@ class TestReviewCountOrderingFilter:
         view = DummyView()
         filtered_qs = _filter.filter_queryset(request, queryset, view)
         assert filtered_qs.count() == 3
-        assert filtered_qs[0].uuid == hospital_test_A.uuid
-        assert filtered_qs[1].uuid == hospital_test_B.uuid
+        assert filtered_qs[0].uuid == hospital_test_강남.uuid
+        assert filtered_qs[1].uuid == hospital_test_수원.uuid
         assert filtered_qs[2].uuid == hospital_test_C.uuid
 
 
 class TestReviewNewOrderingFilter:
     @pytest.mark.django_db
     def test_hospital_queryset_order_by_newer_article(
-            self, rf, hospital_test_A, hospital_test_B, hospital_test_C, article_A_hospital_A, article_B_hospital_A,
+            self, rf, hospital_test_강남, hospital_test_수원, hospital_test_C, article_A_hospital_A, article_B_hospital_A,
             article_A_hospital_B
     ):
         url = f'/'
@@ -65,8 +65,8 @@ class TestReviewNewOrderingFilter:
         view = DummyView()
         filtered_qs = _filter.filter_queryset(request, queryset, view)
         assert filtered_qs.count() == 3
-        assert filtered_qs[0].uuid == hospital_test_B.uuid
-        assert filtered_qs[1].uuid == hospital_test_A.uuid
+        assert filtered_qs[0].uuid == hospital_test_수원.uuid
+        assert filtered_qs[1].uuid == hospital_test_강남.uuid
         assert filtered_qs[2].uuid == hospital_test_C.uuid
 
 

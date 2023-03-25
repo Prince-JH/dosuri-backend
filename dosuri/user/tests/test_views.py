@@ -42,8 +42,10 @@ class TestUserDetail:
             "birthday": "2022-12-20",
             "phone_no": "010-1234-5678",
             "address": {
-                "large_area": "서울",
-                "small_area": "강남구"
+                "name": "별칭",
+                "address": "서울특별시 서초구 테헤란로 343",
+                "latitude": 37.517331925853,
+                "longitude": 127.047377408384
             },
             "sex": "남자",
             "pain_areas": [
@@ -61,6 +63,9 @@ class TestUserDetail:
         user_dummy = get_user_model().objects.get(pk=user_dummy.pk)
         assert user_dummy.name == '한준호'
         assert user_dummy.nickname == '아이고맨'
+        address = um.UserAddress.objects.get(user=user_dummy)
+        assert address.name == '별칭'
+        assert not address.is_main
 
     @pytest.mark.django_db
     def test_partial_update_user(self, client, user_dummy, tokens_user_dummy):
@@ -123,7 +128,7 @@ class TestKaKaoAuth:
 
     @pytest.mark.django_db
     @requests_mock.Mocker(kw='mock')
-    def test_auth_old_user_should_return_tokens_with_false_is_new(self, client, user_dummy, assoc_address_수원_user_dummy,
+    def test_auth_old_user_should_return_tokens_with_false_is_new(self, client, user_dummy, user_dummy_address_etc,
                                                                   **kwargs):
         kwargs['mock'].post(f'https://kauth.kakao.com/oauth/token', json=mo.access_token_data)
         kwargs['mock'].get(f'https://kapi.kakao.com/v2/user/me', json=mo.user_info_data)

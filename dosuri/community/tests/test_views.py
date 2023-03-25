@@ -25,7 +25,7 @@ class TestArticleList:
         assert len(content['results']) == 0
 
     @pytest.mark.django_db
-    def test_create_review(self, client, hospital_test_A, article_keyword_A, tokens_user_dummy, attachment_A,
+    def test_create_review(self, client, hospital_test_강남, article_keyword_A, tokens_user_dummy, attachment_A,
                            attachment_B):
         headers = {
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
@@ -35,7 +35,7 @@ class TestArticleList:
             path="/community/v1/community/articles",
             data={
                 "article_type": cc.ARTICLE_REVIEW,
-                "hospital": hospital_test_A.uuid,
+                "hospital": hospital_test_강남.uuid,
                 "content": "선생님이 변태 같아요",
                 "article_attachment_assoc": [
                     {
@@ -99,9 +99,9 @@ class TestArticleList:
         return article
 
     @pytest.mark.django_db
-    def test_list_article_should_return_one_result(self, client, hospital_test_A, article_keyword_A, tokens_user_dummy,
+    def test_list_article_should_return_one_result(self, client, hospital_test_강남, article_keyword_A, tokens_user_dummy,
                                                    attachment_A, attachment_B):
-        article = self.test_create_review(client, hospital_test_A, article_keyword_A, tokens_user_dummy, attachment_A,
+        article = self.test_create_review(client, hospital_test_강남, article_keyword_A, tokens_user_dummy, attachment_A,
                                           attachment_B)
         headers = {
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
@@ -113,9 +113,9 @@ class TestArticleList:
         assert len(content['results']) == 1
 
     @pytest.mark.django_db
-    def test_delete_article(self, client, hospital_test_A, article_keyword_A, tokens_user_dummy, attachment_A,
+    def test_delete_article(self, client, hospital_test_강남, article_keyword_A, tokens_user_dummy, attachment_A,
                             attachment_B):
-        article = self.test_create_review(client, hospital_test_A, article_keyword_A, tokens_user_dummy, attachment_A,
+        article = self.test_create_review(client, hospital_test_강남, article_keyword_A, tokens_user_dummy, attachment_A,
                                           attachment_B)
         headers = {
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
