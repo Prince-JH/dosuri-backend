@@ -22,7 +22,7 @@ class TestHospitalList:
         assert len(content['results']) == 0
 
     @pytest.mark.django_db
-    def test_list_hospital_should_return_one_result(self, client, hospital_test_A):
+    def test_list_hospital_should_return_one_result(self, client, hospital_test_강남):
         response = client.get('/hospital/v1/hospitals')
         content = json.loads(response.content)
 
@@ -30,7 +30,7 @@ class TestHospitalList:
         assert len(content['results']) == 1
 
     @pytest.mark.django_db
-    def test_list_hospital_search_by_exist_name_should_return_one(self, client, hospital_test_A):
+    def test_list_hospital_search_by_exist_name_should_return_one(self, client, hospital_test_강남):
         response = client.get(f'/hospital/v1/hospitals?search=test_A')
         content = json.loads(response.content)
 
@@ -38,7 +38,7 @@ class TestHospitalList:
         assert len(content['results']) == 1
 
     @pytest.mark.django_db
-    def test_list_hospital_search_by_not_exist_name_should_return_zero(self, client, hospital_test_A):
+    def test_list_hospital_search_by_not_exist_name_should_return_zero(self, client, hospital_test_강남):
         response = client.get(f'/hospital/v1/hospitals?search=test_B')
         content = json.loads(response.content)
 
@@ -104,25 +104,25 @@ class TestHospitalList:
 
     @pytest.mark.django_db
     def test_hospital_list_order_by_review_count(
-            self, client, hospital_test_A, hospital_test_B, hospital_test_C, article_A_hospital_A, article_B_hospital_A,
+            self, client, hospital_test_강남, hospital_test_수원, hospital_test_C, article_A_hospital_A, article_B_hospital_A,
             article_A_hospital_B):
         response = client.get('/hospital/v1/hospitals?ordering=-article_count', content_type='application/json')
         content = json.loads(response.content)
         assert len(content['results']) == 3
-        assert content['results'][0]['uuid'] == hospital_test_A.uuid
-        assert content['results'][1]['uuid'] == hospital_test_B.uuid
+        assert content['results'][0]['uuid'] == hospital_test_강남.uuid
+        assert content['results'][1]['uuid'] == hospital_test_수원.uuid
         assert content['results'][2]['uuid'] == hospital_test_C.uuid
 
     @pytest.mark.django_db
     def test_hospital_list_order_by_review_new(
-            self, client, hospital_test_A, hospital_test_B, hospital_test_C, article_A_hospital_A, article_B_hospital_A,
+            self, client, hospital_test_강남, hospital_test_수원, hospital_test_C, article_A_hospital_A, article_B_hospital_A,
             article_A_hospital_B):
         response = client.get('/hospital/v1/hospitals?ordering=-latest_article_created_at',
                               content_type='application/json')
         content = json.loads(response.content)
         assert len(content['results']) == 3
-        assert content['results'][0]['uuid'] == hospital_test_B.uuid
-        assert content['results'][1]['uuid'] == hospital_test_A.uuid
+        assert content['results'][0]['uuid'] == hospital_test_수원.uuid
+        assert content['results'][1]['uuid'] == hospital_test_강남.uuid
         assert content['results'][2]['uuid'] == hospital_test_C.uuid
 
 
@@ -137,9 +137,8 @@ class TestAddressFilteredHospitalList:
 
     @pytest.mark.django_db
     @requests_mock.Mocker(kw='mock')
-    def test_list_address_filtered_hospital_should_return_one_result(self, client, hospital_test_B, address_수원시_팔달구,
-                                                                     assoc_hospital_B_address_수원,
-                                                                     tokens_user_dummy, assoc_address_수원_user_dummy,
+    def test_list_address_filtered_hospital_should_return_one_result(self, client, hospital_test_강남, address_수원시_팔달구,
+                                                                     tokens_user_dummy, user_dummy_address_수원_main,
                                                                      **kwargs):
         parsed_address = parse.quote(f'{address_수원시_팔달구.large_area}{address_수원시_팔달구.small_area}')
         kwargs['mock'].get(f'https://dapi.kakao.com/v2/local/search/address.json?query={parsed_address}',
@@ -151,14 +150,14 @@ class TestAddressFilteredHospitalList:
         response = client.get('/hospital/v1/hospitals-address-filtered', **headers)
         content = json.loads(response.content)
 
+
         assert response.status_code == 200
         assert len(content['results']) == 1
 
 
 class TestHospitalCurrentAddressFilteredList:
     @pytest.mark.django_db
-    def test_list_address_filtered_hospital_should_return_one_result(self, client, hospital_test_B,
-                                                                     assoc_hospital_B_address_수원,
+    def test_list_address_filtered_hospital_should_return_one_result(self, client, hospital_test_수원,
                                                                      tokens_user_dummy, assoc_address_수원_user_dummy,
                                                                      hospital_treatments_A_hospital_B):
         headers = {
@@ -174,8 +173,7 @@ class TestHospitalCurrentAddressFilteredList:
 
 class TestHospitalCurrentAddressFilteredAvgPriceList:
     @pytest.mark.django_db
-    def test_list_address_filtered_hospital_should_return_one_result(self, client, hospital_test_B,
-                                                                     assoc_hospital_B_address_수원,
+    def test_list_address_filtered_hospital_should_return_one_result(self, client, hospital_test_수원,
                                                                      tokens_user_dummy, assoc_address_수원_user_dummy,
                                                                      hospital_treatments_A_hospital_B):
         headers = {
@@ -191,11 +189,11 @@ class TestHospitalCurrentAddressFilteredAvgPriceList:
 
 class TestHospitalDetail:
     @pytest.mark.django_db
-    def test_get_hospital_by_uuid(self, client, hospital_test_A):
-        response = client.get(f'/hospital/v1/hospitals/{hospital_test_A.uuid}')
+    def test_get_hospital_by_uuid(self, client, hospital_test_강남):
+        response = client.get(f'/hospital/v1/hospitals/{hospital_test_강남.uuid}')
         content = json.loads(response.content)
         assert response.status_code == 200
-        assert content['name'] == hospital_test_A.name
+        assert content['name'] == hospital_test_강남.name
 
 
 class TestDoctor:
@@ -213,9 +211,9 @@ class TestDoctor:
         assert content['results'][0]['position'] == hc.POSITION_THERAPIST
 
     @pytest.mark.django_db
-    def test_create_doctor(self, client, hospital_test_A, attachment_A):
+    def test_create_doctor(self, client, hospital_test_강남, attachment_A):
         data = {
-            'hospital': hospital_test_A.uuid,
+            'hospital': hospital_test_강남.uuid,
             'name': 'test doctor',
             'title': 'chief',
             'subtitle': 'chief',
@@ -271,10 +269,10 @@ class TestHospitalTreatment:
         assert len(content['results']) == 1
 
     @pytest.mark.django_db
-    def test_create_hospital_treatment(self, client, hospital_test_A):
+    def test_create_hospital_treatment(self, client, hospital_test_강남):
         data = {
             'name': '도수치료A',
-            'hospital': hospital_test_A.uuid,
+            'hospital': hospital_test_강남.uuid,
             'price': 80000,
             'price_per_hour': 160000,
             'description': '원장이 직접 실시'
@@ -287,13 +285,13 @@ class TestHospitalTreatment:
 
 class TestHospitalUserAssoc:
     @pytest.mark.django_db
-    def test_create_hospital_treatment(self, client, hospital_test_A, tokens_user_dummy):
+    def test_create_hospital_treatment(self, client, hospital_test_강남, tokens_user_dummy):
         headers = {
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
             'content_type': 'application/json'
         }
         data = {
-            'hospital': hospital_test_A.uuid,
+            'hospital': hospital_test_강남.uuid,
             'is_up': True
         }
         response = client.post('/hospital/v1/hospital-user-assocs', data=data, **headers)
@@ -355,9 +353,8 @@ class TestHospitalSearch:
 class TestHomeHospital:
     @pytest.mark.django_db
     @requests_mock.Mocker(kw='mock')
-    def test_list_home_hospital_without_token(self, client, hospital_test_A, address_서울시_강남구,
-                                              assoc_hospital_A_address_강남, tokens_user_dummy,
-                                              assoc_address_서울_강남_user_dummy, **kwargs):
+    def test_list_home_hospital_without_token(self, client, hospital_test_강남, address_서울시_강남구, tokens_user_dummy,
+                                              user_dummy_address_수원_main, **kwargs):
         parsed_address = parse.quote(f'{address_서울시_강남구.large_area}{address_서울시_강남구.small_area}')
         kwargs['mock'].get(f'https://dapi.kakao.com/v2/local/search/address.json?query={parsed_address}',
                            json=hmo.서울특별시_강남구_coordinates)
@@ -369,13 +366,13 @@ class TestHomeHospital:
 
         assert response.status_code == 200
         content = json.loads(response.content)
-        assert content['top_hospitals'][0]['uuid'] == hospital_test_A.uuid
+        assert content['address'] == '강남구'
+        assert content['top_hospitals'][0]['uuid'] == hospital_test_강남.uuid
 
     @pytest.mark.django_db
     @requests_mock.Mocker(kw='mock')
-    def test_list_home_hospital_with_token(self, client, hospital_test_B, address_수원시_팔달구,
-                                           assoc_hospital_B_address_수원,
-                                           tokens_user_dummy, assoc_address_수원_user_dummy,
+    def test_list_home_hospital_with_token(self, client, hospital_test_강남, address_수원시_팔달구,
+                                           tokens_user_dummy, user_dummy_address_수원_main,
                                            **kwargs):
         parsed_address = parse.quote(f'{address_수원시_팔달구.large_area}{address_수원시_팔달구.small_area}')
         kwargs['mock'].get(f'https://dapi.kakao.com/v2/local/search/address.json?query={parsed_address}',
@@ -393,7 +390,7 @@ class TestHomeHospital:
 
 class TestHospitalName:
     @pytest.mark.django_db
-    def test_list_home_hospital_without_token(self, client, hospital_test_A):
+    def test_list_home_hospital_without_token(self, client, hospital_test_강남):
         headers = {
             'content_type': 'application/json'
         }
@@ -402,4 +399,4 @@ class TestHospitalName:
         assert response.status_code == 200
         content = json.loads(response.content)
         assert content['count'] == 1
-        assert content['results'][0]['uuid'] == hospital_test_A.uuid
+        assert content['results'][0]['uuid'] == hospital_test_강남.uuid
