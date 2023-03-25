@@ -31,7 +31,7 @@ class User(AbstractUser):
         ordering = ['-id']
 
     def is_new(self):
-        qs = AddressUserAssoc.objects.filter(user=self)
+        qs = UserAddress.objects.filter(user=self)
         return False if qs.exists() else True
 
     def resign(self):
