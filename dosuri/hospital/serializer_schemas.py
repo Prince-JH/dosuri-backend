@@ -6,6 +6,7 @@ HOME_HOSPITAL_EXAMPLE = [
         summary='short summary',
         description='',
         value={
+            "address": "강남역",
             "top_hospitals": [
                 {
                     "uuid": "string",
