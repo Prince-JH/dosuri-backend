@@ -20,8 +20,11 @@ from datetime import datetime, timedelta
 
 class HotArticleList(g.ListAPIView):
     permission_classes = [p.AllowAny]
-    queryset = m.Article.objects.filter(created_at__gte=timezone.now() - timedelta(days=7)).annotate(
-        comment_count=Count('article_comment') + Count('article_comment__article_thread')).order_by('-comment_count')[:3]
+    # queryset = m.Article.objects.filter(created_at__gte=timezone.now() - timedelta(days=7)).annotate(
+    #     comment_count=Count('article_comment') + Count('article_comment__article_thread')).order_by('-comment_count')[:3] ## HOT 도수톡 로직 변경 전
+    
+    queryset = m.Article.objects.annotate(
+        comment_count=Count('article_comment') + Count('article_comment__article_thread')).order_by('-created_at')[:3] ## HOT 도수톡 로직 변경 후 (최근 후기 3개)
     serializer_class = s.GetArticle
     filter_backends = []
     ordering_fields = '__all__'
