@@ -21,6 +21,5 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute='*'), 
         'args': ()       
     },
-    }
 }
 app.autodiscover_tasks()
