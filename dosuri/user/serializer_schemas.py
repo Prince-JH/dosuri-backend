@@ -10,10 +10,7 @@ USER_DETAIL_EXAMPLE = [
             "nickname": "아이고맨",
             "birthday": "2022-12-20",
             "phone_no": "010-1234-5678",
-            "address": {
-                "large_area": "서울",
-                "small_area": "강남구"
-            },
+            "address": "유저가 설정한 주소 별칭",
             "sex": "남자",
             "pain_areas": [
                 {
@@ -35,12 +32,14 @@ USER_DETAIL_EXAMPLE = [
             "username": "igoman2@naver.com",
             "uuid": "a1b38583f3c6441194b9530700517f09",
             "name": "한준호",
-            "nickname": "아이고맨",
+            "nickname": "씨ㅡ벌럼ㅋㅋ",
             "birthday": "2022-12-20",
             "phone_no": "010-1234-5678",
             "address": {
-                "large_area": "서울",
-                "small_area": "강남구"
+                "name": "별칭",
+                "address": "서울특별시 서초구 테헤란로 343",
+                "latitude": 37.517331925853,
+                "longitude": 127.047377408384
             },
             "sex": "남자",
             "pain_areas": [

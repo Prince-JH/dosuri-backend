@@ -153,24 +153,21 @@ class User(s.ModelSerializer):
                   'address', 'sex', 'is_real', 'pain_areas', 'created_at', 'unread_notice')
 
     def get_address(self, obj):
-        qs = cm.Address.objects.filter(address_user_assoc__user=obj)
+        qs = um.UserAddress.objects.filter(user=obj)
         if qs.exists():
-            return {
-                'large_area': qs.first().large_area,
-                'small_area': qs.first().small_area
-            }
-        return {}
+            return qs.first().name
+        return None
 
     def create(self, validated_data):
         user = validated_data['user']
-        return self.save_user_info(user, validated_data)
+        return self.save_user_info(user, validated_data, 'create')
 
     def update(self, instance, validated_data):
         user = instance
-        return self.save_user_info(user, validated_data)
+        return self.save_user_info(user, validated_data, 'update')
 
-    def save_user_info(self, user, info_data):
-        info_data = self.save_extra(user, **info_data)
+    def save_user_info(self, user, info_data, method):
+        info_data = self.save_extra(user, method, **info_data)
         for key, value in info_data.items():
             if hasattr(user, key):
                 setattr(user, key, value)
@@ -178,24 +175,23 @@ class User(s.ModelSerializer):
         user.save()
         return user
 
-    def save_extra(self, user, **kwargs):
+    def save_extra(self, user, method, **kwargs):
         if 'address' in kwargs:
-            self.save_address(user, kwargs.pop('address'))
+            address = self.save_address(user, kwargs.pop('address'))
+            if method == 'cretae':
+                um.UserAddress.objects.set_main_address(address)
+
         if 'pain_area_user_assoc' in kwargs:
             self.save_pain_areas(user, kwargs.pop('pain_area_user_assoc'))
         return kwargs
 
     def save_address(self, user, address):
-        um.AddressUserAssoc.objects.filter(user=user).delete()
-
-        address_qs = cm.Address.objects.filter(large_area=address['large_area'],
-                                               small_area=address['small_area'])
-        if not address_qs.exists():
-            address = cm.Address.objects.create(large_area=address['large_area'],
-                                                small_area=address['small_area'])
-        else:
-            address = address_qs.first()
-        um.AddressUserAssoc.objects.create(user=user, address=address)
+        qs = um.UserAddress.objects.filter(user=user, name=address['name'])
+        if qs.exists():
+            return
+        return um.UserAddress.objects.create_etc_address(user, address['name'], address['address'],
+                                                         address['latitude'],
+                                                         address['longitude'])
 
     def save_pain_areas(self, user, pain_area_user_assoc):
         um.PainAreaUserAssoc.objects.filter(user=user).delete()
