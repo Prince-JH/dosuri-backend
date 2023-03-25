@@ -63,6 +63,12 @@ class AddressUserAssocManager(Manager):
 
 
 class UserAddressManager(Manager):
+    def get_main_address(self, user):
+        try:
+            return self.get(user=user, is_main=True)
+        except self.model.DoesNotExist:
+            return
+
     def set_main_address(self, instance):
         self.filter(user=instance.user).update(is_main=False)
         instance.is_main = True
@@ -105,4 +111,3 @@ class UserAddressManager(Manager):
     def create_etc_address(self, user, name, address, latitude, longitude):
         return self.create(user=user, name=name, address=address, address_type=uc.ADDRESS_ETC, latitude=latitude,
                            longitude=longitude)
-
