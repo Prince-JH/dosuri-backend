@@ -332,7 +332,18 @@ class TestUserAddress:
         user_dummy_address_home.refresh_from_db()
         user_dummy_address_office.refresh_from_db()
         assert response.status_code == 200
-        content = json.loads(response.content)
-        assert content['uuid'] == user_dummy_address_home.uuid
         assert user_dummy_address_home.is_main
         assert not user_dummy_address_office.is_main
+
+    @pytest.mark.django_db
+    def test_delete_address(self, client, tokens_user_dummy, user_dummy_address_home):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        data = {
+            'is_main': True
+        }
+        response = client.delete(f'/user/v1/users/me/addresses/{user_dummy_address_home.uuid}', data=data, **headers)
+        assert response.status_code == 204
+        assert um.UserAddress.objects.all().count() == 0

@@ -315,6 +315,14 @@ class UserAddress(s.ModelSerializer):
     def create(self, validated_data):
         return self.Meta.model.objects.create_address(validated_data)
 
+
+class UserAddressDetail(s.ModelSerializer):
+    is_main: s.Field = s.BooleanField()
+
+    class Meta:
+        model = um.UserAddress
+        fields = ('is_main',)
+
     def update(self, instance, validated_data):
         if validated_data['is_main']:
             self.Meta.model.objects.set_main_address(instance)

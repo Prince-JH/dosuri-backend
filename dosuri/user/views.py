@@ -187,5 +187,5 @@ class UserAddressList(g.ListCreateAPIView):
 class UserAddressDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.IsAuthenticated]
     queryset = um.UserAddress.objects.all()
-    serializer_class = s.UserAddress
+    serializer_class = s.UserAddressDetail
     lookup_field = 'uuid'
