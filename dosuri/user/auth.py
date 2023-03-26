@@ -1,4 +1,6 @@
 import json
+import traceback
+
 import requests
 
 from urllib import parse
@@ -77,6 +79,7 @@ class KaKaoAuth(SocialAuth):
             res = self.post(url, self.set_api_header(**header), body)
             return res['access_token']
         except APIException:
+            traceback.print_exc()
             raise uexc.KakaoApiException()
 
     def get_user_info(self, access_token):
