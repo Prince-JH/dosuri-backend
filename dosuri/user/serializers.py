@@ -152,22 +152,24 @@ class User(s.ModelSerializer):
         fields = ('uuid', 'username', 'nickname', 'birthday', 'phone_no', 'name',
                   'address', 'sex', 'is_real', 'pain_areas', 'created_at', 'unread_notice')
 
-    def get_address(self, obj):
-        qs = um.UserAddress.objects.filter(user=obj)
-        if qs.exists():
-            return qs.first().name
-        return None
-
     def create(self, validated_data):
         user = validated_data['user']
-        return self.save_user_info(user, validated_data, 'create')
+        return self.save_user_info(user, validated_data)
 
     def update(self, instance, validated_data):
         user = instance
-        return self.save_user_info(user, validated_data, 'update')
+        return self.save_user_info(user, validated_data)
 
-    def save_user_info(self, user, info_data, method):
-        info_data = self.save_extra(user, method, **info_data)
+    def get_address(self, obj):
+        qs = um.UserAddress.objects.filter(user=obj)
+        if qs.exists():
+            obj = qs.first()
+            return {'name': obj.name, 'address': obj.address, 'address_type': obj.address_type,
+                    'latitude': obj.latitude, 'longitude': obj.longitude}
+        return None
+
+    def save_user_info(self, user, info_data):
+        info_data = self.save_extra(user, **info_data)
         for key, value in info_data.items():
             if hasattr(user, key):
                 setattr(user, key, value)
@@ -175,23 +177,22 @@ class User(s.ModelSerializer):
         user.save()
         return user
 
-    def save_extra(self, user, method, **kwargs):
+    def save_extra(self, user, **kwargs):
         if 'address' in kwargs:
-            address = self.save_address(user, kwargs.pop('address'))
-            if method == 'cretae':
-                um.UserAddress.objects.set_main_address(address)
+            self.save_address(user, kwargs.pop('address'))
 
         if 'pain_area_user_assoc' in kwargs:
             self.save_pain_areas(user, kwargs.pop('pain_area_user_assoc'))
         return kwargs
 
-    def save_address(self, user, address):
-        qs = um.UserAddress.objects.filter(user=user, name=address['name'])
+    def save_address(self, user, address_data):
+        qs = um.UserAddress.objects.filter(user=user, name=address_data['name'])
         if qs.exists():
             return
-        return um.UserAddress.objects.create_etc_address(user, address['name'], address['address'],
-                                                         address['latitude'],
-                                                         address['longitude'])
+        address_data.update({'user': user})
+        address = um.UserAddress.objects.create_address(address_data)
+        um.UserAddress.objects.set_main_address(address)
+        return address
 
     def save_pain_areas(self, user, pain_area_user_assoc):
         um.PainAreaUserAssoc.objects.filter(user=user).delete()
@@ -304,7 +305,7 @@ class UserAddress(s.ModelSerializer):
     name: s.Field = s.CharField(allow_null=True)
     address: s.Field = s.CharField()
     address_type: s.Field = s.ChoiceField(choices=[uc.ADDRESS_HOME, uc.ADDRESS_OFFICE, uc.ADDRESS_ETC])
-    is_main: s.Field = s.BooleanField(default=False)
+    is_main: s.Field = s.BooleanField(read_only=True)
     latitude: s.Field = s.CharField()
     longitude: s.Field = s.CharField()
 

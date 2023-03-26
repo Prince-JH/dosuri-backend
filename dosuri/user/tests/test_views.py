@@ -28,7 +28,7 @@ class TestUserDetail:
         assert response.status_code == 401
 
     @pytest.mark.django_db
-    def test_update_user(self, client, user_dummy, tokens_user_dummy):
+    def test_update_user_aka_join(self, client, user_dummy, tokens_user_dummy):
         headers = {
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
             'content_type': 'application/json'
@@ -44,6 +44,7 @@ class TestUserDetail:
             "address": {
                 "name": "별칭",
                 "address": "서울특별시 서초구 테헤란로 343",
+                "address_type": "etc",
                 "latitude": 37.517331925853,
                 "longitude": 127.047377408384
             },
@@ -65,7 +66,7 @@ class TestUserDetail:
         assert user_dummy.nickname == '아이고맨'
         address = um.UserAddress.objects.get(user=user_dummy)
         assert address.name == '별칭'
-        assert not address.is_main
+        assert address.is_main
 
     @pytest.mark.django_db
     def test_partial_update_user(self, client, user_dummy, tokens_user_dummy):

@@ -10,7 +10,13 @@ USER_DETAIL_EXAMPLE = [
             "nickname": "아이고맨",
             "birthday": "2022-12-20",
             "phone_no": "010-1234-5678",
-            "address": "유저가 설정한 주소 별칭",
+            "address": {
+                "name": "별칭",
+                "address": "서울특별시 서초구 테헤란로 343",
+                "address_type": "home | office | etc",
+                "latitude": 37.517331925853,
+                "longitude": 127.047377408384
+            },
             "sex": "남자",
             "pain_areas": [
                 {
@@ -38,6 +44,7 @@ USER_DETAIL_EXAMPLE = [
             "address": {
                 "name": "별칭",
                 "address": "서울특별시 서초구 테헤란로 343",
+                "address_type": "home | office | etc",
                 "latitude": 37.517331925853,
                 "longitude": 127.047377408384
             },
@@ -78,8 +85,7 @@ USER_ADDRESS_EXAMPLE = [
             "address": "string",
             "address_type": "home | office",
             "latitude": "string",
-            "longitude": "string",
-            "is_main": True,
+            "longitude": "string"
         },
         request_only=True
     ),
@@ -92,8 +98,7 @@ USER_ADDRESS_EXAMPLE = [
             "address": "string",
             "address_type": "etc",
             "latitude": "string",
-            "longitude": "string",
-            "is_main": False
+            "longitude": "string"
         },
         request_only=True
     )
