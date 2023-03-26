@@ -240,15 +240,17 @@ class InsuranceUserAssoc(s.ModelSerializer):
         return super().create(validated_data)
 
     def make_message(self, user):
-        address_qs = cm.Address.objects.filter(address_user_assoc__user=user)
+        address_qs = um.UserAddress.objects.filter(user=user, address_type=uc.ADDRESS_HOME)
         if not address_qs.exists():
-            raise uexc.UserHasNoAddress()
-        address = address_qs.first()
+            address_qs = um.UserAddress.objects.filter(user=user, is_main=True)
+            if not address_qs.exists():
+                raise uexc.UserHasNoAddress()
+        address = address_qs.first().address.split(' ')
         message = f'새로운 보험 신청\n' \
                   f'{user.name} ({user.sex})\n' \
                   f'{user.phone_no}\n' \
                   f'{user.birthday.strftime("%Y/%m/%d")}\n' \
-                  f'{address.large_area} {address.small_area}'
+                  f'{address[0]} {address[1]}'
         return message
 
 

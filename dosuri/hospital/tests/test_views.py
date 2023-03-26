@@ -138,7 +138,7 @@ class TestAddressFilteredHospitalList:
     @pytest.mark.django_db
     @requests_mock.Mocker(kw='mock')
     def test_list_address_filtered_hospital_should_return_one_result(self, client, hospital_test_강남, address_수원시_팔달구,
-                                                                     tokens_user_dummy, user_dummy_address_수원_main,
+                                                                     tokens_user_dummy, user_dummy_address_서울_main,
                                                                      **kwargs):
         parsed_address = parse.quote(f'{address_수원시_팔달구.large_area}{address_수원시_팔달구.small_area}')
         kwargs['mock'].get(f'https://dapi.kakao.com/v2/local/search/address.json?query={parsed_address}',
@@ -158,7 +158,7 @@ class TestAddressFilteredHospitalList:
 class TestHospitalCurrentAddressFilteredList:
     @pytest.mark.django_db
     def test_list_address_filtered_hospital_should_return_one_result(self, client, hospital_test_수원,
-                                                                     tokens_user_dummy, assoc_address_수원_user_dummy,
+                                                                     tokens_user_dummy,
                                                                      hospital_treatments_A_hospital_B):
         headers = {
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
@@ -174,7 +174,7 @@ class TestHospitalCurrentAddressFilteredList:
 class TestHospitalCurrentAddressFilteredAvgPriceList:
     @pytest.mark.django_db
     def test_list_address_filtered_hospital_should_return_one_result(self, client, hospital_test_수원,
-                                                                     tokens_user_dummy, assoc_address_수원_user_dummy,
+                                                                     tokens_user_dummy,
                                                                      hospital_treatments_A_hospital_B):
         headers = {
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
@@ -354,7 +354,7 @@ class TestHomeHospital:
     @pytest.mark.django_db
     @requests_mock.Mocker(kw='mock')
     def test_list_home_hospital_without_token(self, client, hospital_test_강남, address_서울시_강남구, tokens_user_dummy,
-                                              user_dummy_address_수원_main, **kwargs):
+                                              user_dummy_address_서울_main, **kwargs):
         parsed_address = parse.quote(f'{address_서울시_강남구.large_area}{address_서울시_강남구.small_area}')
         kwargs['mock'].get(f'https://dapi.kakao.com/v2/local/search/address.json?query={parsed_address}',
                            json=hmo.서울특별시_강남구_coordinates)
@@ -372,7 +372,7 @@ class TestHomeHospital:
     @pytest.mark.django_db
     @requests_mock.Mocker(kw='mock')
     def test_list_home_hospital_with_token(self, client, hospital_test_강남, address_수원시_팔달구,
-                                           tokens_user_dummy, user_dummy_address_수원_main,
+                                           tokens_user_dummy, user_dummy_address_서울_main,
                                            **kwargs):
         parsed_address = parse.quote(f'{address_수원시_팔달구.large_area}{address_수원시_팔달구.small_area}')
         kwargs['mock'].get(f'https://dapi.kakao.com/v2/local/search/address.json?query={parsed_address}',

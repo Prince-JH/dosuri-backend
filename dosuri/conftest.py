@@ -150,23 +150,7 @@ def user_dummy_address_서울(user_dummy):
 
 
 @pytest.fixture
-def assoc_address_서울_강남_user_dummy(address_서울시_강남구, user_dummy):
-    return um.AddressUserAssoc.objects.create(
-        address=address_서울시_강남구,
-        user=user_dummy
-    )
-
-
-@pytest.fixture
-def assoc_address_수원_user_dummy(address_수원시_팔달구, user_dummy):
-    return um.AddressUserAssoc.objects.create(
-        address=address_수원시_팔달구,
-        user=user_dummy
-    )
-
-
-@pytest.fixture
-def user_dummy_address_수원_main(user_dummy_address_서울):
+def user_dummy_address_서울_main(user_dummy_address_서울):
     um.UserAddress.objects.set_main_address(user_dummy_address_서울)
     return user_dummy_address_서울
 
