@@ -49,6 +49,8 @@ class SocialAuth:
     def post(self, url, headers, data):
         response = requests.post(url, data=data, headers=headers)
         if response.status_code not in (200, 201):
+            print(response.content)
+            print(response.status_code)
             raise exc.APIException()
         return response.json()
 
@@ -79,7 +81,6 @@ class KaKaoAuth(SocialAuth):
             res = self.post(url, self.set_api_header(**header), body)
             return res['access_token']
         except APIException:
-            traceback.print_exc()
             raise uexc.KakaoApiException()
 
     def get_user_info(self, access_token):
