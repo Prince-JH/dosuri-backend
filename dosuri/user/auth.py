@@ -48,6 +48,8 @@ class SocialAuth:
 
     def post(self, url, headers, data):
         response = requests.post(url, data=data, headers=headers)
+        print(response.content)
+        print(response.status_code)
         if response.status_code not in (200, 201):
             print(response.content)
             print(response.status_code)
