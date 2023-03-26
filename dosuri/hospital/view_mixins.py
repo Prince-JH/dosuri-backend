@@ -43,7 +43,6 @@ class HospitalDistance:
             longitude = coordinates[1]
         setattr(self, 'latitude', latitude)
         setattr(self, 'longitude', longitude)
-        print(latitude, longitude)
         return [latitude, longitude]
 
     def set_display_address(self, display_address):
