@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     'dosuri.apps.DosuriConfig',
     'drf_spectacular',
     'corsheaders',
-    'django_celery_beat',
 ]
 # if DEBUG:
 #     INSTALLED_APPS.append('drf_spectacular')
