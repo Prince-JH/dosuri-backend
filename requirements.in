@@ -16,4 +16,3 @@ django-storages
 elasticsearch
 celery
 pytest-celery
-django-celery-beat
