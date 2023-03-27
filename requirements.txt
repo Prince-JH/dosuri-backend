@@ -73,7 +73,6 @@ django==4.1.2
     #   djangorestframework-simplejwt
     #   drf-spectacular
     #   drf-yasg
-django-celery-beat==2.5.0
 django-cors-headers==3.13.0
     # via -r requirements.in
 django-oauth-toolkit==2.2.0
