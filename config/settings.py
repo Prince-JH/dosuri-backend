@@ -188,12 +188,12 @@ CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
 
 CELERY_BEAT_SCHEDULE = {
     'article_relocation_every_day': {  
-        'task': 'dosuri.tasks.article_relocation_every_day',   
+        'task': 'dosuri.common.tasks.article_relocation_every_day',   
         'schedule': crontab(hour=23, minute=59),      
         'args': () 
     },
     'test_batch_every_min': {  
-        'task': 'dosuri.tasks.test_batch_every_min',   
+        'task': 'dosuri.common.tasks.test_batch_every_min',   
         'schedule': crontab(minute='*'), 
         'args': ()       
     },
