@@ -83,4 +83,10 @@ class UserAdmin(admin.ModelAdmin):
 
 
 admin.site.register(um.User, UserAdmin)
-admin.site.register(um.UserAddress)
+
+
+class UserAddressAdmin(admin.ModelAdmin):
+    raw_id_fields = ['user']
+
+
+admin.site.register(um.UserAddress, UserAddressAdmin)
