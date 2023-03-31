@@ -30,6 +30,14 @@ class KaKaoGeoClient:
             raise exc.APIException()
         return response.json()
 
+    def query_public_institutions_by_address(self, address):
+        parsed_address = parse.quote(address)
+        url = f'https://dapi.kakao.com/v2/local/search/keyword.json?query={parsed_address}&category_group_code=PO9'
+        response = requests.get(url, headers=self.set_api_header())
+        if response.status_code != 200:
+            raise exc.APIException()
+        return response.json()
+
     def get_coordinates(self, query_type, query):
         if query_type == 'address':
             result = self.query_address(query)
