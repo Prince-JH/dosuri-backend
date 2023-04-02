@@ -1,12 +1,25 @@
-from datetime import date
+from datetime import date, timedelta
+from random import randint
 
 from django.db.models import QuerySet, Count, Subquery, OuterRef, Func, F
 from django.db.models.functions import Coalesce, Sqrt
+from django.utils import timezone
 
 from dosuri.common import models as cm
 from dosuri.community import constants as cmc
 from dosuri.hospital import models as hm
 from django.apps import apps
+
+
+def get_rand_ids(ids):
+    if len(ids) < 3:
+        return list(ids)
+    indexes = []
+    while len(indexes) < 3:
+        index = randint(0, len(ids) - 1)
+        if index not in indexes:
+            indexes.append(index)
+    return [ids[index] for index in indexes]
 
 
 class HospitalQuerySet(QuerySet):
@@ -82,3 +95,52 @@ class HospitalQuerySet(QuerySet):
         d_lat = (F('latitude') - latitude) * 111.19
         d_long = (F('longitude') - longitude) * 88.80
         return self.annotate(distance=Sqrt((d_lat * d_lat) + (d_long * d_long)))
+
+    def get_top_hospital_queryset(self):
+        return self.annotate_extra_fields().annotate(top_count=F('up_count') + F('article_count')).order_by(
+            '-top_count')[:3]
+
+    def get_new_hospital_queryset(self, showing_number=3):
+        now = timezone.now()
+        qs = self.filter(opened_at__gte=(now - timedelta(days=730)))
+        count = qs.count()
+        ids = list(qs.values_list('id', flat=True))
+        if count >= showing_number:
+            ids = get_rand_ids(ids)
+        return self.filter(id__in=ids).annotate_extra_fields()
+
+    def get_good_review_hospital_queryset(self, showing_number=3):
+        count = self.count()
+        if count == 0:
+            return self.none()
+        elif count // 2 >= showing_number:
+            count //= 2
+        qs = self.annotate_article_count()
+        article_count = qs[count - 1].article_count
+        ids = qs.filter(article_count__gte=article_count).values_list('id', flat=True)
+        rand_ids = get_rand_ids(ids)
+        return qs.annotate_extra_fields().filter(id__in=rand_ids)
+
+    def get_good_price_hospital_queryset(self, showing_number=3):
+        sub_qs = hm.HospitalTreatment.objects.filter(hospital=OuterRef('pk')).annotate(
+            avg_price_per_hour=Func(F('price_per_hour'), function='AVG')).values('avg_price_per_hour').order_by(
+            'avg_price_per_hour')
+
+        qs = self.filter(hospital_treatment__isnull=False).distinct().annotate(
+            avg_price_per_hour=Subquery(sub_qs)).filter(avg_price_per_hour__isnull=False).order_by('avg_price_per_hour')
+
+        count = qs.count()
+        if count == 0:
+            return self.none()
+
+        if count * 0.5 >= showing_number:
+            count = int(count * 0.5)
+        elif count >= showing_number:
+            count = showing_number
+        avg_price_per_hour = qs[count - 1].avg_price_per_hour
+        if not avg_price_per_hour:
+            return self.none()
+
+        ids = qs.filter(avg_price_per_hour__lte=avg_price_per_hour).values_list('id', flat=True)
+        rand_ids = get_rand_ids(ids)
+        return qs.annotate_extra_fields().filter(id__in=rand_ids)
