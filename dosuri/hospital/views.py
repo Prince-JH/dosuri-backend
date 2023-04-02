@@ -323,6 +323,24 @@ class HospitalUserAssoc(g.CreateAPIView):
         return Response(status=status.HTTP_201_CREATED, data=serializer.data)
 
 
+class ManyReviewHospitalList(hmx.HospitalDistance, g.ListAPIView):
+    pagination_class = None
+    permission_classes = [p.AllowAny]
+    queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).all()
+    serializer_class = s.AroundHospital
+    filter_backends = [hf.HospitalDistanceFilter]
+    hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
+    hospital_distance_range = 5
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset()).prefetch_related('hospital_attachment_assoc',
+                                                                              'hospital_attachment_assoc__attachment')
+
+        many_review_hospital_list = queryset.get_many_review_hospital_queryset()
+        serializer = self.get_serializer(many_review_hospital_list, many=True)
+        return Response(serializer.data)
+
+
 class HomeHospitalList(hmx.HospitalDistance, g.ListAPIView):
     pagination_class = None
     permission_classes = [p.AllowAny]
@@ -336,7 +354,7 @@ class HomeHospitalList(hmx.HospitalDistance, g.ListAPIView):
         queryset = self.filter_queryset(self.get_queryset()).prefetch_related('hospital_attachment_assoc',
                                                                               'hospital_attachment_assoc__attachment')
 
-        top_hospital_queryset = queryset.get_good_review_hospital_queryset()
+        top_hospital_queryset = queryset.get_good_price_hospital_queryset()
         top_hospital_serializer = s.AroundHospital(top_hospital_queryset, many=True)
 
         new_hospital_queryset = queryset.get_new_hospital_queryset()
