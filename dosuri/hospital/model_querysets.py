@@ -121,6 +121,18 @@ class HospitalQuerySet(QuerySet):
         rand_ids = get_rand_ids(ids)
         return qs.annotate_extra_fields().filter(id__in=rand_ids)
 
+    def get_many_review_hospital_queryset(self, showing_number=3):
+        count = self.count()
+        if count == 0:
+            return self.none()
+        elif count // 2 >= showing_number:
+            count //= 2
+        qs = self.annotate_article_count()
+        article_count = qs[count - 1].article_count
+        ids = qs.filter(article_count__gte=article_count).values_list('id', flat=True)
+        rand_ids = get_rand_ids(ids)
+        return qs.annotate_extra_fields().filter(id__in=rand_ids)
+
     def get_good_price_hospital_queryset(self, showing_number=3):
         sub_qs = hm.HospitalTreatment.objects.filter(hospital=OuterRef('pk')).annotate(
             avg_price_per_hour=Func(F('price_per_hour'), function='AVG')).values('avg_price_per_hour').order_by(
