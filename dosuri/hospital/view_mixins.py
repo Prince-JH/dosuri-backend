@@ -13,12 +13,6 @@ class HospitalDistance:
             return self.queryset
         return self.queryset.annotate_distance(self.latitude, self.longitude)
 
-    def get_address(self):
-        qs = um.UserAddress.objects.filter(user=self.request.user)
-        if qs.exists():
-            return qs.first().name
-        return random.choice(['강남역', '봉천역', '발산역', '노원역', '잠실역'])
-
     def get_coordinates(self):
         client = cg.KaKaoGeoClient()
         if isinstance(self.request.user, AnonymousUser):
