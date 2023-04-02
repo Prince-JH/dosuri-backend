@@ -353,8 +353,7 @@ class HomeHospitalList(hmx.HospitalDistance, g.ListAPIView):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset()).prefetch_related('hospital_attachment_assoc',
                                                                               'hospital_attachment_assoc__attachment')
-
-        top_hospital_queryset = queryset.get_good_price_hospital_queryset()
+        top_hospital_queryset = queryset.get_good_review_hospital_queryset()
         top_hospital_serializer = s.AroundHospital(top_hospital_queryset, many=True)
 
         new_hospital_queryset = queryset.get_new_hospital_queryset()
