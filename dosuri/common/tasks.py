@@ -13,7 +13,7 @@ def announce_insurance_consult(message):
     naver_client = cs.NaverCloudClient()
     naver_client.send_sms(message, settings.INSURANCE_PHONE_NUMBERS)
     slack_client = csl.SlackClient()
-    slack_client.send_message(message)
+    slack_client.send_message_to_bot_channel(message)
 
 
 @shared_task

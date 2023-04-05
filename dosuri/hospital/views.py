@@ -323,6 +323,24 @@ class HospitalUserAssoc(g.CreateAPIView):
         return Response(status=status.HTTP_201_CREATED, data=serializer.data)
 
 
+class ManyReviewHospitalList(hmx.HospitalDistance, g.ListAPIView):
+    pagination_class = None
+    permission_classes = [p.AllowAny]
+    queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).all()
+    serializer_class = s.AroundHospital
+    filter_backends = [hf.HospitalDistanceFilter]
+    hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
+    hospital_distance_range = 5
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset()).prefetch_related('hospital_attachment_assoc',
+                                                                              'hospital_attachment_assoc__attachment')
+
+        many_review_hospital_list = queryset.get_many_review_hospital_queryset()
+        serializer = self.get_serializer(many_review_hospital_list, many=True)
+        return Response(serializer.data)
+
+
 class HomeHospitalList(hmx.HospitalDistance, g.ListAPIView):
     pagination_class = None
     permission_classes = [p.AllowAny]
@@ -335,14 +353,13 @@ class HomeHospitalList(hmx.HospitalDistance, g.ListAPIView):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset()).prefetch_related('hospital_attachment_assoc',
                                                                               'hospital_attachment_assoc__attachment')
-
-        top_hospital_queryset = self.get_good_review_hospital_queryset(queryset)
+        top_hospital_queryset = queryset.get_good_review_hospital_queryset()
         top_hospital_serializer = s.AroundHospital(top_hospital_queryset, many=True)
 
-        new_hospital_queryset = self.get_new_hospital_queryset(queryset)
+        new_hospital_queryset = queryset.get_new_hospital_queryset()
         new_hospital_serializer = s.AroundHospital(new_hospital_queryset, many=True)
 
-        good_price_hospital_queryset = self.get_good_price_hospital_queryset(queryset)
+        good_price_hospital_queryset = queryset.get_good_price_hospital_queryset()
         good_price_hospital_serializer = s.GoodPriceHospital(good_price_hospital_queryset, many=True)
 
         # good_review_hospital_queryset = self.get_good_review_hospital_queryset(address_filtered_queryset)
@@ -353,73 +370,6 @@ class HomeHospitalList(hmx.HospitalDistance, g.ListAPIView):
                                           'new_hospitals': new_hospital_serializer.data,
                                           'good_price_hospitals': good_price_hospital_serializer.data})
         return Response(serializer.data)
-
-    def get_top_hospital_queryset(self, queryset):
-        queryset = queryset.annotate_extra_fields()
-        return queryset.annotate(top_count=F('up_count') + F('article_count')).order_by('-top_count')[:3]
-
-    def get_new_hospital_queryset(self, queryset, showing_number=3):
-        now = timezone.now()
-        qs = queryset.filter(opened_at__gte=(now - timedelta(days=730)))
-        count = qs.count()
-        ids = list(qs.values_list('id', flat=True))
-        # if count < 3:
-        #     extra_qs = hm.Hospital.objects.filter(opened_at__gte=(now - timedelta(days=90)),
-        #                                           hospital_address_assoc__address__large_area__in=['서울특별시',
-        #                                                                                            '경기도']).distinct()
-        #     if count + extra_qs.count() < 3:
-        #         extra_qs = hm.Hospital.objects.filter(opened_at__gte=(now - timedelta(days=90)))
-        #     ids = list(set(ids + list(extra_qs.values_list('id', flat=True))))
-        # ids = self.get_rand_ids(ids)
-        if count >= showing_number:
-            ids = self.get_rand_ids(ids)
-        return hm.Hospital.objects.filter(id__in=ids).annotate_extra_fields()
-
-    def get_good_price_hospital_queryset(self, queryset, showing_number=3):
-        sub_qs = hm.HospitalTreatment.objects.filter(hospital=OuterRef('pk')).annotate(
-            avg_price_per_hour=Func(F('price_per_hour'), function='AVG')).values('avg_price_per_hour').order_by(
-            'avg_price_per_hour')
-
-        qs = queryset.filter(hospital_treatment__isnull=False).distinct().annotate(
-            avg_price_per_hour=Subquery(sub_qs)).filter(avg_price_per_hour__isnull=False).order_by('avg_price_per_hour')
-
-        count = qs.count()
-        if count == 0:
-            return queryset.none()
-
-        if count * 0.5 >= showing_number:
-            count = int(count * 0.5)
-        elif count >= showing_number:
-            count = showing_number
-        avg_price_per_hour = qs[count - 1].avg_price_per_hour
-        if not avg_price_per_hour:
-            return qs.none()
-
-        ids = qs.filter(avg_price_per_hour__lte=avg_price_per_hour).values_list('id', flat=True)
-        rand_ids = self.get_rand_ids(ids)
-        return qs.annotate_extra_fields().filter(id__in=rand_ids)
-
-    def get_good_review_hospital_queryset(self, queryset, showing_number=3):
-        count = queryset.count()
-        if count == 0:
-            return queryset.none()
-        elif count // 2 >= showing_number:
-            count //= 2
-        qs = queryset.annotate_article_count()
-        article_count = qs[count - 1].article_count
-        ids = qs.filter(article_count__gte=article_count).values_list('id', flat=True)
-        rand_ids = self.get_rand_ids(ids)
-        return qs.annotate_extra_fields().filter(id__in=rand_ids)
-
-    def get_rand_ids(self, ids):
-        if len(ids) < 3:
-            return list(ids)
-        indexes = []
-        while len(indexes) < 3:
-            index = randint(0, len(ids) - 1)
-            if index not in indexes:
-                indexes.append(index)
-        return [ids[index] for index in indexes]
 
 
 class HospitalSearch(g.ListCreateAPIView):
