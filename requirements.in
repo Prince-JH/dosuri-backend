@@ -16,3 +16,4 @@ django-storages
 elasticsearch
 celery
 pytest-celery
+pytest-cov
