@@ -3,6 +3,9 @@ from dosuri.common import utils as cu
 from dosuri.common import sms as cs
 from dosuri.common import slack as csl
 from django.conf import settings
+import datetime
+
+import dosuri.community.models as cm
 
 
 @shared_task
@@ -24,7 +27,14 @@ def announce_insurance_consult_to_user(phone_no):
 
 @shared_task
 def article_relocation_every_day():
+    today = datetime.date.today()
+    article_list = cm.Article.objects.all().order_by('created_at')[:10]
 
+    for article in article_list:
+        article.created_at.year = today.year
+        article.created_at.month = today.month
+        article.created_at.day = today.day
+        article.save()
     return
 
 
