@@ -29,9 +29,6 @@ def get_tokens_for_user(user):
 
 
 class SocialAuth:
-    def __init__(self, auth_domain):
-        self.auth_domain = auth_domain
-
     def set_api_header(self, **kwargs):
         if not kwargs:
             return {
@@ -49,8 +46,6 @@ class SocialAuth:
     def post(self, url, headers, data):
         response = requests.post(url, data=data, headers=headers)
         if response.status_code not in (200, 201):
-            print(response.content)
-            print(response.status_code)
             raise exc.APIException()
         return response.json()
 
