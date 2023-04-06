@@ -186,7 +186,13 @@ ES_USERNAME = os.environ.get('ES_USERNAME')
 ES_PASSWORD = os.environ.get('ES_PASSWORD')
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
 
-
+CELERY_BEAT_SCHEDULE = {
+    'article_relocation_every_day': {  
+        'task': 'dosuri.common.tasks.article_relocation_every_day',   
+        'schedule':  crontab(minute='*/5'),      
+        'args': () 
+    }
+}
 
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
 AWS_SNS_TOPIC_ARN = os.environ.get('AWS_SNS_TOPIC_ARN')
