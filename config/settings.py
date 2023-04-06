@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import json
 import os
 from datetime import datetime, timedelta
+from celery.schedules import crontab
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -184,6 +185,15 @@ ES_ENDPOINT = os.environ.get('ES_ENDPOINT')
 ES_USERNAME = os.environ.get('ES_USERNAME')
 ES_PASSWORD = os.environ.get('ES_PASSWORD')
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
+
+CELERY_BEAT_SCHEDULE = {
+    'article_relocation_every_day': {  
+        'task': 'dosuri.common.tasks.article_relocation_every_day',   
+        'schedule': crontab(hour='23',minute="57"),
+        'args': () 
+    },
+}
+
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
 AWS_SNS_TOPIC_ARN = os.environ.get('AWS_SNS_TOPIC_ARN')
 NAVER_CLOUD_ACCESS_KEY_ID = os.environ.get('NAVER_CLOUD_ACCESS_KEY_ID')
