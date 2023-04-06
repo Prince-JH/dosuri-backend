@@ -189,9 +189,9 @@ CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
 CELERY_BEAT_SCHEDULE = {
     'article_relocation_every_day': {  
         'task': 'dosuri.common.tasks.article_relocation_every_day',   
-        'schedule':  crontab(minute='*/5'),      
+        'schedule': crontab(minute='*'), 
         'args': () 
-    }
+    },
 }
 
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')

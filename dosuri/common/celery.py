@@ -11,16 +11,10 @@ app = Celery('dosuri')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
 app.conf.beat_schedule = {
-    # 'article_relocation_every_day': {  
-    #     'task': 'dosuri.tasks.article_relocation_every_day',   
-    #     'schedule': crontab(hour=23, minute=59),      
-    #     'args': () 
-    # },
     'article_relocation_every_day': {  
         'task': 'dosuri.tasks.article_relocation_every_day',   
-        'schedule': crontab(minute='*/5'),      
+        'schedule': crontab(minute='*'),    
         'args': () 
     }
-}
 
 app.autodiscover_tasks()
