@@ -18,7 +18,7 @@ app.conf.beat_schedule = {
     # },
     'article_relocation_every_day': {  
         'task': 'dosuri.tasks.article_relocation_every_day',   
-        'schedule': crontab(minute=*/5),      
+        'schedule': crontab(minute='*/5'),      
         'args': () 
     }
 }
