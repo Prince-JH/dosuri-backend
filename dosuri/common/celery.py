@@ -13,7 +13,7 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.conf.beat_schedule = {
     'article_relocation_every_day': {  
         'task': 'dosuri.tasks.article_relocation_every_day',   
-        'schedule': crontab(minute='*'),    
+        'schedule': crontab(hour='23',minute="57"),
         'args': () 
     }
 }
