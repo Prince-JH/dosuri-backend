@@ -31,7 +31,9 @@ def article_relocation_every_day():
     article_list = cm.Article.objects.all().order_by('created_at')[:10]
 
     for article in article_list:
-        article.created_at.replace(year=today.year, month=today.month, day=today.day)
+        target=article.created_at
+        target=target.replace(year=today.year, month=today.month, day=today.day)
+        article.created_at=target
         article.save()
     return
 
