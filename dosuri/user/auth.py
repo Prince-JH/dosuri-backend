@@ -29,9 +29,6 @@ def get_tokens_for_user(user):
 
 
 class SocialAuth:
-    def __init__(self, auth_domain):
-        self.auth_domain = auth_domain
-
     def set_api_header(self, **kwargs):
         if not kwargs:
             return {
