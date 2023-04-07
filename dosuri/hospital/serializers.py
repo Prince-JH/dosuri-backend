@@ -420,6 +420,7 @@ class GoodReviewHospital(s.ModelSerializer):
 
 @extend_schema_serializer(examples=sch.HOME_HOSPITAL_EXAMPLE)
 class HomeHospital(s.Serializer):
+    address: s.Field = s.CharField()
     top_hospitals: s.Field = s.ListField()
     new_hospitals: s.Field = s.ListField()
     good_price_hospitals: s.Field = s.ListField()
