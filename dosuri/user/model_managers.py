@@ -56,8 +56,7 @@ class UserNotificationManager(Manager):
 class AddressUserAssocManager(Manager):
     def get_user_address(self, user):
         try:
-            address = self.get(user=user).address
-            return f'{address.large_area} {address.small_area}'
+            return self.get(user=user).address
         except self.model.DoesNotExist:
             return
 
