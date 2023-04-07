@@ -20,8 +20,8 @@ class HospitalDistance:
         address = um.AddressUserAssoc.objects.get_user_address(self.request.user)
         if not address:
             return self.get_default_coordinates(client)
-        self.set_display_address(address)
-        return client.get_coordinates('address', address)
+        self.set_display_address(address.small_area)
+        return client.get_coordinates('address', f'{address.large_area} {address.small_area}')
 
     def set_coordinates(self):
         is_realtime_coordinates = getattr(self, 'is_realtime_coordinates', False)
