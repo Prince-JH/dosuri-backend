@@ -1,4 +1,4 @@
-from random import random
+import random
 
 from django.contrib.auth.models import AnonymousUser
 
