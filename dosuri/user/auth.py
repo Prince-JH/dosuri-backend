@@ -91,3 +91,11 @@ class KaKaoAuth(SocialAuth):
             return settings.KAKAO_REDIRECT_URI
         else:
             return 'http://localhost:3000/oauth/callback/kakao'
+
+
+class GoogleAuth(SocialAuth):
+    def __init__(self, code, origin):
+        self.code = code
+        self.origin = origin
+        self.redirect_uri = self.get_redirect_uri(self.origin)
+
