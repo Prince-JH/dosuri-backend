@@ -141,7 +141,7 @@ class TestAddressFilteredHospitalList:
                                                                      assoc_hospital_B_address_수원,
                                                                      tokens_user_dummy, assoc_address_수원_user_dummy,
                                                                      **kwargs):
-        parsed_address = parse.quote(f'{address_수원시_팔달구.large_area}{address_수원시_팔달구.small_area}')
+        parsed_address = parse.quote(f'{address_수원시_팔달구.large_area} {address_수원시_팔달구.small_area}')
         kwargs['mock'].get(f'https://dapi.kakao.com/v2/local/search/address.json?query={parsed_address}',
                            json=hmo.수원시_팔달구_coordinates)
         headers = {
@@ -377,7 +377,7 @@ class TestHomeHospital:
                                            assoc_hospital_B_address_수원,
                                            tokens_user_dummy, assoc_address_수원_user_dummy,
                                            **kwargs):
-        parsed_address = parse.quote(f'{address_수원시_팔달구.large_area}{address_수원시_팔달구.small_area}')
+        parsed_address = parse.quote(f'{address_수원시_팔달구.large_area} {address_수원시_팔달구.small_area}')
         kwargs['mock'].get(f'https://dapi.kakao.com/v2/local/search/address.json?query={parsed_address}',
                            json=hmo.수원시_팔달구_coordinates)
         headers = {
