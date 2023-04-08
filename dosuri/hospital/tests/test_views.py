@@ -140,7 +140,7 @@ class TestAddressFilteredHospitalList:
     def test_list_address_filtered_hospital_should_return_one_result(self, client, hospital_test_강남, address_수원시_팔달구,
                                                                      tokens_user_dummy, user_dummy_address_서울_main,
                                                                      **kwargs):
-        parsed_address = parse.quote(f'{address_수원시_팔달구.large_area}{address_수원시_팔달구.small_area}')
+        parsed_address = parse.quote(f'{address_수원시_팔달구.large_area} {address_수원시_팔달구.small_area}')
         kwargs['mock'].get(f'https://dapi.kakao.com/v2/local/search/address.json?query={parsed_address}',
                            json=hmo.수원시_팔달구_coordinates)
         headers = {
@@ -374,7 +374,7 @@ class TestHomeHospital:
     def test_list_home_hospital_with_token(self, client, hospital_test_강남, address_수원시_팔달구,
                                            tokens_user_dummy, user_dummy_address_서울_main,
                                            **kwargs):
-        parsed_address = parse.quote(f'{address_수원시_팔달구.large_area}{address_수원시_팔달구.small_area}')
+        parsed_address = parse.quote(f'{address_수원시_팔달구.large_area} {address_수원시_팔달구.small_area}')
         kwargs['mock'].get(f'https://dapi.kakao.com/v2/local/search/address.json?query={parsed_address}',
                            json=hmo.수원시_팔달구_coordinates)
         headers = {
