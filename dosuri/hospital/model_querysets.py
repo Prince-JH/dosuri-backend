@@ -115,7 +115,7 @@ class HospitalQuerySet(QuerySet):
             return self.none()
         elif count // 2 >= showing_number:
             count //= 2
-        qs = self.annotate_article_count()
+        qs = self.annotate_article_count().order_by('article_count')
         article_count = qs[count - 1].article_count
         ids = qs.filter(article_count__gte=article_count).values_list('id', flat=True)
         rand_ids = get_rand_ids(ids)
@@ -127,7 +127,7 @@ class HospitalQuerySet(QuerySet):
             return self.none()
         elif count // 2 >= showing_number:
             count //= 2
-        qs = self.annotate_article_count()
+        qs = self.annotate_article_count().order_by('article_count')
         article_count = qs[count - 1].article_count
         ids = qs.filter(article_count__gte=article_count).values_list('id', flat=True)
         rand_ids = get_rand_ids(ids)
