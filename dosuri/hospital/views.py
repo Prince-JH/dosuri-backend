@@ -68,7 +68,7 @@ class HospitalAddressFilteredList(hmx.HospitalDistance, g.ListAPIView):
     filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter, rf.OrderingFilter]
     ordering_field = '__all__'
     hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
-    hospital_distance_range = 5
+    hospital_distance_range = 2
     is_realtime_coordinates = False
 
 
@@ -80,7 +80,7 @@ class HospitalAddressFilteredAvgPriceList(hmx.HospitalDistance, g.ListAPIView):
     filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter]
     ordering_field = '__all__'
     hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
-    hospital_distance_range = 5
+    hospital_distance_range = 2
     is_realtime_coordinates = False
 
 
@@ -92,7 +92,7 @@ class HospitalCurrentAddressFilteredList(hmx.HospitalDistance, g.ListAPIView):
     filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter]
     ordering_field = '__all__'
     hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
-    hospital_distance_range = 5
+    hospital_distance_range = 2
     is_realtime_coordinates = True
 
 
@@ -104,7 +104,7 @@ class HospitalCurrentAddressFilteredAvgPriceList(hmx.HospitalDistance, g.ListAPI
     filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter]
     ordering_field = '__all__'
     hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
-    hospital_distance_range = 5
+    hospital_distance_range = 2
     is_realtime_coordinates = True
 
 
@@ -323,6 +323,24 @@ class HospitalUserAssoc(g.CreateAPIView):
         return Response(status=status.HTTP_201_CREATED, data=serializer.data)
 
 
+class ManyReviewHospitalList(hmx.HospitalDistance, g.ListAPIView):
+    pagination_class = None
+    permission_classes = [p.AllowAny]
+    queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).all()
+    serializer_class = s.AroundHospital
+    filter_backends = [hf.HospitalDistanceFilter]
+    hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
+    hospital_distance_range = 2
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset()).prefetch_related('hospital_attachment_assoc',
+                                                                              'hospital_attachment_assoc__attachment')
+
+        many_review_hospital_list = queryset.get_many_review_hospital_queryset()
+        serializer = self.get_serializer(many_review_hospital_list, many=True)
+        return Response(serializer.data)
+
+
 class HomeHospitalList(hmx.HospitalDistance, g.ListAPIView):
     pagination_class = None
     permission_classes = [p.AllowAny]
@@ -330,7 +348,7 @@ class HomeHospitalList(hmx.HospitalDistance, g.ListAPIView):
     serializer_class = s.HomeHospital
     filter_backends = [hf.HospitalDistanceFilter]
     hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
-    hospital_distance_range = 5
+    hospital_distance_range = 2
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset()).prefetch_related('hospital_attachment_assoc',
