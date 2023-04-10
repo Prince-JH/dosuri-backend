@@ -114,7 +114,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
-DEBUG = True
 if 'RDS_HOSTNAME' in os.environ:
     DATABASES = {
         'default': {
