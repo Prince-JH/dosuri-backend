@@ -156,3 +156,6 @@ class HospitalQuerySet(QuerySet):
         ids = qs.filter(avg_price_per_hour__lte=avg_price_per_hour).values_list('id', flat=True)
         rand_ids = get_rand_ids(ids)
         return qs.annotate_extra_fields().filter(id__in=rand_ids)
+
+    def get_new_review_hospital_queryset(self, showing_number=3):
+        return self.annotate_article_count().order_by('article_count')[:showing_number]
