@@ -106,7 +106,7 @@ class GoogleAuth(SocialAuth):
 
     def get_access_token(self):
         try:
-            url = 'https://kauth.kakao.com/oauth/token'
+            url = 'https://oauth2.googleapis.com/token'
             header = {
                 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
             }
