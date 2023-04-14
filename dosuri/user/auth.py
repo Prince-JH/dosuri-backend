@@ -120,7 +120,7 @@ class GoogleAuth(SocialAuth):
             res = self.post(url, self.set_api_header(**header), body)
             return res['access_token']
         except APIException:
-            raise uexc.KakaoApiException()
+            raise uexc.GoogleApiException()
 
     def get_user_info(self, access_token):
         url = 'https://kapi.kakao.com/v2/user/me'
