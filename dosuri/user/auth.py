@@ -99,3 +99,37 @@ class GoogleAuth(SocialAuth):
         self.origin = origin
         self.redirect_uri = self.get_redirect_uri(self.origin)
 
+    def authenticate(self):
+        access_token = self.get_access_token()
+        user_info = self.get_user_info(access_token)
+        return user_info
+
+    def get_access_token(self):
+        try:
+            url = 'https://kauth.kakao.com/oauth/token'
+            header = {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+            }
+            body = {
+                'grant_type': 'authorization_code',
+                'client_id': settings.GOOGLE_CLEINT_ID,
+                'client_secret': settings.GOOGLE_CLIENT_SECRET,
+                'redirect_uri': self.redirect_uri,
+                'code': self.code
+            }
+            res = self.post(url, self.set_api_header(**header), body)
+            return res['access_token']
+        except APIException:
+            raise uexc.KakaoApiException()
+
+    def get_user_info(self, access_token):
+        url = 'https://kapi.kakao.com/v2/user/me'
+        header = {
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        return self.get(url, self.set_api_header(**header))
+
+    def get_redirect_uri(self, origin):
+        if settings.SERVER_URL in origin:
+            return settings.GOOGLE_REDIRECT_URI
