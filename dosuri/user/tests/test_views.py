@@ -28,6 +28,44 @@ class TestUserDetail:
         assert response.status_code == 401
 
     @pytest.mark.django_db
+    def test_create_user_aka_new_join(self, client):
+        headers = {
+            'content_type': 'application/json'
+        }
+        data = {
+            "username": "igoman2@naver.com",
+            "name": "한준호",
+            "nickname": "아이고맨",
+            "birthday": "2022-12-20",
+            "phone_no": "010-1234-5678",
+            "address": {
+                "name": "별칭",
+                "address": "서울특별시 서초구 테헤란로 343",
+                "address_type": "etc",
+                "latitude": 37.517331925853,
+                "longitude": 127.047377408384
+            },
+            "sex": "남자",
+            "pain_areas": [
+                {
+                    "name": "목"
+                },
+                {
+                    "name": "그 외"
+                }
+            ]
+        }
+        response = client.post(f'/user/v1/users', data=data, **headers)
+        assert response.status_code == 201
+
+        new_user = get_user_model().objects.all().first()
+        assert new_user.name == '한준호'
+        assert new_user.nickname == '아이고맨'
+        address = um.UserAddress.objects.get(user=new_user)
+        assert address.name == '별칭'
+        assert address.is_main
+
+    @pytest.mark.django_db
     def test_update_user_aka_join(self, client, user_dummy, tokens_user_dummy):
         headers = {
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
@@ -113,7 +151,7 @@ class TestKaKaoAuth:
     @requests_mock.Mocker(kw='mock')
     def test_auth_new_user_should_return_tokens_with_true_is_new(self, client, **kwargs):
         kwargs['mock'].post(f'https://kauth.kakao.com/oauth/token', json=mo.access_token_data)
-        kwargs['mock'].get(f'https://kapi.kakao.com/v2/user/me', json=mo.user_info_data)
+        kwargs['mock'].get(f'https://kapi.kakao.com/v2/user/me', json=mo.kakao_user_info_data)
         data = {
             'token': 'dummy_token',
             'type': 'kakao',
@@ -132,10 +170,45 @@ class TestKaKaoAuth:
     def test_auth_old_user_should_return_tokens_with_false_is_new(self, client, user_dummy, user_dummy_address_etc,
                                                                   **kwargs):
         kwargs['mock'].post(f'https://kauth.kakao.com/oauth/token', json=mo.access_token_data)
-        kwargs['mock'].get(f'https://kapi.kakao.com/v2/user/me', json=mo.user_info_data)
+        kwargs['mock'].get(f'https://kapi.kakao.com/v2/user/me', json=mo.kakao_user_info_data)
         data = {
             'token': 'dummy_token',
             'type': 'kakao'
+        }
+        response = client.post('/user/v1/auth', data=data, content_type='application/json')
+        content = json.loads(response.content)
+
+        assert response.status_code == 201
+        assert content['is_new'] is False
+
+
+class TestGoogleAuth:
+    @pytest.mark.django_db
+    @requests_mock.Mocker(kw='mock')
+    def test_auth_new_user_should_return_tokens_with_true_is_new(self, client, **kwargs):
+        kwargs['mock'].post(f'https://oauth2.googleapis.com/token', json=mo.access_token_data)
+        kwargs['mock'].get(f'https://openidconnect.googleapis.com/v1/userinfo', json=mo.google_user_info_data)
+        data = {
+            'token': 'dummy_token',
+            'type': 'google',
+        }
+        response = client.post('/user/v1/auth', data=data, content_type='application/json')
+        content = json.loads(response.content)
+
+        assert response.status_code == 201
+        assert content['is_new'] is True
+        user = get_user_model().objects.first()
+        assert get_user_model().objects.all().count() == 1
+
+    @pytest.mark.django_db
+    @requests_mock.Mocker(kw='mock')
+    def test_auth_old_user_should_return_tokens_with_false_is_new(self, client, user_dummy, user_dummy_address_etc,
+                                                                  **kwargs):
+        kwargs['mock'].post(f'https://oauth2.googleapis.com/token', json=mo.access_token_data)
+        kwargs['mock'].get(f'https://openidconnect.googleapis.com/v1/userinfo', json=mo.google_user_info_data)
+        data = {
+            'token': 'dummy_token',
+            'type': 'google'
         }
         response = client.post('/user/v1/auth', data=data, content_type='application/json')
         content = json.loads(response.content)

@@ -16,6 +16,11 @@ class KakaoApiException(exc.APIException):
     status_code = 400
 
 
+class GoogleApiException(exc.APIException):
+    default_detail = 'Google api error.'
+    status_code = 400
+
+
 class RequireTokenException(exc.APIException):
     default_detail = 'Require token.'
     status_code = 400
