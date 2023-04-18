@@ -151,7 +151,7 @@ class TestKaKaoAuth:
     @requests_mock.Mocker(kw='mock')
     def test_auth_new_user_should_return_tokens_with_true_is_new(self, client, **kwargs):
         kwargs['mock'].post(f'https://kauth.kakao.com/oauth/token', json=mo.access_token_data)
-        kwargs['mock'].get(f'https://kapi.kakao.com/v2/user/me', json=mo.user_info_data)
+        kwargs['mock'].get(f'https://kapi.kakao.com/v2/user/me', json=mo.kakao_user_info_data)
         data = {
             'token': 'dummy_token',
             'type': 'kakao',
@@ -170,10 +170,45 @@ class TestKaKaoAuth:
     def test_auth_old_user_should_return_tokens_with_false_is_new(self, client, user_dummy, user_dummy_address_etc,
                                                                   **kwargs):
         kwargs['mock'].post(f'https://kauth.kakao.com/oauth/token', json=mo.access_token_data)
-        kwargs['mock'].get(f'https://kapi.kakao.com/v2/user/me', json=mo.user_info_data)
+        kwargs['mock'].get(f'https://kapi.kakao.com/v2/user/me', json=mo.kakao_user_info_data)
         data = {
             'token': 'dummy_token',
             'type': 'kakao'
+        }
+        response = client.post('/user/v1/auth', data=data, content_type='application/json')
+        content = json.loads(response.content)
+
+        assert response.status_code == 201
+        assert content['is_new'] is False
+
+
+class TestGoogleAuth:
+    @pytest.mark.django_db
+    @requests_mock.Mocker(kw='mock')
+    def test_auth_new_user_should_return_tokens_with_true_is_new(self, client, **kwargs):
+        kwargs['mock'].post(f'https://oauth2.googleapis.com/token', json=mo.access_token_data)
+        kwargs['mock'].get(f'https://openidconnect.googleapis.com/v1/userinfo', json=mo.google_user_info_data)
+        data = {
+            'token': 'dummy_token',
+            'type': 'google',
+        }
+        response = client.post('/user/v1/auth', data=data, content_type='application/json')
+        content = json.loads(response.content)
+
+        assert response.status_code == 201
+        assert content['is_new'] is True
+        user = get_user_model().objects.first()
+        assert get_user_model().objects.all().count() == 1
+
+    @pytest.mark.django_db
+    @requests_mock.Mocker(kw='mock')
+    def test_auth_old_user_should_return_tokens_with_false_is_new(self, client, user_dummy, user_dummy_address_etc,
+                                                                  **kwargs):
+        kwargs['mock'].post(f'https://oauth2.googleapis.com/token', json=mo.access_token_data)
+        kwargs['mock'].get(f'https://openidconnect.googleapis.com/v1/userinfo', json=mo.google_user_info_data)
+        data = {
+            'token': 'dummy_token',
+            'type': 'google'
         }
         response = client.post('/user/v1/auth', data=data, content_type='application/json')
         content = json.loads(response.content)

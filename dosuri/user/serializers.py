@@ -47,16 +47,20 @@ class Auth(s.Serializer):
             user = qs.first()
             user_info = {}
 
-        elif auth_type == uc.AUTH_KAKAO:
+        else:
             token = validated_data.get('token')
             if not token:
                 raise uexc.RequireTokenException()
-            auth_factory = a.KaKaoAuth(token, origin)
-            kakao_user_info = auth_factory.authenticate()
-            username = kakao_user_info['kakao_account']['email']
 
+            if auth_type == uc.AUTH_KAKAO:
+                auth = a.KaKaoAuth(token, origin)
+
+            elif auth_type == uc.AUTH_GOOGLE:
+                auth = a.GoogleAuth(token, origin)
+
+            user_info = auth.get_user_info()
+            username = user_info['username']
             user = um.User.objects.get_or_create(username=username)[0]
-            user_info = self.get_user_info_from_kakao(kakao_user_info)
 
         is_new = user.is_new()
         if is_new:
@@ -71,26 +75,23 @@ class Auth(s.Serializer):
         validated_data['user_uuid'] = user.uuid
         return validated_data
 
-    def get_user_info_from_kakao(self, kakao_user_info):
-        name = kakao_user_info['kakao_account'].get('name')
-        sex = kakao_user_info['kakao_account'].get('gender')
-        if sex == 'male':
-            sex = '남자'
-        elif sex == 'female':
-            sex = '여자'
-        phone_no = kakao_user_info['kakao_account'].get('phone_number')
-        if phone_no:
-            country_code, phone_no = phone_no.split(' ')[0], phone_no.split(' ')[1]
-            if country_code != '+82':
-                phone_no = None
-            phone_no = '0' + phone_no
-        birth_year = kakao_user_info['kakao_account'].get('birthyear')
-        birthday = kakao_user_info['kakao_account'].get('birthday')
-        if birth_year and birthday:
-            birthday = datetime.strptime(f'{birth_year}-{birthday}', '%Y-%m%d').astimezone()
-        else:
-            birthday = None
-        return {'name': name, 'phone_no': phone_no, 'sex': sex, 'birthday': birthday}
+
+class AuthV2(s.Serializer):
+    code: s.Field = s.CharField(write_only=True, required=False)
+    token: s.Field = s.CharField(read_only=True, required=False)
+    type: s.Field = s.CharField(write_only=True)
+
+    def create(self, validated_data):
+
+        auth_type = validated_data['type']
+
+        origin = self.context['request'].build_absolute_uri()
+
+        if auth_type == uc.AUTH_APPLE:
+            pass
+
+        validated_data['token'] = ''
+        return validated_data
 
 
 class AddressUserAssoc(s.ModelSerializer):
