@@ -28,6 +28,44 @@ class TestUserDetail:
         assert response.status_code == 401
 
     @pytest.mark.django_db
+    def test_create_user_aka_new_join(self, client):
+        headers = {
+            'content_type': 'application/json'
+        }
+        data = {
+            "username": "igoman2@naver.com",
+            "name": "한준호",
+            "nickname": "아이고맨",
+            "birthday": "2022-12-20",
+            "phone_no": "010-1234-5678",
+            "address": {
+                "name": "별칭",
+                "address": "서울특별시 서초구 테헤란로 343",
+                "address_type": "etc",
+                "latitude": 37.517331925853,
+                "longitude": 127.047377408384
+            },
+            "sex": "남자",
+            "pain_areas": [
+                {
+                    "name": "목"
+                },
+                {
+                    "name": "그 외"
+                }
+            ]
+        }
+        response = client.post(f'/user/v1/users', data=data, **headers)
+        assert response.status_code == 201
+
+        new_user = get_user_model().objects.all().first()
+        assert new_user.name == '한준호'
+        assert new_user.nickname == '아이고맨'
+        address = um.UserAddress.objects.get(user=new_user)
+        assert address.name == '별칭'
+        assert address.is_main
+
+    @pytest.mark.django_db
     def test_update_user_aka_join(self, client, user_dummy, tokens_user_dummy):
         headers = {
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',

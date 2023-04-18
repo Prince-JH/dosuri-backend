@@ -153,7 +153,7 @@ class User(s.ModelSerializer):
                   'address', 'sex', 'is_real', 'pain_areas', 'created_at', 'unread_notice')
 
     def create(self, validated_data):
-        user = validated_data['user']
+        user = get_user_model().objects.create()
         return self.save_user_info(user, validated_data)
 
     def update(self, instance, validated_data):
