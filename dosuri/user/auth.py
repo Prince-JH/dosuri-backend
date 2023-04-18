@@ -54,11 +54,12 @@ class KaKaoAuth(SocialAuth):
     def __init__(self, code, origin):
         self.code = code
         self.origin = origin
-        self.redirect_uri = self.get_redirect_uri(self.origin)
+        self.redirect_uri = self.get_redirect_uri()
 
-    def authenticate(self):
+    def get_user_info(self):
         access_token = self.get_access_token()
-        user_info = self.get_user_info(access_token)
+        kakao_user_info = self.get_kakao_user_info(access_token)
+        user_info = self.pick_usable_info(kakao_user_info)
         return user_info
 
     def get_access_token(self):
@@ -78,7 +79,7 @@ class KaKaoAuth(SocialAuth):
         except APIException:
             raise uexc.KakaoApiException()
 
-    def get_user_info(self, access_token):
+    def get_kakao_user_info(self, access_token):
         url = 'https://kapi.kakao.com/v2/user/me'
         header = {
             'Authorization': f'Bearer {access_token}'
@@ -86,11 +87,33 @@ class KaKaoAuth(SocialAuth):
 
         return self.get(url, self.set_api_header(**header))
 
-    def get_redirect_uri(self, origin):
-        if settings.SERVER_URL in origin:
+    def get_redirect_uri(self):
+        if settings.SERVER_URL in self.origin:
             return settings.KAKAO_REDIRECT_URI
         else:
             return 'http://localhost:3000/oauth/callback/kakao'
+
+    def pick_usable_info(self, kakao_user_info):
+        username = kakao_user_info['kakao_account'].get('email')
+        name = kakao_user_info['kakao_account'].get('name')
+        sex = kakao_user_info['kakao_account'].get('gender')
+        if sex == 'male':
+            sex = '남자'
+        elif sex == 'female':
+            sex = '여자'
+        phone_no = kakao_user_info['kakao_account'].get('phone_number')
+        if phone_no:
+            country_code, phone_no = phone_no.split(' ')[0], phone_no.split(' ')[1]
+            if country_code != '+82':
+                phone_no = None
+            phone_no = '0' + phone_no
+        birth_year = kakao_user_info['kakao_account'].get('birthyear')
+        birthday = kakao_user_info['kakao_account'].get('birthday')
+        if birth_year and birthday:
+            birthday = datetime.strptime(f'{birth_year}-{birthday}', '%Y-%m%d').astimezone()
+        else:
+            birthday = None
+        return {'username': username, 'name': name, 'phone_no': phone_no, 'sex': sex, 'birthday': birthday}
 
 
 class GoogleAuth(SocialAuth):
