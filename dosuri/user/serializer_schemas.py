@@ -7,7 +7,7 @@ USER_DETAIL_EXAMPLE = [
         description='',
         value={
             "name": "한준호",
-            "nickname": "아이고맨",
+            "nickname": "씨ㅡ벌럼ㅋㅋ",
             "birthday": "2022-12-20",
             "phone_no": "010-1234-5678",
             "address": {
@@ -57,7 +57,8 @@ USER_DETAIL_EXAMPLE = [
                     "name": "그 외"
                 }
             ],
-            "unread_notice": True
+            "unread_notice": True,
+            "is_new": True
         },
         response_only=True
     )

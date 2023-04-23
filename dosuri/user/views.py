@@ -52,13 +52,6 @@ class UserList(g.CreateAPIView):
     filter_backends = [rf.OrderingFilter]
     ordering_field = '__all__'
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(user=request.user)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
 
 class UserNickname(g.RetrieveAPIView):
     permission_classes = [p.AllowAny]
