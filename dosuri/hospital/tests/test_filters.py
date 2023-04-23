@@ -96,3 +96,31 @@ class TestHospitalDistanceFilter:
         view = DummyNoneDistanceView()
         filtered_qs = _filter.filter_queryset(request, queryset, view)
         assert filtered_qs.count() == 1
+
+
+class TestAvgPricePerHourFilter:
+    @pytest.mark.django_db
+    def test_filter_within_0_to_100000(
+            self, rf, hospital_treatments_test_A):
+        url = f'/?price_range_from=0&price_range_to=100000'
+        request = rf.get(url)
+        queryset = hm.Hospital.objects.all()
+        assert queryset.count() == 1
+
+        _filter = hf.AvgPricePerHourFilter()
+        view = DummyView()
+        filtered_qs = _filter.filter_queryset(request, queryset, view)
+        assert filtered_qs.count() == 0
+
+    @pytest.mark.django_db
+    def test_filter_within_100000_to_200000(
+            self, rf, hospital_treatments_test_A):
+        url = f'/?price_range_from=100000&price_range_to=200000'
+        request = rf.get(url)
+        queryset = hm.Hospital.objects.all()
+        assert queryset.count() == 1
+
+        _filter = hf.AvgPricePerHourFilter()
+        view = DummyView()
+        filtered_qs = _filter.filter_queryset(request, queryset, view)
+        assert filtered_qs.count() == 1

@@ -52,7 +52,7 @@ class DoctorPositionFilterSchema:
                 'in': 'query',
                 'description': 'position',
                 'schema': {
-                    'type': 'position',
+                    'type': 'string',
                 },
             },
         ]
@@ -81,4 +81,42 @@ class HospitalDistanceFilterSchema:
             }
             for param
             in view.hospital_distance_filter_params if param != 'distance'
+        ]
+
+
+class AvgPricePerHourFilterSchema:
+    def get_schema_fields(self, view):
+        return [
+            coreapi.Field(
+                name='price_range_from', location='query', required=False,
+                schema=coreschema.String(title=f'lower limit of average price per hour',
+                                         description=f'lower limit of average price per hour')
+            ),
+            coreapi.Field(
+                name='price_range_to', location='query', required=False,
+                schema=coreschema.String(title=f'upper limit of average price per hour',
+                                         description=f'upper limit of average price per hour')
+            )
+        ]
+
+    def get_schema_operation_parameters(self, view):
+        return [
+            {
+                'name': 'price_range_from',
+                'required': False,
+                'in': 'query',
+                'description': 'lower limit of average price per hour',
+                'schema': {
+                    'type': 'integer',
+                },
+            },
+            {
+                'name': 'price_range_to',
+                'required': False,
+                'in': 'query',
+                'description': 'upper limit of average price per hour',
+                'schema': {
+                    'type': 'integer',
+                },
+            },
         ]
