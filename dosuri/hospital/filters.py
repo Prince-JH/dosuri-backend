@@ -134,3 +134,12 @@ class ExtraOrderingByIdFilter(filters.OrderingFilter):
         if ordering:
             ordering.append('id')
         return ordering
+
+
+class AvgPricePerHourFilter(fsc.AvgPricePerHourFilterSchema, filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        price_range_from = request.GET.get('price_range_from')
+        price_range_to = request.GET.get('price_range_to')
+        qs_with_avg_price_per_hour = queryset.get_queryset_with_avg_price_per_hour()
+
+        return qs_with_avg_price_per_hour.filter(avg_price_per_hour__range=(price_range_from, price_range_to))
