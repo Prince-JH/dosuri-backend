@@ -162,11 +162,10 @@ class User(s.ModelSerializer):
         return self.save_user_info(user, validated_data)
 
     def get_address(self, obj):
-        qs = um.UserAddress.objects.filter(user=obj)
-        if qs.exists():
-            obj = qs.first()
-            return {'name': obj.name, 'address': obj.address, 'address_type': obj.address_type,
-                    'latitude': obj.latitude, 'longitude': obj.longitude}
+        address = um.UserAddress.objects.get_main_address(user=obj)
+        if address:
+            return {'name': address.name, 'address': address.address, 'address_type': address.address_type,
+                    'latitude': address.latitude, 'longitude': address.longitude}
         return None
 
     def save_user_info(self, user, info_data):
