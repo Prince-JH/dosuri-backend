@@ -166,8 +166,8 @@ class HospitalDetail(s.ModelSerializer):
     calendar: s.Field = HospitalCalendar(source='hospital_calendar')
     keywords: s.Field = HospitalKeywordAssoc(many=True, source='hospital_keyword_assoc')
     attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
-    latitude: s.Field = s.FloatField(write_only=True)
-    longitude: s.Field = s.FloatField(write_only=True)
+    latitude: s.Field = s.FloatField()
+    longitude: s.Field = s.FloatField()
     is_up: s.Field = s.BooleanField(read_only=True)
 
     class Meta:

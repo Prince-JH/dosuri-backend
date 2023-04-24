@@ -194,6 +194,8 @@ class TestHospitalDetail:
         content = json.loads(response.content)
         assert response.status_code == 200
         assert content['name'] == hospital_test_강남.name
+        assert content['latitude'] == hospital_test_강남.latitude
+        assert content['longitude'] == hospital_test_강남.longitude
 
 
 class TestDoctor:
