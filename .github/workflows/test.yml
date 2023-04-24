@@ -3,11 +3,12 @@ name: 🧪 Run Tests
 on:
   push:
     branches:
+      - '**'
       - "!master"
       - "!prod"
 
 jobs:
-  buildAndTest:
+  Test:
     name: CI Pipeline
     runs-on: ubuntu-latest
     services:
