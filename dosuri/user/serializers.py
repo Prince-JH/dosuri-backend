@@ -308,8 +308,8 @@ class UserAddress(s.ModelSerializer):
     address: s.Field = s.CharField()
     address_type: s.Field = s.ChoiceField(choices=[uc.ADDRESS_HOME, uc.ADDRESS_OFFICE, uc.ADDRESS_ETC])
     is_main: s.Field = s.BooleanField(read_only=True)
-    latitude: s.Field = s.CharField()
-    longitude: s.Field = s.CharField()
+    latitude: s.Field = s.FloatField()
+    longitude: s.Field = s.FloatField()
 
     class Meta:
         model = um.UserAddress
