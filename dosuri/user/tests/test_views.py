@@ -371,9 +371,9 @@ class TestUserAddress:
         }
         response = client.post('/user/v1/users/me/addresses', data=data, **headers)
 
-        assert response.status_code == 400
+        assert response.status_code == 201
         content = json.loads(response.content)
-        assert content['detail'] == 'Home address exists.'
+        assert content['longitude'] == 124.124
 
     @pytest.mark.django_db
     def test_create_address_with_invalid_address_type(self, client, tokens_user_dummy):
