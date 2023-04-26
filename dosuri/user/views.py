@@ -1,4 +1,6 @@
 from django.contrib.auth import get_user_model
+from django.db import models
+from django.db.models import Case, When
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import (
     generics as g,
@@ -12,6 +14,7 @@ from dosuri.user import (
     serializers as s,
     auth as a,
     exceptions as uexc,
+    constants as uc
 )
 from dosuri.common import (
     generics as cg
@@ -180,7 +183,15 @@ class UserAddressList(g.ListCreateAPIView):
         return self.queryset.filter(user=user)
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset(request.user))
+        queryset = self.filter_queryset(self.get_queryset(request.user)).order_by(
+            Case(
+                When(address_type=uc.ADDRESS_HOME, then=0),
+                When(address_type=uc.ADDRESS_OFFICE, then=1),
+                default=2,
+                output_field=models.IntegerField(),
+            ),
+            '-created_at'
+        )
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
