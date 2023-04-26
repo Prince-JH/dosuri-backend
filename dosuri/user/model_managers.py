@@ -96,14 +96,16 @@ class UserAddressManager(Manager):
         return instance
 
     def create_home_address(self, user, name, address, latitude, longitude):
-        if self.filter(user=user, address_type=uc.ADDRESS_HOME).exists():
-            raise uexc.HomeAddressExists()
+        qs = self.filter(user=user, address_type=uc.ADDRESS_HOME)
+        if qs.exists():
+            qs.delete()
         return self.create(user=user, name=name, address=address, address_type=uc.ADDRESS_HOME, latitude=latitude,
                            longitude=longitude)
 
     def create_office_address(self, user, name, address, latitude, longitude):
-        if self.filter(user=user, address_type=uc.ADDRESS_OFFICE).exists():
-            raise uexc.OfficeAddressExists()
+        qs = self.filter(user=user, address_type=uc.ADDRESS_OFFICE)
+        if qs.exists():
+            qs.delete()
         return self.create(user=user, name=name, address=address, address_type=uc.ADDRESS_OFFICE, latitude=latitude,
                            longitude=longitude)
 

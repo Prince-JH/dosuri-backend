@@ -52,8 +52,11 @@ class TestUserAddressManager:
 
     @pytest.mark.django_db
     def test_create_home_address_when_already_exists(self, user_dummy, user_dummy_address_home):
-        with pytest.raises(uexc.HomeAddressExists):
-            um.UserAddress.objects.create_home_address(user_dummy, 'home', '수원시 팔달구 아주로 17', 123.123, 123.123)
+        # with pytest.raises(uexc.HomeAddressExists):
+        um.UserAddress.objects.create_home_address(user_dummy, uc.ADDRESS_HOME, '수원시 팔달구 아주로 24', 123.123, 123.123)
+        address = um.UserAddress.objects.get(user=user_dummy, address_type=uc.ADDRESS_HOME)
+
+        assert address.address == '수원시 팔달구 아주로 24'
 
     @pytest.mark.django_db
     def test_create_office_address(self, user_dummy):
@@ -63,9 +66,12 @@ class TestUserAddressManager:
         assert um.UserAddress.objects.all().first().address_type == uc.ADDRESS_OFFICE
 
     @pytest.mark.django_db
-    def test_create_home_address_when_already_exists(self, user_dummy, user_dummy_address_office):
-        with pytest.raises(uexc.OfficeAddressExists):
-            um.UserAddress.objects.create_office_address(user_dummy, 'office', '서초대로 343 신덕빌딩', 123.123, 123.123)
+    def test_create_office_address_when_already_exists(self, user_dummy, user_dummy_address_office):
+        # with pytest.raises(uexc.OfficeAddressExists):
+        um.UserAddress.objects.create_office_address(user_dummy, uc.ADDRESS_OFFICE, '서초대로 12', 123.123, 123.123)
+        address = um.UserAddress.objects.get(user=user_dummy, address_type=uc.ADDRESS_OFFICE)
+
+        assert address.address == '서초대로 12'
 
     @pytest.mark.django_db
     def test_create_etc_address_when_already_exists(self, user_dummy, user_dummy_address_etc):
