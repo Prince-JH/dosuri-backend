@@ -327,6 +327,6 @@ class UserAddressDetail(s.ModelSerializer):
         fields = ('is_main',)
 
     def update(self, instance, validated_data):
-        if validated_data['is_main']:
+        if validated_data.get('is_main'):
             self.Meta.model.objects.set_main_address(instance)
         return super().update(instance, validated_data)
