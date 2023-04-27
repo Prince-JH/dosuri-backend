@@ -23,6 +23,7 @@ from dosuri.common import (
 )
 
 
+@extend_schema_serializer(examples=sch.AUTH_EXAMPLE)
 class Auth(s.Serializer):
     user_uuid: s.Field = s.CharField(read_only=True)
     username: s.Field = s.CharField(write_only=True, required=False)
@@ -82,7 +83,6 @@ class AuthV2(s.Serializer):
     type: s.Field = s.CharField(write_only=True)
 
     def create(self, validated_data):
-
         auth_type = validated_data['type']
 
         origin = self.context['request'].build_absolute_uri()
