@@ -135,6 +135,8 @@ packaging==21.3
     # via
     #   drf-yasg
     #   pytest
+pendulum==2.1.2
+    # via -r requirements.in
 pluggy==1.0.0
     # via pytest
 prompt-toolkit==3.0.36
@@ -169,7 +171,9 @@ pytest-cov==4.0.0
 pytest-django==4.5.2
     # via -r requirements.in
 python-dateutil==2.8.2
-    # via botocore
+    # via
+    #   botocore
+    #   pendulum
 python-jose[cryptography]==3.3.0
     # via drf-social-oauth2
 python3-openid==3.2.0
@@ -179,6 +183,8 @@ pytz==2022.4
     #   celery
     #   djangorestframework
     #   drf-yasg
+pytzdata==2020.1
+    # via pendulum
 pyyaml==6.0
     # via drf-spectacular
 requests==2.28.1
