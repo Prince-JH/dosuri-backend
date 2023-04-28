@@ -1,5 +1,6 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
+import pendulum
 import pytest
 from django.contrib.auth import get_user_model
 
@@ -81,7 +82,8 @@ def hospital_test_강남():
     return hm.Hospital.objects.create(
         name='test_A',
         latitude=37.517331925853,
-        longitude=127.047377408384
+        longitude=127.047377408384,
+        opened_at=pendulum.datetime(2023, 1, 1)
     )
 
 
@@ -90,7 +92,8 @@ def hospital_test_수원():
     return hm.Hospital.objects.create(
         name='test_B',
         latitude=37.2826740965805,
-        longitude=127.020135072307
+        longitude=127.020135072307,
+        opened_at=pendulum.datetime(2020, 1, 1)
     )
 
 
