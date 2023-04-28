@@ -17,3 +17,4 @@ elasticsearch
 celery
 pytest-celery
 pytest-cov
+pendulum
