@@ -98,7 +98,7 @@ class TestHospitalDistanceFilter:
         assert filtered_qs.count() == 1
 
 
-class TestAvgPricePerHourFilter:
+class TestAvgPricePerHourRangeFilter:
     @pytest.mark.django_db
     def test_filter_within_0_to_100000(
             self, rf, hospital_treatments_test_A):
@@ -107,7 +107,7 @@ class TestAvgPricePerHourFilter:
         queryset = hm.Hospital.objects.all()
         assert queryset.count() == 1
 
-        _filter = hf.AvgPricePerHourFilter()
+        _filter = hf.AvgPricePerHourRangeFilter()
         view = DummyView()
         filtered_qs = _filter.filter_queryset(request, queryset, view)
         assert filtered_qs.count() == 0
@@ -120,7 +120,35 @@ class TestAvgPricePerHourFilter:
         queryset = hm.Hospital.objects.all()
         assert queryset.count() == 1
 
-        _filter = hf.AvgPricePerHourFilter()
+        _filter = hf.AvgPricePerHourRangeFilter()
         view = DummyView()
         filtered_qs = _filter.filter_queryset(request, queryset, view)
         assert filtered_qs.count() == 1
+
+
+class TestOpenedAtRangeFilter:
+    @pytest.mark.django_db
+    def test_filter_should_return_one(
+            self, rf, hospital_test_강남):
+        url = f'/?opened_at_range_from=2022-12-31T00:00:00%2B09:00&opened_at_range_to=2023-01-05T00:00:00%2B09:00'
+        request = rf.get(url)
+        queryset = hm.Hospital.objects.all()
+        assert queryset.count() == 1
+
+        _filter = hf.OpenedAtRangeFilter()
+        view = DummyView()
+        filtered_qs = _filter.filter_queryset(request, queryset, view)
+        assert filtered_qs.count() == 1
+
+    @pytest.mark.django_db
+    def test_filter_should_return_two(
+            self, rf, hospital_test_강남, hospital_test_수원):
+        url = f'/?opened_at_range_from=2019-12-31T00:00:00%2B09:00&opened_at_range_to=2023-01-05T00:00:00%2B09:00'
+        request = rf.get(url)
+        queryset = hm.Hospital.objects.all()
+        assert queryset.count() == 2
+
+        _filter = hf.OpenedAtRangeFilter()
+        view = DummyView()
+        filtered_qs = _filter.filter_queryset(request, queryset, view)
+        assert filtered_qs.count() == 2
