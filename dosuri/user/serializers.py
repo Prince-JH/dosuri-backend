@@ -164,7 +164,8 @@ class User(s.ModelSerializer):
     def get_address(self, obj):
         address = um.UserAddress.objects.get_main_address(user=obj)
         if address:
-            return {'name': address.name, 'address': address.address, 'address_type': address.address_type,
+            return {'uuid': address.uuid, 'name': address.name, 'address': address.address,
+                    'address_type': address.address_type,
                     'latitude': address.latitude, 'longitude': address.longitude}
         return None
 
