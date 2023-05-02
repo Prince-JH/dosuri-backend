@@ -191,6 +191,27 @@ class HospitalAddressAssoc(s.ModelSerializer):
         exclude = ('id', 'created_at')
 
 
+class HospitalLatestArticleAvgPricePerHour(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    address: s.Field = s.CharField()
+    name: s.Field = s.CharField()
+    area: s.Field = s.CharField(allow_null=True)
+    up_count: s.Field = s.IntegerField(read_only=True)
+    view_count: s.Field = s.IntegerField(read_only=True)
+    article_count: s.Field = s.IntegerField(read_only=True)
+    latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
+    latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
+    opened_at: s.Field = s.DateTimeField(allow_null=True)
+    distance: s.Field = s.FloatField(read_only=True, allow_null=True)
+    attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
+    avg_price_per_hour: s.Field = s.FloatField(read_only=True, allow_null=True)
+
+    class Meta:
+        model = hm.Hospital
+        fields = ['uuid', 'name', 'area', 'up_count', 'view_count', 'article_count', 'latest_article',
+                  'latest_article_created_at', 'opened_at', 'avg_price_per_hour', 'attachments']
+
+
 class DoctorKeyword(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     name: s.Field = s.CharField()
