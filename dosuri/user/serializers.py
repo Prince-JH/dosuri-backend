@@ -23,6 +23,7 @@ from dosuri.common import (
 )
 
 
+@extend_schema_serializer(examples=sch.AUTH_EXAMPLE)
 class Auth(s.Serializer):
     user_uuid: s.Field = s.CharField(read_only=True)
     username: s.Field = s.CharField(write_only=True, required=False)
@@ -47,16 +48,20 @@ class Auth(s.Serializer):
             user = qs.first()
             user_info = {}
 
-        elif auth_type == uc.AUTH_KAKAO:
+        else:
             token = validated_data.get('token')
             if not token:
                 raise uexc.RequireTokenException()
-            auth_factory = a.KaKaoAuth(token, origin)
-            kakao_user_info = auth_factory.authenticate()
-            username = kakao_user_info['kakao_account']['email']
 
+            if auth_type == uc.AUTH_KAKAO:
+                auth = a.KaKaoAuth(token, origin)
+
+            elif auth_type == uc.AUTH_GOOGLE:
+                auth = a.GoogleAuth(token, origin)
+
+            user_info = auth.get_user_info()
+            username = user_info['username']
             user = um.User.objects.get_or_create(username=username)[0]
-            user_info = self.get_user_info_from_kakao(kakao_user_info)
 
         is_new = user.is_new()
         if is_new:
@@ -71,26 +76,22 @@ class Auth(s.Serializer):
         validated_data['user_uuid'] = user.uuid
         return validated_data
 
-    def get_user_info_from_kakao(self, kakao_user_info):
-        name = kakao_user_info['kakao_account'].get('name')
-        sex = kakao_user_info['kakao_account'].get('gender')
-        if sex == 'male':
-            sex = '남자'
-        elif sex == 'female':
-            sex = '여자'
-        phone_no = kakao_user_info['kakao_account'].get('phone_number')
-        if phone_no:
-            country_code, phone_no = phone_no.split(' ')[0], phone_no.split(' ')[1]
-            if country_code != '+82':
-                phone_no = None
-            phone_no = '0' + phone_no
-        birth_year = kakao_user_info['kakao_account'].get('birthyear')
-        birthday = kakao_user_info['kakao_account'].get('birthday')
-        if birth_year and birthday:
-            birthday = datetime.strptime(f'{birth_year}-{birthday}', '%Y-%m%d').astimezone()
-        else:
-            birthday = None
-        return {'name': name, 'phone_no': phone_no, 'sex': sex, 'birthday': birthday}
+
+class AuthV2(s.Serializer):
+    code: s.Field = s.CharField(write_only=True, required=False)
+    token: s.Field = s.CharField(read_only=True, required=False)
+    type: s.Field = s.CharField(write_only=True)
+
+    def create(self, validated_data):
+        auth_type = validated_data['type']
+
+        origin = self.context['request'].build_absolute_uri()
+
+        if auth_type == uc.AUTH_APPLE:
+            pass
+
+        validated_data['token'] = ''
+        return validated_data
 
 
 class AddressUserAssoc(s.ModelSerializer):
@@ -152,22 +153,21 @@ class User(s.ModelSerializer):
         fields = ('uuid', 'username', 'nickname', 'birthday', 'phone_no', 'name',
                   'address', 'sex', 'is_real', 'pain_areas', 'created_at', 'unread_notice')
 
-    def get_address(self, obj):
-        qs = cm.Address.objects.filter(address_user_assoc__user=obj)
-        if qs.exists():
-            return {
-                'large_area': qs.first().large_area,
-                'small_area': qs.first().small_area
-            }
-        return {}
-
     def create(self, validated_data):
-        user = validated_data['user']
+        user = get_user_model().objects.create()
         return self.save_user_info(user, validated_data)
 
     def update(self, instance, validated_data):
         user = instance
         return self.save_user_info(user, validated_data)
+
+    def get_address(self, obj):
+        address = um.UserAddress.objects.get_main_address(user=obj)
+        if address:
+            return {'uuid': address.uuid, 'name': address.name, 'address': address.address,
+                    'address_type': address.address_type,
+                    'latitude': address.latitude, 'longitude': address.longitude}
+        return None
 
     def save_user_info(self, user, info_data):
         info_data = self.save_extra(user, **info_data)
@@ -181,21 +181,19 @@ class User(s.ModelSerializer):
     def save_extra(self, user, **kwargs):
         if 'address' in kwargs:
             self.save_address(user, kwargs.pop('address'))
+
         if 'pain_area_user_assoc' in kwargs:
             self.save_pain_areas(user, kwargs.pop('pain_area_user_assoc'))
         return kwargs
 
-    def save_address(self, user, address):
-        um.AddressUserAssoc.objects.filter(user=user).delete()
-
-        address_qs = cm.Address.objects.filter(large_area=address['large_area'],
-                                               small_area=address['small_area'])
-        if not address_qs.exists():
-            address = cm.Address.objects.create(large_area=address['large_area'],
-                                                small_area=address['small_area'])
-        else:
-            address = address_qs.first()
-        um.AddressUserAssoc.objects.create(user=user, address=address)
+    def save_address(self, user, address_data):
+        qs = um.UserAddress.objects.filter(user=user, name=address_data['name'])
+        if qs.exists():
+            return
+        address_data.update({'user': user})
+        address = um.UserAddress.objects.create_address(address_data)
+        um.UserAddress.objects.set_main_address(address)
+        return address
 
     def save_pain_areas(self, user, pain_area_user_assoc):
         um.PainAreaUserAssoc.objects.filter(user=user).delete()
@@ -243,15 +241,17 @@ class InsuranceUserAssoc(s.ModelSerializer):
         return super().create(validated_data)
 
     def make_message(self, user):
-        address_qs = cm.Address.objects.filter(address_user_assoc__user=user)
+        address_qs = um.UserAddress.objects.filter(user=user, address_type=uc.ADDRESS_HOME)
         if not address_qs.exists():
-            raise uexc.UserHasNoAddress()
-        address = address_qs.first()
+            address_qs = um.UserAddress.objects.filter(user=user, is_main=True)
+            if not address_qs.exists():
+                raise uexc.UserHasNoAddress()
+        address = address_qs.first().address.split(' ')
         message = f'새로운 보험 신청\n' \
                   f'{user.name} ({user.sex})\n' \
                   f'{user.phone_no}\n' \
                   f'{user.birthday.strftime("%Y/%m/%d")}\n' \
-                  f'{address.large_area} {address.small_area}'
+                  f'{address[0]} {address[1]}'
         return message
 
 
@@ -308,8 +308,9 @@ class UserAddress(s.ModelSerializer):
     name: s.Field = s.CharField(allow_null=True)
     address: s.Field = s.CharField()
     address_type: s.Field = s.ChoiceField(choices=[uc.ADDRESS_HOME, uc.ADDRESS_OFFICE, uc.ADDRESS_ETC])
-    latitude: s.Field = s.CharField()
-    longitude: s.Field = s.CharField()
+    is_main: s.Field = s.BooleanField(read_only=True)
+    latitude: s.Field = s.FloatField()
+    longitude: s.Field = s.FloatField()
 
     class Meta:
         model = um.UserAddress
@@ -317,3 +318,16 @@ class UserAddress(s.ModelSerializer):
 
     def create(self, validated_data):
         return self.Meta.model.objects.create_address(validated_data)
+
+
+class UserAddressDetail(s.ModelSerializer):
+    is_main: s.Field = s.BooleanField()
+
+    class Meta:
+        model = um.UserAddress
+        fields = ('is_main',)
+
+    def update(self, instance, validated_data):
+        if validated_data.get('is_main'):
+            self.Meta.model.objects.set_main_address(instance)
+        return super().update(instance, validated_data)

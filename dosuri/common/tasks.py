@@ -8,7 +8,6 @@ import datetime
 import dosuri.community.models as cm
 
 
-
 @shared_task
 def announce_insurance_consult(message):
     naver_client = cs.NaverCloudClient()
@@ -37,3 +36,4 @@ def article_relocation_every_day():
         article.created_at=target
         article.save()
     return
+

@@ -62,6 +62,17 @@ class AddressUserAssocManager(Manager):
 
 
 class UserAddressManager(Manager):
+    def get_main_address(self, user):
+        try:
+            return self.get(user=user, is_main=True)
+        except self.model.DoesNotExist:
+            return
+
+    def set_main_address(self, instance):
+        self.filter(user=instance.user).update(is_main=False)
+        instance.is_main = True
+        instance.save()
+
     def create_address(self, data):
         if data['address_type'] == uc.ADDRESS_HOME:
             instance = self.create_home_address(user=data['user'],
@@ -85,14 +96,16 @@ class UserAddressManager(Manager):
         return instance
 
     def create_home_address(self, user, name, address, latitude, longitude):
-        if self.filter(user=user, address_type=uc.ADDRESS_HOME).exists():
-            raise uexc.HomeAddressExists()
+        qs = self.filter(user=user, address_type=uc.ADDRESS_HOME)
+        if qs.exists():
+            qs.delete()
         return self.create(user=user, name=name, address=address, address_type=uc.ADDRESS_HOME, latitude=latitude,
                            longitude=longitude)
 
     def create_office_address(self, user, name, address, latitude, longitude):
-        if self.filter(user=user, address_type=uc.ADDRESS_OFFICE).exists():
-            raise uexc.OfficeAddressExists()
+        qs = self.filter(user=user, address_type=uc.ADDRESS_OFFICE)
+        if qs.exists():
+            qs.delete()
         return self.create(user=user, name=name, address=address, address_type=uc.ADDRESS_OFFICE, latitude=latitude,
                            longitude=longitude)
 

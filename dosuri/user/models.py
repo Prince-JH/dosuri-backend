@@ -31,7 +31,7 @@ class User(AbstractUser):
         ordering = ['-id']
 
     def is_new(self):
-        qs = AddressUserAssoc.objects.filter(user=self)
+        qs = UserAddress.objects.filter(user=self)
         return False if qs.exists() else True
 
     def resign(self):
@@ -138,6 +138,7 @@ class UserAddress(models.Model):
     name = models.CharField(max_length=32, null=True)
     address = models.CharField(max_length=64)
     address_type = models.CharField(max_length=64)
+    is_main = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     latitude = models.FloatField(default=0)  # 위도, y_pos
     longitude = models.FloatField(default=0)  # 경도, x_pos

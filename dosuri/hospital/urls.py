@@ -21,6 +21,7 @@ urlpatterns = [
     path('v1/hospital-address-assocs', v.HospitalAddressAssocList.as_view(), name='hospital-address-assoc'),
     path('v1/hospital-address-assocs/<uuid>', v.HospitalAddressAssocDetail.as_view(),
          name='hospital-address-assoc-detail'),
+    path('v1/hospital-many-reviews', v.ManyReviewHospitalList.as_view(), name='hospital-many-review'),
 
     path('v1/hospital-user-assocs', v.HospitalUserAssoc.as_view(),
          name='hospital-user-assoc'),

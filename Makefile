@@ -1,7 +1,8 @@
 test:
-	cd dosuri/user && pytest
-	cd dosuri/hospital && pytest
-	cd dosuri/community && pytest
+	cd dosuri/user && pytest --cov
+	cd dosuri/hospital && pytest --cov
+	cd dosuri/community && pytest --cov
+	cd dosuri/common && pytest --cov
 	python3 manage.py test --settings=config.settings_test
 
 image:

@@ -83,3 +83,11 @@ class UserAdmin(admin.ModelAdmin):
 
 
 admin.site.register(um.User, UserAdmin)
+
+
+class UserAddressAdmin(admin.ModelAdmin):
+    list_display = ['name', 'address', 'address_type', 'is_main']
+    raw_id_fields = ['user']
+
+
+admin.site.register(um.UserAddress, UserAddressAdmin)

@@ -1,4 +1,6 @@
 from django.contrib.auth import get_user_model
+from django.db import models
+from django.db.models import Case, When
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import (
     generics as g,
@@ -12,6 +14,7 @@ from dosuri.user import (
     serializers as s,
     auth as a,
     exceptions as uexc,
+    constants as uc
 )
 from dosuri.common import (
     generics as cg
@@ -52,13 +55,6 @@ class UserList(g.CreateAPIView):
     filter_backends = [rf.OrderingFilter]
     ordering_field = '__all__'
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(user=request.user)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
 
 class UserNickname(g.RetrieveAPIView):
     permission_classes = [p.AllowAny]
@@ -86,6 +82,7 @@ class UserDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.IsAuthenticated]
     queryset = get_user_model().objects.filter()
     serializer_class = s.User
+    lookup_field = 'uuid'
 
     def get_object(self):
         return self.request.user
@@ -127,6 +124,7 @@ class UserPointHistoryDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.IsAuthenticated]
     queryset = um.UserPointHistory.objects.all()
     serializer_class = s.UserPointHistory
+    lookup_field = 'uuid'
 
 
 class UserTotalPoint(g.RetrieveAPIView):
@@ -152,6 +150,7 @@ class UserNotificationDetail(g.RetrieveUpdateDestroyAPIView):
     permission_classes = [p.IsAuthenticated]
     queryset = um.UserNotification.objects.all()
     serializer_class = s.UserNotification
+    lookup_field = 'uuid'
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -173,6 +172,37 @@ class UserAddressList(g.ListCreateAPIView):
     permission_classes = [p.IsAuthenticated]
     queryset = um.UserAddress.objects.all()
     serializer_class = s.UserAddress
+    filter_backends = [rf.OrderingFilter]
+    ordering_field = '__all__'
+    ordering = ['-created_at']
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    def get_queryset(self, user):
+        return self.queryset.filter(user=user)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset(request.user)).order_by(
+            Case(
+                When(address_type=uc.ADDRESS_HOME, then=0),
+                When(address_type=uc.ADDRESS_OFFICE, then=1),
+                default=2,
+                output_field=models.IntegerField(),
+            ),
+            '-created_at'
+        )
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class UserAddressDetail(g.RetrieveUpdateDestroyAPIView):
+    permission_classes = [p.IsAuthenticated]
+    queryset = um.UserAddress.objects.all()
+    serializer_class = s.UserAddressDetail
+    lookup_field = 'uuid'

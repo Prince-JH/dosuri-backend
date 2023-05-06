@@ -1,7 +1,7 @@
 import pytest
 from dosuri.hospital import (
     exceptions as hexc,
-    model_mixins as hmx,
+    view_mixins as hmx,
 )
 
 

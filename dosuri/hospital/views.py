@@ -25,7 +25,7 @@ from dosuri.hospital import (
     filters as hf,
     pagings as hp,
     constants as hc,
-    model_mixins as hmx,
+    view_mixins as hmx,
 )
 from dosuri.common import filters as f
 
@@ -65,7 +65,7 @@ class HospitalAddressFilteredList(hmx.HospitalDistance, g.ListAPIView):
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
                                                                                       'hospital_attachment_assoc__attachment').annotate_extra_fields()
     serializer_class = s.Hospital
-    filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter, rf.OrderingFilter]
+    filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter]
     ordering_field = '__all__'
     hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
     hospital_distance_range = 2
@@ -77,7 +77,8 @@ class HospitalAddressFilteredAvgPriceList(hmx.HospitalDistance, g.ListAPIView):
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
                                                                                       'hospital_attachment_assoc__attachment').annotate_extra_fields().annotate_avg_price_per_hour()
     serializer_class = s.GoodPriceHospital
-    filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter]
+    filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter, hf.AvgPricePerHourRangeFilter,
+                       hf.OpenedAtRangeFilter]
     ordering_field = '__all__'
     hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
     hospital_distance_range = 2
@@ -362,13 +363,18 @@ class HomeHospitalList(hmx.HospitalDistance, g.ListAPIView):
         good_price_hospital_queryset = queryset.get_good_price_hospital_queryset()
         good_price_hospital_serializer = s.GoodPriceHospital(good_price_hospital_queryset, many=True)
 
-        # good_review_hospital_queryset = self.get_good_review_hospital_queryset(address_filtered_queryset)
-        # good_review_hospital_serializer = s.AroundHospital(good_review_hospital_queryset, many=True)
+        many_review_hospital_queryset = queryset.get_many_review_hospital_queryset()
+        many_review_hospital_serializer = s.AroundHospital(many_review_hospital_queryset, many=True)
+
+        new_review_hospital_queryset = queryset.get_new_review_hospital_queryset()
+        new_review_hospital_serializer = s.AroundHospital(new_review_hospital_queryset, many=True)
 
         serializer = self.get_serializer({'address': self.address,
                                           'top_hospitals': top_hospital_serializer.data,
                                           'new_hospitals': new_hospital_serializer.data,
-                                          'good_price_hospitals': good_price_hospital_serializer.data})
+                                          'good_price_hospitals': good_price_hospital_serializer.data,
+                                          'many_review_hospitals': many_review_hospital_serializer.data,
+                                          'new_review_hospitals': new_review_hospital_serializer.data})
         return Response(serializer.data)
 
 

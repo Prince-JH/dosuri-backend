@@ -17,11 +17,11 @@ class HospitalDistance:
         client = cg.KaKaoGeoClient()
         if isinstance(self.request.user, AnonymousUser):
             return self.get_default_coordinates(client)
-        address = um.AddressUserAssoc.objects.get_user_address(self.request.user)
+        address = um.UserAddress.objects.get_main_address(self.request.user)
         if not address:
             return self.get_default_coordinates(client)
-        self.set_display_address(address.small_area)
-        return client.get_coordinates('address', f'{address.large_area} {address.small_area}')
+        self.set_display_address(address.name)
+        return [address.latitude, address.longitude]
 
     def set_coordinates(self):
         is_realtime_coordinates = getattr(self, 'is_realtime_coordinates', False)

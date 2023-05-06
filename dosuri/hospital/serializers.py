@@ -14,6 +14,9 @@ from dosuri.community import (
     models as cmm,
 
 )
+from dosuri.user import (
+    models as um
+)
 from drf_spectacular.utils import extend_schema_serializer, OpenApiExample, extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 
@@ -163,8 +166,8 @@ class HospitalDetail(s.ModelSerializer):
     calendar: s.Field = HospitalCalendar(source='hospital_calendar')
     keywords: s.Field = HospitalKeywordAssoc(many=True, source='hospital_keyword_assoc')
     attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
-    latitude: s.Field = s.FloatField(write_only=True)
-    longitude: s.Field = s.FloatField(write_only=True)
+    latitude: s.Field = s.FloatField()
+    longitude: s.Field = s.FloatField()
     is_up: s.Field = s.BooleanField(read_only=True)
 
     class Meta:
@@ -186,6 +189,27 @@ class HospitalAddressAssoc(s.ModelSerializer):
     class Meta:
         model = hm.HospitalAddressAssoc
         exclude = ('id', 'created_at')
+
+
+class HospitalLatestArticleAvgPricePerHour(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    address: s.Field = s.CharField()
+    name: s.Field = s.CharField()
+    area: s.Field = s.CharField(allow_null=True)
+    up_count: s.Field = s.IntegerField(read_only=True)
+    view_count: s.Field = s.IntegerField(read_only=True)
+    article_count: s.Field = s.IntegerField(read_only=True)
+    latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
+    latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
+    opened_at: s.Field = s.DateTimeField(allow_null=True)
+    distance: s.Field = s.FloatField(read_only=True, allow_null=True)
+    attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
+    avg_price_per_hour: s.Field = s.FloatField(read_only=True, allow_null=True)
+
+    class Meta:
+        model = hm.Hospital
+        fields = ['uuid', 'name', 'area', 'up_count', 'view_count', 'article_count', 'latest_article',
+                  'latest_article_created_at', 'opened_at', 'avg_price_per_hour', 'attachments']
 
 
 class DoctorKeyword(s.ModelSerializer):
@@ -424,4 +448,5 @@ class HomeHospital(s.Serializer):
     top_hospitals: s.Field = s.ListField()
     new_hospitals: s.Field = s.ListField()
     good_price_hospitals: s.Field = s.ListField()
-    # good_review_hospitals: s.Field = s.ListField()
+    many_review_hospitals: s.Field = s.ListField()
+    new_review_hospitals: s.Field = s.ListField()
