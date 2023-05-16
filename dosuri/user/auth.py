@@ -27,8 +27,8 @@ APPLE_PUBLIC_KEY_URL = "https://appleid.apple.com/auth/keys"
 
 def get_apple_keypair_from_ssm():
     client = boto3.client('ssm',
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
         region_name='ap-northeast-2'
     )
     name = 'AppleAuthKeypair'
