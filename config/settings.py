@@ -211,7 +211,11 @@ SOCIAL_AUTH_APPLE_TEAM_ID = os.environ.get('SOCIAL_AUTH_APPLE_TEAM_ID')
 SOCIAL_AUTH_APPLE_CLIENT_ID = os.environ.get('SOCIAL_AUTH_APPLE_CLIENT_ID')
 
 def get_apple_keypair_from_ssm():
-    client = boto3.client('ssm', region_name='ap-northeast-2')
+    client = boto3.client('ssm',
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name='ap-northeast-2'
+    )
     name = 'AppleAuthKeypair'
     response = client.get_parameter(Name=name)
     return response['Parameter']['Value']
