@@ -1,6 +1,9 @@
 import json
 import traceback
 from datetime import datetime
+import jwt
+from django.utils import timezone
+from django.utils.timezone import timedelta
 
 import requests
 
@@ -18,6 +21,8 @@ from dosuri.user import (
     exceptions as uexc
 )
 from rest_framework_simplejwt.tokens import RefreshToken
+
+APPLE_PUBLIC_KEY_URL = "https://appleid.apple.com/auth/keys"
 
 
 def get_tokens_for_user(user):
@@ -165,3 +170,59 @@ class GoogleAuth(SocialAuth):
         username = google_user_info.get('email')
         name = google_user_info.get('name')
         return {'username': username, 'name': name}
+
+class AppleAuth(SocialAuth):
+    def __init__(self, code, origin):
+        self.code = code
+        self.origin = origin
+
+    def get_user_info(self):
+        access_token = self.get_access_token()
+        user_info = self.pick_usable_info(access_token)
+        return user_info
+
+    def get_access_token(self):
+        return self.code
+
+    def get_key_and_secret(self):
+        headers = {
+            'kid': settings.SOCIAL_AUTH_APPLE_KEY_ID
+        }
+        payload = {
+            'iss': settings.SOCIAL_AUTH_APPLE_TEAM_ID,
+            'iat': timezone.now(),
+            'exp': timezone.now() + timedelta(days=180),
+            'aud': 'https://appleid.apple.com',
+            'sub': settings.SOCIAL_AUTH_APPLE_CLIENT_ID,
+        }
+
+        client_secret = jwt.encode(
+            payload, 
+            settings.SOCIAL_AUTH_APPLE_PRIVATE_KEY, 
+            algorithm='ES256', 
+            headers=headers
+        )
+        
+        return settings.SOCIAL_AUTH_APPLE_CLIENT_ID, client_secret
+
+    def pick_usable_info(self, apple_token):
+        client_id, client_secret = self.get_key_and_secret()
+        headers = {'content-type': "application/x-www-form-urlencoded"}
+        data = {
+            'client_id': client_id,
+            'client_secret': client_secret,
+            'code': apple_token,
+            'grant_type': 'authorization_code',
+            'redirect_uri': 'https://dosuri-front-git-feat-applelogin-dosuri.vercel.app'
+        }
+
+        res = requests.post('https://appleid.apple.com/auth/token', data=data, headers=headers)
+        response_dict = res.json()
+        id_token = response_dict.get('id_token', None)
+
+        if id_token:
+            decoded = jwt.decode(id_token, options={"verify_signature": False})
+            print(decoded)
+            username=decoded['email'] if 'email' in decoded else None
+
+        return {'username': username}
