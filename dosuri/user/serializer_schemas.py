@@ -148,5 +148,15 @@ AUTH_EXAMPLE = [
             "type": "kakao",
         },
         request_only=True
+    ),
+    OpenApiExample(
+        'apple oauth2',
+        summary='apple oauth2',
+        description='',
+        value={
+            "token": "apple token",
+            "type": "apple",
+        },
+        request_only=True
     )
 ]

@@ -14,6 +14,7 @@ import os
 from datetime import datetime, timedelta
 from celery.schedules import crontab
 from pathlib import Path
+import boto3
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -203,3 +204,15 @@ INSURANCE_PHONE_NUMBERS = os.environ.get('INSURANCE_PHONE_NUMBERS', [])
 GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
 GOOGLE_REDIRECT_URI = os.environ.get('GOOGLE_REDIRECT_URI')
+
+APPLE_PUBLIC_KEY_URL = os.environ.get('APPLE_PUBLIC_KEY_URL')
+SOCIAL_AUTH_APPLE_KEY_ID = os.environ.get('SOCIAL_AUTH_APPLE_KEY_ID')
+SOCIAL_AUTH_APPLE_TEAM_ID = os.environ.get('SOCIAL_AUTH_APPLE_TEAM_ID')
+SOCIAL_AUTH_APPLE_CLIENT_ID = os.environ.get('SOCIAL_AUTH_APPLE_CLIENT_ID')
+
+def get_apple_keypair_from_ssm():
+    client = boto3.client('ssm')
+    name = 'AppleAuthKeypair'
+    response = client.get_parameter(Name=name)
+    return response['Parameter']['Value']
+SOCIAL_AUTH_APPLE_PRIVATE_KEY = get_apple_keypair_from_ssm()
