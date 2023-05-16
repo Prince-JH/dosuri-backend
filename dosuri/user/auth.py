@@ -197,7 +197,7 @@ class AppleAuth(SocialAuth):
 
         client_secret = jwt.encode(
             payload, 
-            SOCIAL_AUTH_APPLE_PRIVATE_KEY, 
+            settings.SOCIAL_AUTH_APPLE_PRIVATE_KEY, 
             algorithm='ES256', 
             headers=headers
         )
@@ -221,6 +221,7 @@ class AppleAuth(SocialAuth):
 
         if id_token:
             decoded = jwt.decode(id_token, options={"verify_signature": False})
+            print(decoded)
             username=decoded['email'] if 'email' in decoded else None
 
         return {'username': username}
