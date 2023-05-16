@@ -24,6 +24,17 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 APPLE_PUBLIC_KEY_URL = "https://appleid.apple.com/auth/keys"
 
+def get_apple_keypair_from_ssm():
+    client = boto3.client('ssm',
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        region_name='ap-northeast-2'
+    )
+    name = 'AppleAuthKeypair'
+    response = client.get_parameter(Name=name)
+    return response['Parameter']['Value']
+SOCIAL_AUTH_APPLE_PRIVATE_KEY = get_apple_keypair_from_ssm()
+
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
 
@@ -197,7 +208,7 @@ class AppleAuth(SocialAuth):
 
         client_secret = jwt.encode(
             payload, 
-            settings.SOCIAL_AUTH_APPLE_PRIVATE_KEY, 
+            SOCIAL_AUTH_APPLE_PRIVATE_KEY, 
             algorithm='ES256', 
             headers=headers
         )
