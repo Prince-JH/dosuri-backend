@@ -21,6 +21,7 @@ from dosuri.user import (
     exceptions as uexc
 )
 from rest_framework_simplejwt.tokens import RefreshToken
+import boto3
 
 APPLE_PUBLIC_KEY_URL = "https://appleid.apple.com/auth/keys"
 
