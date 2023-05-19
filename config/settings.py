@@ -209,6 +209,8 @@ APPLE_PUBLIC_KEY_URL = os.environ.get('APPLE_PUBLIC_KEY_URL')
 SOCIAL_AUTH_APPLE_KEY_ID = os.environ.get('SOCIAL_AUTH_APPLE_KEY_ID')
 SOCIAL_AUTH_APPLE_TEAM_ID = os.environ.get('SOCIAL_AUTH_APPLE_TEAM_ID')
 SOCIAL_AUTH_APPLE_CLIENT_ID = os.environ.get('SOCIAL_AUTH_APPLE_CLIENT_ID')
+SOCIAL_AUTH_APPLE_REDIRECT_URL = os.environ.get('SOCIAL_AUTH_APPLE_REDIRECT_URL')
+
 
 def get_apple_keypair_from_ssm():
     client = boto3.client('ssm',
