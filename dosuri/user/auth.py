@@ -213,7 +213,7 @@ class AppleAuth(SocialAuth):
             'client_secret': client_secret,
             'code': apple_token,
             'grant_type': 'authorization_code',
-            'redirect_uri': 'https://dosuri-front-git-feat-applelogin-dosuri.vercel.app'
+            'redirect_uri': settings.SOCIAL_AUTH_APPLE_REDIRECT_URL
         }
 
         res = requests.post('https://appleid.apple.com/auth/token', data=data, headers=headers)
@@ -222,7 +222,6 @@ class AppleAuth(SocialAuth):
 
         if id_token:
             decoded = jwt.decode(id_token, options={"verify_signature": False})
-            print(decoded)
             username=decoded['email'] if 'email' in decoded else None
 
         return {'username': username}
