@@ -161,4 +161,4 @@ class HospitalQuerySet(QuerySet):
         return qs.annotate_extra_fields().filter(id__in=rand_ids)
 
     def get_new_review_hospital_queryset(self, showing_number=3):
-        return self.annotate_article_count().order_by('article_count')[:showing_number]
+        return self.annotate_extra_fields().order_by('article_count')[:showing_number]
