@@ -140,6 +140,8 @@ class AvgPricePerHourRangeFilter(fsc.AvgPricePerHourRangeFilterSchema, filters.B
     def filter_queryset(self, request, queryset, view):
         price_range_from = request.GET.get('price_range_from')
         price_range_to = request.GET.get('price_range_to')
+        if not (price_range_from or price_range_to):
+            return queryset
         qs_with_avg_price_per_hour = queryset.get_queryset_with_avg_price_per_hour()
 
         return qs_with_avg_price_per_hour.filter(avg_price_per_hour__range=(price_range_from, price_range_to))
@@ -149,5 +151,7 @@ class OpenedAtRangeFilter(fsc.OpenedAtRangeFilterSchema, filters.BaseFilterBacke
     def filter_queryset(self, request, queryset, view):
         opened_at_range_from = request.GET.get('opened_at_range_from')
         opened_at_range_to = request.GET.get('opened_at_range_to')
+        if not (opened_at_range_from or opened_at_range_to):
+            return queryset
 
         return queryset.filter(opened_at__range=(opened_at_range_from, opened_at_range_to))
