@@ -106,7 +106,7 @@ class Hospital(s.ModelSerializer):
     article_count: s.Field = s.IntegerField(read_only=True)
     latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
     latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
-    is_partner: s.Field = s.BooleanField(write_only=True)
+    is_partner: s.Field = s.BooleanField()
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
     calendar: s.Field = HospitalCalendar(write_only=True, source='hospital_calendar')
@@ -161,7 +161,7 @@ class HospitalDetail(s.ModelSerializer):
     introduction: s.Field = s.CharField(allow_null=True)
     area: s.Field = s.CharField(allow_null=True)
     phone_no: s.Field = s.CharField(allow_null=True)
-    is_partner: s.Field = s.BooleanField(write_only=True)
+    is_partner: s.Field = s.BooleanField()
     opened_at: s.Field = s.DateTimeField(write_only=True, allow_null=True)
     calendar: s.Field = HospitalCalendar(source='hospital_calendar')
     keywords: s.Field = HospitalKeywordAssoc(many=True, source='hospital_keyword_assoc')
@@ -366,7 +366,7 @@ class AroundHospital(s.ModelSerializer):
     article_count: s.Field = s.IntegerField(read_only=True)
     latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
     latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
-    is_partner: s.Field = s.BooleanField(write_only=True)
+    is_partner: s.Field = s.BooleanField(read_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
     attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
@@ -390,7 +390,7 @@ class NewHospital(s.ModelSerializer):
     article_count: s.Field = s.IntegerField(read_only=True)
     latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
     latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
-    is_partner: s.Field = s.BooleanField(write_only=True)
+    is_partner: s.Field = s.BooleanField(read_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
     attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
@@ -408,13 +408,14 @@ class GoodPriceHospital(s.ModelSerializer):
     area: s.Field = s.CharField(allow_null=True)
     up_count: s.Field = s.IntegerField(read_only=True)
     view_count: s.Field = s.IntegerField(read_only=True)
+    is_partner: s.Field = s.BooleanField(read_only=True)
     article_count: s.Field = s.IntegerField(read_only=True)
     avg_price_per_hour: s.Field = s.FloatField(read_only=True, allow_null=True)
     attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
 
     class Meta:
         model = hm.Hospital
-        fields = ['uuid', 'name', 'area', 'up_count', 'view_count', 'article_count', 'avg_price_per_hour',
+        fields = ['uuid', 'name', 'area', 'up_count', 'view_count', 'article_count', 'avg_price_per_hour', 'is_partner',
                   'attachments']
 
 
@@ -430,7 +431,7 @@ class GoodReviewHospital(s.ModelSerializer):
     article_count: s.Field = s.IntegerField(read_only=True)
     latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
     latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
-    is_partner: s.Field = s.BooleanField(write_only=True)
+    is_partner: s.Field = s.BooleanField(read_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
     attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
