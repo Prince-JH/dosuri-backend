@@ -39,3 +39,8 @@ class HomeAddressExists(exc.APIException):
 class OfficeAddressExists(exc.APIException):
     default_detail = 'Office address exists.'
     status_code = 400
+
+
+class EmptyAddressInfo(exc.APIException):
+    default_detail = 'Either not contain key: address or put value in address.'
+    status_code = 400
