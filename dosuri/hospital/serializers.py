@@ -415,7 +415,7 @@ class GoodPriceHospital(s.ModelSerializer):
 
     class Meta:
         model = hm.Hospital
-        fields = ['uuid', 'name', 'area', 'up_count', 'view_count', 'article_count', 'avg_price_per_hour',
+        fields = ['uuid', 'name', 'area', 'up_count', 'view_count', 'article_count', 'avg_price_per_hour', 'is_partner',
                   'attachments']
 
 
@@ -431,7 +431,7 @@ class GoodReviewHospital(s.ModelSerializer):
     article_count: s.Field = s.IntegerField(read_only=True)
     latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
     latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
-    is_partner: s.Field = s.BooleanField(write_only=True)
+    is_partner: s.Field = s.BooleanField(read_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
     attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
