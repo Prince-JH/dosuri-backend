@@ -82,7 +82,7 @@ USER_ADDRESS_EXAMPLE = [
         summary='When home or office',
         description='',
         value={
-            "name": None,
+            "name": "집 | 회사",
             "address": "string",
             "address_type": "home | office",
             "latitude": "string",
