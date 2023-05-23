@@ -187,6 +187,8 @@ class User(s.ModelSerializer):
         return kwargs
 
     def save_address(self, user, address_data):
+        if not address_data.get('name'):
+            raise uexc.EmptyAddressInfo()
         qs = um.UserAddress.objects.filter(user=user, name=address_data['name'])
         if qs.exists():
             return
