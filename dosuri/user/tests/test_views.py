@@ -106,6 +106,37 @@ class TestUserDetail:
         assert address.name == '별칭'
         assert address.is_main
 
+    @pytest.mark.django_db()
+    def test_create_user_without_address_should_not_update_user_info(self, client, user_dummy, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        assert user_dummy.name is None
+
+        data = {
+            "username": "igoman2@naver.com",
+            "name": "한준호",
+            "nickname": "아이고맨",
+            "birthday": "2022-12-20",
+            "phone_no": "010-1234-5678",
+            "sex": "남자",
+            "address": {},
+            "pain_areas": [
+                {
+                    "name": "목"
+                },
+                {
+                    "name": "그 외"
+                }
+            ]
+        }
+        response = client.put(f'/user/v1/users/me', data=data, **headers)
+        assert response.status_code == 400
+        user_dummy = get_user_model().objects.get(pk=user_dummy.pk)
+        assert not user_dummy.name
+        assert um.UserAddress.objects.filter(user=user_dummy).count() == 0
+
     @pytest.mark.django_db
     def test_partial_update_user(self, client, user_dummy, tokens_user_dummy):
         headers = {
