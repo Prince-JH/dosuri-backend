@@ -14,21 +14,19 @@ import os
 from datetime import datetime, timedelta
 from celery.schedules import crontab
 from pathlib import Path
+import boto3
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEV_ENV = os.environ.get('DEV_ENV')
-secret_file = os.path.join(f'{BASE_DIR}/config', 'secret.json')
 
 DOSURI_IMAGE_PUBLIC_KEY_ID = os.environ.get('DOSURI_IMAGE_PUBLIC_KEY_ID')
 DOSURI_IMAGE_PRIVATE_KEY_PATH = os.environ.get('DOSURI_IMAGE_PRIVATE_KEY_PATH')
 
 HOST_DOMAIN = os.environ.get('HOST_DOMAIN')
 # SECURITY WARNING: keep the secret key used in production secret!
-with open(secret_file, encoding='utf-8') as fin:
-    secrets = json.loads(fin.read())
-    SECRET_KEY = secrets.get('SECRET_KEY')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'top-secret')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -113,7 +111,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 if 'RDS_HOSTNAME' in os.environ:
     DATABASES = {
         'default': {
@@ -186,10 +183,10 @@ ES_PASSWORD = os.environ.get('ES_PASSWORD')
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
 
 CELERY_BEAT_SCHEDULE = {
-    'article_relocation_every_day': {  
-        'task': 'dosuri.common.tasks.article_relocation_every_day',   
+    'article_relocation_every_day': {
+        'task': 'dosuri.common.tasks.article_relocation_every_day',
         'schedule': crontab(hour='23', minute="57"),
-        'args': () 
+        'args': ()
     },
 }
 
@@ -203,3 +200,24 @@ INSURANCE_PHONE_NUMBERS = os.environ.get('INSURANCE_PHONE_NUMBERS', [])
 GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
 GOOGLE_REDIRECT_URI = os.environ.get('GOOGLE_REDIRECT_URI')
+
+APPLE_PUBLIC_KEY_URL = os.environ.get('APPLE_PUBLIC_KEY_URL')
+SOCIAL_AUTH_APPLE_KEY_ID = os.environ.get('SOCIAL_AUTH_APPLE_KEY_ID')
+SOCIAL_AUTH_APPLE_TEAM_ID = os.environ.get('SOCIAL_AUTH_APPLE_TEAM_ID')
+SOCIAL_AUTH_APPLE_CLIENT_ID = os.environ.get('SOCIAL_AUTH_APPLE_CLIENT_ID')
+SOCIAL_AUTH_APPLE_REDIRECT_URL = os.environ.get('SOCIAL_AUTH_APPLE_REDIRECT_URL')
+
+
+def get_apple_keypair_from_ssm():
+    client = boto3.client('ssm',
+                          aws_access_key_id=AWS_ACCESS_KEY_ID,
+                          aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+                          region_name='ap-northeast-2'
+                          )
+    name = 'AppleAuthKeypair'
+    response = client.get_parameter(Name=name)
+    return response['Parameter']['Value']
+
+
+if "AWS_ACCESS_KEY_ID" in os.environ:
+    SOCIAL_AUTH_APPLE_PRIVATE_KEY = get_apple_keypair_from_ssm()
