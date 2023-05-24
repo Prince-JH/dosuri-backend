@@ -59,6 +59,9 @@ class Auth(s.Serializer):
             elif auth_type == uc.AUTH_GOOGLE:
                 auth = a.GoogleAuth(token, origin)
 
+            elif auth_type == uc.AUTH_APPLE:
+                auth = a.AppleAuth(token, origin)
+
             user_info = auth.get_user_info()
             username = user_info['username']
             user = um.User.objects.get_or_create(username=username)[0]
