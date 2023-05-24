@@ -26,9 +26,9 @@ class NaverCloudClient:
         secret_key = bytes(self.secret_key, 'UTF-8')
 
         method = "POST"
-        uri = "/sms/v2/services/ncp:sms:kr:303008356722:dosuri/messages"
+        url = settings.NAVER_SMS_SIGN_URL
 
-        message = method + " " + uri + "\n" + timestamp + "\n" + access_key
+        message = method + " " + url + "\n" + timestamp + "\n" + access_key
         message = bytes(message, 'UTF-8')
         signingKey = base64.b64encode(hmac.new(secret_key, message, digestmod=hashlib.sha256).digest())
         return signingKey
@@ -37,7 +37,7 @@ class NaverCloudClient:
         if not isinstance(phone_numbers, list):
             phone_numbers = json.loads(phone_numbers)
         timestamp = str(int(time.time() * 1000))
-        url = 'https://sens.apigw.ntruss.com/sms/v2/services/ncp:sms:kr:303008356722:dosuri/messages'
+        url = settings.NAVER_SMS_SEND_URL
         data = {
             "type": "SMS",
             "from": settings.NAVER_CLOUD_FROM_NUMBER,

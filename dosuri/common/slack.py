@@ -1,11 +1,12 @@
 import requests
 import json
+from django.conf import settings
 
 
 class SlackClient:
     def __init__(self):
         self.channel_to_url = {
-            'bot': 'https://hooks.slack.com/services/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'
+            'bot': settings.SLACK_BOT_URL
         }
 
     def set_api_header(self):
