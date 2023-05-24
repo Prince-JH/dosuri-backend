@@ -19,7 +19,7 @@ import boto3
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DEV_ENV = os.environ.get('DEV_ENV')
+DEV_ENV = os.environ.get('DEV_ENV', 'top-secret')
 
 DOSURI_IMAGE_PUBLIC_KEY_ID = os.environ.get('DOSURI_IMAGE_PUBLIC_KEY_ID')
 DOSURI_IMAGE_PRIVATE_KEY_PATH = os.environ.get('DOSURI_IMAGE_PRIVATE_KEY_PATH')
