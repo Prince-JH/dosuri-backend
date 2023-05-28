@@ -51,7 +51,7 @@ def set_partner_hospitals():
         longitude_range = get_longitude_range(longitude, distance)
         hospitals = Hospital.objects.filter(latitude__range=latitude_range,
                                             longitude__range=longitude_range)
-        hospitals.update(is_partner=True)
+        hospitals.update(near_site=station, is_partner=True)
 
 
 def get_latitude_range(latitude, km_distance):
