@@ -29,6 +29,7 @@ class Hospital(models.Model):
     latitude = models.FloatField(default=0, db_index=True)
     longitude = models.FloatField(default=0, db_index=True)
     status = models.CharField(max_length=32, default=hc.HOSPITAL_ACTIVE, null=True)
+    near_site = models.CharField(max_length=64, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     last_updated_at = models.DateTimeField(auto_now=True, null=True)
 
