@@ -311,7 +311,7 @@ class Doctor(s.ModelSerializer):
             hm.DoctorKeywordAssoc.objects.create(doctor=doctor, keyword=keyword)
 
 
-@extend_schema_serializer(examples=sch.HOSPITAL_TREATMENT_EXAMPLE)
+# @extend_schema_serializer(examples=sch.HOSPITAL_TREATMENT_EXAMPLE)
 class HospitalTreatment(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     name: s.Field = s.CharField()
