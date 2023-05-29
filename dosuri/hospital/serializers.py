@@ -8,7 +8,8 @@ from dosuri.hospital import (
 )
 from dosuri.common import (
     models as cm,
-    utils as cu
+    utils as cu,
+    geocoding as cg
 )
 from dosuri.community import (
     models as cmm,
@@ -310,6 +311,7 @@ class Doctor(s.ModelSerializer):
             hm.DoctorKeywordAssoc.objects.create(doctor=doctor, keyword=keyword)
 
 
+@extend_schema_serializer(examples=sch.HOSPITAL_TREATMENT_EXAMPLE)
 class HospitalTreatment(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     name: s.Field = s.CharField()
