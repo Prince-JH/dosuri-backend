@@ -308,7 +308,7 @@ class HospitalTreatmentList(g.ListCreateAPIView):
 
             return {'near_site': station, 'near_site_latitude': latitude, 'near_site_longitude': longitude,
                     'rank': rank, 'total_count': hospital_with_avg_price_per_hour.count()}
-        except hm.Hospital.DoesNotExit:
+        except hm.Hospital.objects.model.DoesNotExist:
             return None
 
 
