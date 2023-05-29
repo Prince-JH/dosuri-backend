@@ -12,10 +12,6 @@ urlpatterns = [
     path('v1/hospitals-address-filtered', v.HospitalAddressFilteredList.as_view(), name='hospital-address-filtered'),
     path('v1/hospitals-address-filtered-avg-price', v.HospitalAddressFilteredAvgPriceList.as_view(),
          name='hospital-address-filtered-avg-price'),
-    path('v1/hospitals-current-address-filtered-avg-price', v.HospitalCurrentAddressFilteredAvgPriceList.as_view(),
-         name='hospital-address-filtered-avg-price'),
-    path('v1/hospitals-current-address-filtered', v.HospitalCurrentAddressFilteredList.as_view(),
-         name='hospital-current-address-filtered'),
     path('v1/hospitals/<uuid>', v.HospitalDetail.as_view(), name='hospital-detail'),
 
     path('v1/hospital-address-assocs', v.HospitalAddressAssocList.as_view(), name='hospital-address-assoc'),

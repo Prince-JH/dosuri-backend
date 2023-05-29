@@ -24,14 +24,10 @@ class HospitalDistance:
         return [address.latitude, address.longitude]
 
     def set_coordinates(self):
-        is_realtime_coordinates = getattr(self, 'is_realtime_coordinates', False)
-        if is_realtime_coordinates:
-            try:
-                latitude = float(self.request.GET.get('latitude'))
-                longitude = float(self.request.GET.get('longitude'))
-            except (ValueError, TypeError):
-                return
-        else:
+        try:
+            latitude = float(self.request.GET.get('latitude'))
+            longitude = float(self.request.GET.get('longitude'))
+        except (ValueError, TypeError):
             coordinates = self.get_coordinates()
             latitude = coordinates[0]
             longitude = coordinates[1]

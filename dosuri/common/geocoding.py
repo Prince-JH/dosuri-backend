@@ -51,3 +51,13 @@ class KaKaoGeoClient:
             return
 
         return [latitude, longitude]
+
+
+def get_latitude_range(latitude, km_distance):
+    delta = round(km_distance / 111.19, 13)
+    return round(latitude - delta, 13), round(latitude + delta, 13)
+
+
+def get_longitude_range(longitude, km_distance):
+    delta = round(km_distance / 88.80, 13)
+    return round(longitude - delta, 13), round(longitude + delta, 13)
