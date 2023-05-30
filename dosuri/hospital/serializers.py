@@ -1,3 +1,6 @@
+from datetime import timedelta
+
+from django.utils import timezone
 from rest_framework import serializers as s
 
 from dosuri.hospital import (
@@ -9,7 +12,8 @@ from dosuri.hospital import (
 from dosuri.common import (
     models as cm,
     utils as cu,
-    geocoding as cg
+    geocoding as cg,
+    tasks as ct,
 )
 from dosuri.community import (
     models as cmm,
@@ -354,6 +358,44 @@ class HospitalSearch(s.ModelSerializer):
     class Meta:
         model = hm.HospitalSearch
         exclude = ('id', 'user', 'created_at')
+
+
+class HospitalReservation(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    hospital: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=hm.Hospital.objects.all()
+    )
+    user: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        read_only=True
+    )
+
+    class Meta:
+        model = hm.HospitalReservation
+        exclude = ('id', 'created_at')
+
+    def create(self, validated_data):
+        hospital = validated_data['hospital']
+        user = validated_data['user']
+        qs = self.Meta.model.objects.filter(hospital=hospital, user=user,
+                                            created_at__gte=timezone.now() - timedelta(days=1))
+        if qs.exists():
+            return qs.first()
+        message = self.make_message(hospital, user)
+        ct.announce_hospital_reservation.delay(message)
+        print(message)
+        return super().create(validated_data)
+
+    def make_message(self, hospital, user):
+        message = f'병원 예약 신청\n' \
+                  f'{hospital.name}\n ' \
+                  f'{hospital.phone_no}\n' \
+                  f'\n' \
+                  f'{user.name} {user.sex}\n' \
+                  f'{user.phone_no}\n' \
+                  f'{user.birthday.strftime("%Y/%m/%d")}\n'
+        return message
 
 
 class AroundHospital(s.ModelSerializer):

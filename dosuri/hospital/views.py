@@ -298,7 +298,7 @@ class HospitalTreatmentList(g.ListCreateAPIView):
             latitude_range = cg.get_latitude_range(latitude, distance)
             longitude_range = cg.get_longitude_range(longitude, distance)
             hospital_with_avg_price_per_hour = hm.Hospital.objects.filter(latitude__range=latitude_range,
-                                                                          longitude__range=longitude_range)\
+                                                                          longitude__range=longitude_range) \
                 .annotate_avg_price_per_hour().order_by('avg_price_per_hour')
             count = 1
             for hospital in hospital_with_avg_price_per_hour:
@@ -324,11 +324,8 @@ class HospitalUserAssoc(g.CreateAPIView):
     queryset = hm.HospitalUserAssoc.objects.all()
     serializer_class = s.HospitalUserAssoc
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(user=request.user)
-        return Response(status=status.HTTP_201_CREATED, data=serializer.data)
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 class ManyReviewHospitalList(hmx.HospitalDistance, g.ListAPIView):
@@ -423,3 +420,12 @@ class HospitalSearchDetail(g.RetrieveUpdateDestroyAPIView):
     queryset = hm.HospitalSearch.objects.all()
     serializer_class = s.HospitalSearch
     lookup_field = 'uuid'
+
+
+class HospitalReservation(g.CreateAPIView):
+    permission_classes = [p.IsAuthenticated]
+    queryset = hm.HospitalReservation.objects.all()
+    serializer_class = s.HospitalReservation
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

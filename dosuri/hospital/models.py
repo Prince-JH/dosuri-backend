@@ -210,3 +210,14 @@ class HospitalSearch(models.Model):
     class Meta:
         db_table = 'hospital_search'
         ordering = ['-id']
+
+
+class HospitalReservation(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_reservation')
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='hospital_reservation')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'hospital_reservation'
+        ordering = ['-id']
