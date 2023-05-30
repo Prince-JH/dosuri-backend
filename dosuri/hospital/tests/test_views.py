@@ -104,7 +104,8 @@ class TestHospitalList:
 
     @pytest.mark.django_db
     def test_hospital_list_order_by_review_count(
-            self, client, hospital_test_강남, hospital_test_수원, hospital_test_C, article_A_hospital_A, article_B_hospital_A,
+            self, client, hospital_test_강남, hospital_test_수원, hospital_test_C, article_A_hospital_A,
+            article_B_hospital_A,
             article_A_hospital_B):
         response = client.get('/hospital/v1/hospitals?ordering=-article_count', content_type='application/json')
         content = json.loads(response.content)
@@ -115,7 +116,8 @@ class TestHospitalList:
 
     @pytest.mark.django_db
     def test_hospital_list_order_by_review_new(
-            self, client, hospital_test_강남, hospital_test_수원, hospital_test_C, article_A_hospital_A, article_B_hospital_A,
+            self, client, hospital_test_강남, hospital_test_수원, hospital_test_C, article_A_hospital_A,
+            article_B_hospital_A,
             article_A_hospital_B):
         response = client.get('/hospital/v1/hospitals?ordering=-latest_article_created_at',
                               content_type='application/json')
@@ -148,39 +150,6 @@ class TestAddressFilteredHospitalList:
             'content_type': 'application/json'
         }
         response = client.get('/hospital/v1/hospitals-address-filtered', **headers)
-        content = json.loads(response.content)
-
-
-        assert response.status_code == 200
-        assert len(content['results']) == 1
-
-
-class TestHospitalCurrentAddressFilteredList:
-    @pytest.mark.django_db
-    def test_list_address_filtered_hospital_should_return_one_result(self, client, hospital_test_수원,
-                                                                     tokens_user_dummy,
-                                                                     hospital_treatments_A_hospital_B):
-        headers = {
-            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
-            'content_type': 'application/json'
-        }
-        response = client.get('/hospital/v1/hospitals-current-address-filtered', **headers)
-        content = json.loads(response.content)
-
-        assert response.status_code == 200
-        assert len(content['results']) == 1
-
-
-class TestHospitalCurrentAddressFilteredAvgPriceList:
-    @pytest.mark.django_db
-    def test_list_address_filtered_hospital_should_return_one_result(self, client, hospital_test_수원,
-                                                                     tokens_user_dummy,
-                                                                     hospital_treatments_A_hospital_B):
-        headers = {
-            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
-            'content_type': 'application/json'
-        }
-        response = client.get('/hospital/v1/hospitals-current-address-filtered-avg-price', **headers)
         content = json.loads(response.content)
 
         assert response.status_code == 200
@@ -287,7 +256,7 @@ class TestHospitalTreatment:
 
 class TestHospitalUserAssoc:
     @pytest.mark.django_db
-    def test_create_hospital_treatment(self, client, hospital_test_강남, tokens_user_dummy):
+    def test_create_hospital_user_assoc(self, client, hospital_test_강남, tokens_user_dummy):
         headers = {
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
             'content_type': 'application/json'
@@ -350,6 +319,26 @@ class TestHospitalSearch:
 
         assert response.status_code == 204
         assert hm.HospitalSearch.objects.all().count() == 0
+
+
+@pytest.mark.skip(reason="Skipping Celery task during testing")
+class TestHospitalReservation:
+    @pytest.mark.django_db
+    def test_create_hospital_reservation(self, client, celery_app, celery_config, hospital_test_강남, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        data = {
+            'hospital': hospital_test_강남.uuid,
+        }
+        response = client.post('/hospital/v1/hospital-reservations', data=data, **headers)
+
+        assert response.status_code == 201
+        assert hm.HospitalReservation.objects.all().count() == 1
+
+        client.post('/hospital/v1/hospital-reservations', data=data, **headers)
+        assert hm.HospitalReservation.objects.all().count() == 1
 
 
 class TestHomeHospital:

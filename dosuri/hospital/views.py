@@ -3,8 +3,8 @@ from random import randint
 
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.expressions import ArraySubquery
-from django.db.models import OuterRef, Count, Subquery, Q, F, Avg, Func
-from django.db.models.functions import Coalesce
+from django.db.models import OuterRef, Count, Subquery, Q, F, Avg, Func, Window
+from django.db.models.functions import Coalesce, RowNumber, DenseRank
 from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework import (
@@ -15,6 +15,9 @@ from rest_framework import (
 )
 
 from dosuri.common import models as cm
+from dosuri.common import (
+    geocoding as cg
+)
 from dosuri.community import (
     models as cmm,
     constants as cmc,
@@ -45,7 +48,6 @@ class HospitalList(hmx.HospitalDistance, g.ListCreateAPIView):
     ordering_field = '__all__'
     ordering = ['view_count']
     search_fields = ['name', 'area']
-    is_realtime_coordinates = True
     hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
     hospital_distance_range = None
 
@@ -69,7 +71,6 @@ class HospitalAddressFilteredList(hmx.HospitalDistance, g.ListAPIView):
     ordering_field = '__all__'
     hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
     hospital_distance_range = 2
-    is_realtime_coordinates = False
 
 
 class HospitalAddressFilteredAvgPriceList(hmx.HospitalDistance, g.ListAPIView):
@@ -82,31 +83,6 @@ class HospitalAddressFilteredAvgPriceList(hmx.HospitalDistance, g.ListAPIView):
     ordering_field = '__all__'
     hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
     hospital_distance_range = 2
-    is_realtime_coordinates = False
-
-
-class HospitalCurrentAddressFilteredList(hmx.HospitalDistance, g.ListAPIView):
-    permission_classes = [p.AllowAny]
-    queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
-                                                                                      'hospital_attachment_assoc__attachment').annotate_extra_fields()
-    serializer_class = s.Hospital
-    filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter]
-    ordering_field = '__all__'
-    hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
-    hospital_distance_range = 2
-    is_realtime_coordinates = True
-
-
-class HospitalCurrentAddressFilteredAvgPriceList(hmx.HospitalDistance, g.ListAPIView):
-    permission_classes = [p.AllowAny]
-    queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
-                                                                                      'hospital_attachment_assoc__attachment').annotate_extra_fields().annotate_avg_price_per_hour()
-    serializer_class = s.GoodPriceHospital
-    filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter]
-    ordering_field = '__all__'
-    hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
-    hospital_distance_range = 2
-    is_realtime_coordinates = True
 
 
 class HospitalDetail(g.CreateAPIView, g.RetrieveUpdateDestroyAPIView):
@@ -294,6 +270,7 @@ class HospitalTreatmentList(g.ListCreateAPIView):
     def list(self, request, *args, **kwargs):
         res = super().list(request, *args, **kwargs)
         res.data['price_per_hour'] = self.get_avg_price_per_hour(res.data['results'])
+        res.data['hospital_rank'] = self.get_hospital_rank(request)
         return res
 
     def get_avg_price_per_hour(self, results):
@@ -303,6 +280,36 @@ class HospitalTreatmentList(g.ListCreateAPIView):
             if price:
                 prices.append(price)
         return sum(prices) / len(prices) if len(prices) > 0 else None
+
+    def get_hospital_rank(self, request):
+        uuid = request.GET.get('hospital')
+        if not uuid:
+            return None
+        try:
+            hospital = hm.Hospital.objects.get(uuid=uuid)
+            if not hospital.is_partner:
+                return None
+            client = cg.KaKaoGeoClient()
+            station = hospital.near_site
+            coordinates = client.get_coordinates('station', station)
+            latitude = coordinates[0]
+            longitude = coordinates[1]
+            distance = 2
+            latitude_range = cg.get_latitude_range(latitude, distance)
+            longitude_range = cg.get_longitude_range(longitude, distance)
+            hospital_with_avg_price_per_hour = hm.Hospital.objects.filter(latitude__range=latitude_range,
+                                                                          longitude__range=longitude_range) \
+                .annotate_avg_price_per_hour().order_by('avg_price_per_hour')
+            count = 1
+            for hospital in hospital_with_avg_price_per_hour:
+                if hospital.uuid == uuid:
+                    rank = count
+                count += 1
+
+            return {'near_site': station, 'near_site_latitude': latitude, 'near_site_longitude': longitude,
+                    'rank': rank, 'total_count': hospital_with_avg_price_per_hour.count()}
+        except hm.Hospital.objects.model.DoesNotExist:
+            return None
 
 
 class HospitalTreatmentDetail(g.RetrieveUpdateDestroyAPIView):
@@ -317,11 +324,8 @@ class HospitalUserAssoc(g.CreateAPIView):
     queryset = hm.HospitalUserAssoc.objects.all()
     serializer_class = s.HospitalUserAssoc
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(user=request.user)
-        return Response(status=status.HTTP_201_CREATED, data=serializer.data)
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 class ManyReviewHospitalList(hmx.HospitalDistance, g.ListAPIView):
@@ -416,3 +420,12 @@ class HospitalSearchDetail(g.RetrieveUpdateDestroyAPIView):
     queryset = hm.HospitalSearch.objects.all()
     serializer_class = s.HospitalSearch
     lookup_field = 'uuid'
+
+
+class HospitalReservation(g.CreateAPIView):
+    permission_classes = [p.IsAuthenticated]
+    queryset = hm.HospitalReservation.objects.all()
+    serializer_class = s.HospitalReservation
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

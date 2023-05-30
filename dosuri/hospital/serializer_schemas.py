@@ -107,3 +107,33 @@ HOME_HOSPITAL_EXAMPLE = [
         response_only=True,  # signal that example only applies to requests
     ),
 ]
+
+
+HOSPITAL_TREATMENT_EXAMPLE = [
+    OpenApiExample(
+        'Valid example 1',
+        summary='short summary',
+        description='',
+        value={
+            "price_per_hour": 162714.3,
+            "hospital_rank": {
+                "near_site": "강남역",
+                "near_site_latitude": 37.6563403513278,
+                "near_site_longitude": 127.063449137455,
+                "rank": 3,
+                "total_count": 20,
+            },
+            "results": [
+                {
+                    "uuid": "string",
+                    "name": "string",
+                    "hospital": "string",
+                    "price": "string",
+                    "price_per_hour": "string",
+                    "description": "string"
+                }
+            ]
+        },
+        response_only=True,  # signal that example only applies to requests
+    ),
+]

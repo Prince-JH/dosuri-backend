@@ -12,10 +12,6 @@ urlpatterns = [
     path('v1/hospitals-address-filtered', v.HospitalAddressFilteredList.as_view(), name='hospital-address-filtered'),
     path('v1/hospitals-address-filtered-avg-price', v.HospitalAddressFilteredAvgPriceList.as_view(),
          name='hospital-address-filtered-avg-price'),
-    path('v1/hospitals-current-address-filtered-avg-price', v.HospitalCurrentAddressFilteredAvgPriceList.as_view(),
-         name='hospital-address-filtered-avg-price'),
-    path('v1/hospitals-current-address-filtered', v.HospitalCurrentAddressFilteredList.as_view(),
-         name='hospital-current-address-filtered'),
     path('v1/hospitals/<uuid>', v.HospitalDetail.as_view(), name='hospital-detail'),
 
     path('v1/hospital-address-assocs', v.HospitalAddressAssocList.as_view(), name='hospital-address-assoc'),
@@ -25,6 +21,9 @@ urlpatterns = [
 
     path('v1/hospital-user-assocs', v.HospitalUserAssoc.as_view(),
          name='hospital-user-assoc'),
+
+    path('v1/hospital-reservations', v.HospitalReservation.as_view(),
+         name='hospital-reservation'),
 
     path('v1/doctors', v.DoctorList.as_view(), name='doctor'),
     path('v1/doctors/<uuid>', v.DoctorDetail.as_view(), name='doctor-detail'),
