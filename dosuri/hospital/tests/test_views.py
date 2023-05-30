@@ -256,7 +256,7 @@ class TestHospitalTreatment:
 
 class TestHospitalUserAssoc:
     @pytest.mark.django_db
-    def test_create_hospital_treatment(self, client, hospital_test_강남, tokens_user_dummy):
+    def test_create_hospital_user_assoc(self, client, hospital_test_강남, tokens_user_dummy):
         headers = {
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
             'content_type': 'application/json'
@@ -319,6 +319,25 @@ class TestHospitalSearch:
 
         assert response.status_code == 204
         assert hm.HospitalSearch.objects.all().count() == 0
+
+
+class TestHospitalReservation:
+    @pytest.mark.django_db
+    def test_create_hospital_reservation(self, client, hospital_test_강남, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        data = {
+            'hospital': hospital_test_강남.uuid,
+        }
+        response = client.post('/hospital/v1/hospital-reservations', data=data, **headers)
+
+        assert response.status_code == 201
+        assert hm.HospitalReservation.objects.all().count() == 1
+
+        client.post('/hospital/v1/hospital-reservations', data=data, **headers)
+        assert hm.HospitalReservation.objects.all().count() == 1
 
 
 class TestHomeHospital:
