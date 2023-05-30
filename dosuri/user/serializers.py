@@ -253,7 +253,7 @@ class InsuranceUserAssoc(s.ModelSerializer):
                 raise uexc.UserHasNoAddress()
         address = address_qs.first().address.split(' ')
         message = f'새로운 보험 신청\n' \
-                  f'{user.name} ({user.sex})\n' \
+                  f'{user.name} {user.sex}\n' \
                   f'{user.phone_no}\n' \
                   f'{user.birthday.strftime("%Y/%m/%d")}\n' \
                   f'{address[0]} {address[1]}'
