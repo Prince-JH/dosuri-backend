@@ -91,3 +91,11 @@ class UserAddressAdmin(admin.ModelAdmin):
 
 
 admin.site.register(um.UserAddress, UserAddressAdmin)
+
+
+class HospitalReservationAdmin(admin.ModelAdmin):
+    list_display = ['hospital', 'user']
+    raw_id_fields = ['user']
+
+
+admin.site.register(hm.HospitalReservation, HospitalReservationAdmin)
