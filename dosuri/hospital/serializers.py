@@ -384,7 +384,6 @@ class HospitalReservation(s.ModelSerializer):
             return qs.first()
         message = self.make_message(hospital, user)
         ct.announce_hospital_reservation.delay(message)
-        print(message)
         return super().create(validated_data)
 
     def make_message(self, hospital, user):
