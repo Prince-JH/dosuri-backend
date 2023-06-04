@@ -43,6 +43,7 @@ class Command(BaseCommand):
 def set_partner_hospitals():
     client = KaKaoGeoClient()
     stations = ['강남역', '봉천역', '발산역', '노원역', '잠실역']
+    Hospital.objects.all().update(near_site=None, is_partner=False)
     for station in stations:
         coordinates = client.get_coordinates('station', station)
         latitude = coordinates[0]
@@ -51,6 +52,6 @@ def set_partner_hospitals():
         latitude_range = cg.get_latitude_range(latitude, distance)
         longitude_range = cg.get_longitude_range(longitude, distance)
         hospitals = Hospital.objects.filter(latitude__range=latitude_range,
-                                            longitude__range=longitude_range)
+                                            longitude__range=longitude_range).annotate_avg_price_per_hour()
         hospitals.update(near_site=station, is_partner=True)
 
