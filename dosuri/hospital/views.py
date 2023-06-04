@@ -307,7 +307,10 @@ class HospitalTreatmentList(g.ListCreateAPIView):
                 count += 1
 
             return {'near_site': station, 'near_site_latitude': latitude, 'near_site_longitude': longitude,
-                    'rank': rank, 'total_count': hospital_with_avg_price_per_hour.count()}
+                    'rank': rank, 'total_count': hospital_with_avg_price_per_hour.count(),
+                    'avg_price_per_hour':
+                        hospital_with_avg_price_per_hour.aggregate(total_avg_price_per_hour=Avg('avg_price_per_hour'))[
+                            'total_avg_price_per_hour']}
         except hm.Hospital.objects.model.DoesNotExist:
             return None
 
