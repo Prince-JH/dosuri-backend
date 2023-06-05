@@ -144,3 +144,13 @@ class UserAddress(models.Model):
     longitude = models.FloatField(default=0)  # 경도, x_pos
 
     objects = umm.UserAddressManager()
+
+
+class UserPersonalInformationAgreement(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE,
+                             related_name='user_personal_information_agreement')
+    agree_push = models.BooleanField(default=True)
+    agree_email = models.BooleanField(default=True)
+    agree_sms = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
