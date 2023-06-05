@@ -452,3 +452,38 @@ class TestUserAddress:
         response = client.delete(f'/user/v1/users/me/addresses/{user_dummy_address_home.uuid}', data=data, **headers)
         assert response.status_code == 204
         assert um.UserAddress.objects.all().count() == 0
+
+
+class TestUserPersonalInformationAgreement:
+    @pytest.mark.django_db
+    def test_create_agreement(self, client, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        data = {
+            'agree_push': True,
+            'agree_sms': True,
+            'agree_email': True,
+        }
+        response = client.post('/user/v1/users/me/personal-info-agreement', data=data, **headers)
+
+        assert response.status_code == 201
+        assert um.UserPersonalInformationAgreement.objects.all().count() == 1
+
+    @pytest.mark.django_db
+    def test_create_agreement_already_exists(self, client, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        data = {
+            'agree_push': True,
+            'agree_sms': True,
+            'agree_email': True,
+        }
+        client.post('/user/v1/users/me/personal-info-agreement', data=data, **headers)
+        response = client.post('/user/v1/users/me/personal-info-agreement', data=data, **headers)
+
+        assert response.status_code == 201
+        assert um.UserPersonalInformationAgreement.objects.all().count() == 1

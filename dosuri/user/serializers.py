@@ -336,3 +336,25 @@ class UserAddressDetail(s.ModelSerializer):
         if validated_data.get('is_main'):
             self.Meta.model.objects.set_main_address(instance)
         return super().update(instance, validated_data)
+
+
+class UserPersonalInformationAgreement(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    user: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        read_only=True
+    )
+    agree_push: s.Field = s.BooleanField()
+    agree_email: s.Field = s.BooleanField()
+    agree_sms: s.Field = s.BooleanField()
+
+    class Meta:
+        model = um.UserPersonalInformationAgreement
+        exclude = ('id', 'created_at')
+
+    def create(self, validated_data):
+        user = validated_data['user']
+        qs = self.Meta.model.objects.filter(user=user)
+        if qs.exists():
+            return qs.first()
+        return super().create(validated_data)
