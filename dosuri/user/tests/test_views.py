@@ -472,7 +472,7 @@ class TestUserPersonalInformationAgreement:
         assert um.UserPersonalInformationAgreement.objects.all().count() == 1
 
     @pytest.mark.django_db
-    def test_create_agreement_already_exists(self, client, tokens_user_dummy):
+    def test_create_agreement_already_exists(self, client, tokens_user_dummy, user_personal_info_agreement):
         headers = {
             'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
             'content_type': 'application/json'
@@ -482,8 +482,41 @@ class TestUserPersonalInformationAgreement:
             'agree_sms': True,
             'agree_email': True,
         }
-        client.post('/user/v1/users/me/personal-info-agreement', data=data, **headers)
         response = client.post('/user/v1/users/me/personal-info-agreement', data=data, **headers)
 
         assert response.status_code == 201
         assert um.UserPersonalInformationAgreement.objects.all().count() == 1
+
+    @pytest.mark.django_db
+    def test_get_agreement_when_not_exist(self, client, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get('/user/v1/users/me/personal-info-agreement', **headers)
+        assert response.status_code == 404
+
+    @pytest.mark.django_db
+    def test_get_agreement_when_exists(self, client, tokens_user_dummy, user_personal_info_agreement):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get('/user/v1/users/me/personal-info-agreement', **headers)
+        content = json.loads(response.content)
+        assert response.status_code == 200
+        assert content['agree_push']
+
+    @pytest.mark.django_db
+    def test_update_agreement_when_exists(self, client, user_dummy, tokens_user_dummy, user_personal_info_agreement):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        data = {
+            'agree_push': False,
+        }
+        response = client.patch('/user/v1/users/me/personal-info-agreement', data=data, **headers)
+        assert response.status_code == 200
+        agreement = um.UserPersonalInformationAgreement.objects.get(user=user_dummy)
+        assert not agreement.agree_push
