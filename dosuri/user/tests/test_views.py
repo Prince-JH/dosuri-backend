@@ -155,9 +155,13 @@ class TestUserDetail:
         assert user_dummy.name == '한준호'
 
     @pytest.mark.django_db
-    def test_delete_user(self, client):
-        response = client.get(f'/user/v1/users/me')
-        assert response.status_code == 401
+    def test_delete_user(self, client, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.delete(f'/user/v1/users/me', **headers)
+        assert response.status_code == 204
 
     @pytest.mark.django_db
     def test_user_unread_notice(self, client, user_dummy, tokens_user_dummy):
@@ -175,6 +179,24 @@ class TestUserDetail:
 
         user_dummy = get_user_model().objects.get(pk=user_dummy.pk)
         assert user_dummy.unread_notice is False
+
+    @pytest.mark.django_db
+    def test_partial_update_user_setting(self, client, user_dummy, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        assert user_dummy.name is None
+
+        data = {
+            "setting": {
+                "agree_marketing_personal_info": False,
+            }
+        }
+        response = client.patch(f'/user/v1/users/me', data=data, **headers)
+        assert response.status_code == 200
+        assert um.UserSetting.objects.get(user=user_dummy).agree_general_push is True
+        assert um.UserSetting.objects.get(user=user_dummy).agree_marketing_personal_info is False
 
 
 class TestKaKaoAuth:
@@ -228,7 +250,6 @@ class TestGoogleAuth:
 
         assert response.status_code == 201
         assert content['is_new'] is True
-        user = get_user_model().objects.first()
         assert get_user_model().objects.all().count() == 1
 
     @pytest.mark.django_db
