@@ -70,6 +70,7 @@ class Auth(s.Serializer):
         if is_new:
             user_info['nickname'] = uu.get_random_nickname()
             um.User.objects.update_user_info(user, user_info)
+            um.UserSetting.objects.create_default_setting(user=user)
 
         tokens = a.get_tokens_for_user(user)
 
