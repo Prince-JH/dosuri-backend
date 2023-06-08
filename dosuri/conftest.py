@@ -398,13 +398,3 @@ def user_dummy_address_office(user_dummy):
 @pytest.fixture
 def user_dummy_address_etc(user_dummy):
     return um.UserAddress.objects.create_etc_address(user_dummy, 'home', '강남구 삼성동 106', 123.123, 123.123)
-
-
-@pytest.fixture
-def user_personal_info_agreement(user_dummy):
-    return um.UserPersonalInformationAgreement.objects.create(
-        user=user_dummy,
-        agree_push=True,
-        agree_sms=True,
-        agree_email=True
-    )

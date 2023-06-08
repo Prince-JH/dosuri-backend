@@ -146,11 +146,15 @@ class UserAddress(models.Model):
     objects = umm.UserAddressManager()
 
 
-class UserPersonalInformationAgreement(models.Model):
+class UserSetting(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE,
-                             related_name='user_personal_information_agreement')
-    agree_push = models.BooleanField(default=True)
-    agree_email = models.BooleanField(default=True)
-    agree_sms = models.BooleanField(default=True)
+                             related_name='user_setting')
+    agree_marketing_personal_info = models.BooleanField(default=False)
+    agree_general_push = models.BooleanField(default=True)
+    agree_marketing_push = models.BooleanField(default=False)
+    agree_marketing_email = models.BooleanField(default=False)
+    agree_marketing_sms = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = umm.UserSettingManager()

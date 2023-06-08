@@ -32,6 +32,4 @@ urlpatterns = [
     path('v1/users/me/resign', v.UserResignHistoryList.as_view(), name='user-resign'),
 
     path('v1/insurance-user-assocs', v.InsuranceUserAssocList.as_view(), name='insurance-user-assoc'),
-    path('v1/users/me/personal-info-agreement', v.UserPersonalInformationAgreement.as_view(),
-         name='user-personal-info-agreement'),
 ]

@@ -58,7 +58,14 @@ USER_DETAIL_EXAMPLE = [
                 }
             ],
             "unread_notice": True,
-            "is_new": True
+            "is_new": True,
+            "setting": {
+                "agree_marketing_personal_info": True,
+                "agree_general_push": True,
+                "agree_marketing_push": True,
+                "agree_marketing_email": True,
+                "agree_marketing_sms": True,
+            }
         },
         response_only=True
     )
