@@ -218,7 +218,6 @@ class AppleAuth(SocialAuth):
 
         res = requests.post('https://appleid.apple.com/auth/token', data=data, headers=headers)
         response_dict = res.json()
-        print(response_dict)
         id_token = response_dict.get('id_token', None)
 
         if id_token:
