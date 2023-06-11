@@ -473,3 +473,39 @@ class TestUserAddress:
         response = client.delete(f'/user/v1/users/me/addresses/{user_dummy_address_home.uuid}', data=data, **headers)
         assert response.status_code == 204
         assert um.UserAddress.objects.all().count() == 0
+
+
+class TestUserPersonalInformationAgreement:
+    @pytest.mark.django_db
+    def test_get_agreement_when_not_exist(self, client, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get('/user/v1/users/me/personal-info-agreement', **headers)
+        assert response.status_code == 404
+
+    @pytest.mark.django_db
+    def test_get_agreement_when_exists(self, client, tokens_user_dummy, user_setting):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get('/user/v1/users/me/personal-info-agreement', **headers)
+        content = json.loads(response.content)
+        assert response.status_code == 200
+        assert content['agree_marketing_personal_info']
+
+    @pytest.mark.django_db
+    def test_update_agreement_when_exists(self, client, user_dummy, tokens_user_dummy, user_setting):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        data = {
+            'agree_marketing_personal_info': False,
+        }
+        response = client.patch('/user/v1/users/me/personal-info-agreement', data=data, **headers)
+        assert response.status_code == 200
+        agreement = um.UserSetting.objects.get(user=user_dummy)
+        assert not agreement.agree_marketing_personal_info

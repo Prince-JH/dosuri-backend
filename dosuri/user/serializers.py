@@ -345,3 +345,15 @@ class UserAddressDetail(s.ModelSerializer):
         if validated_data.get('is_main'):
             self.Meta.model.objects.set_main_address(instance)
         return super().update(instance, validated_data)
+
+
+class UserSetting(s.ModelSerializer):
+    agree_marketing_personal_info: s.Field = s.BooleanField()
+    agree_general_push: s.Field = s.BooleanField()
+    agree_marketing_push: s.Field = s.BooleanField()
+    agree_marketing_email: s.Field = s.BooleanField()
+    agree_marketing_sms: s.Field = s.BooleanField()
+
+    class Meta:
+        model = um.UserSetting
+        exclude = ('id', 'user', 'created_at')
