@@ -206,3 +206,14 @@ class UserAddressDetail(g.RetrieveUpdateDestroyAPIView):
     queryset = um.UserAddress.objects.all()
     serializer_class = s.UserAddressDetail
     lookup_field = 'uuid'
+
+
+class UserSettingDetail(g.RetrieveUpdateDestroyAPIView):
+    permission_classes = [p.IsAuthenticated]
+    queryset = um.UserSetting.objects.all()
+    serializer_class = s.UserSetting
+    lookup_field = 'uuid'
+
+    def get_object(self):
+        qs = self.get_queryset().filter(user=self.request.user)
+        return g.get_object_or_404(qs)
