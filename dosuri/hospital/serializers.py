@@ -383,17 +383,19 @@ class HospitalReservation(s.ModelSerializer):
         if qs.exists():
             return qs.first()
         message = self.make_message(hospital, user)
-        ct.announce_hospital_reservation.delay(message)
+        ct.announce_hospital_reservation(message)
         return super().create(validated_data)
 
     def make_message(self, hospital, user):
-        message = f'병원 예약 신청\n' \
+        message = f'\n' \
+                  f'병원 예약 신청\n' \
                   f'{hospital.name}\n ' \
                   f'{hospital.phone_no}\n' \
                   f'\n' \
                   f'{user.name} {user.sex}\n' \
                   f'{user.phone_no}\n' \
-                  f'{user.birthday.strftime("%Y/%m/%d")}\n'
+                  f'{user.birthday.strftime("%Y/%m/%d")}\n' \
+                  f'\n'
         return message
 
 
