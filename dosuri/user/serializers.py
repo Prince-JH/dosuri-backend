@@ -158,7 +158,7 @@ class User(s.ModelSerializer):
         return None
 
     def get_setting(self, obj):
-        qs = um.UserSetting.objects.filter(user=obj)
+        qs = um.UserSetting.objects.filter(user=obj).order_by('id')
         if qs.exists():
             setting = qs.first()
             return {
