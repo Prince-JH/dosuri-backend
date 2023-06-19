@@ -112,3 +112,15 @@ class UserAddressManager(Manager):
     def create_etc_address(self, user, name, address, latitude, longitude):
         return self.create(user=user, name=name, address=address, address_type=uc.ADDRESS_ETC, latitude=latitude,
                            longitude=longitude)
+
+
+class UserSettingManager(Manager):
+    def create_default_setting(self, user):
+        return self.create(
+            user=user,
+            agree_marketing_personal_info=False,
+            agree_general_push=True,
+            agree_marketing_push=False,
+            agree_marketing_email=False,
+            agree_marketing_sms=False,
+        )

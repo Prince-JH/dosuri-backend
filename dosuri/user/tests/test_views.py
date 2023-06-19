@@ -106,6 +106,37 @@ class TestUserDetail:
         assert address.name == '별칭'
         assert address.is_main
 
+    @pytest.mark.django_db()
+    def test_create_user_without_address_should_not_update_user_info(self, client, user_dummy, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        assert user_dummy.name is None
+
+        data = {
+            "username": "igoman2@naver.com",
+            "name": "한준호",
+            "nickname": "아이고맨",
+            "birthday": "2022-12-20",
+            "phone_no": "010-1234-5678",
+            "sex": "남자",
+            "address": {},
+            "pain_areas": [
+                {
+                    "name": "목"
+                },
+                {
+                    "name": "그 외"
+                }
+            ]
+        }
+        response = client.put(f'/user/v1/users/me', data=data, **headers)
+        assert response.status_code == 400
+        user_dummy = get_user_model().objects.get(pk=user_dummy.pk)
+        assert not user_dummy.name
+        assert um.UserAddress.objects.filter(user=user_dummy).count() == 0
+
     @pytest.mark.django_db
     def test_partial_update_user(self, client, user_dummy, tokens_user_dummy):
         headers = {
@@ -124,9 +155,13 @@ class TestUserDetail:
         assert user_dummy.name == '한준호'
 
     @pytest.mark.django_db
-    def test_delete_user(self, client):
-        response = client.get(f'/user/v1/users/me')
-        assert response.status_code == 401
+    def test_delete_user(self, client, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.delete(f'/user/v1/users/me', **headers)
+        assert response.status_code == 204
 
     @pytest.mark.django_db
     def test_user_unread_notice(self, client, user_dummy, tokens_user_dummy):
@@ -144,6 +179,24 @@ class TestUserDetail:
 
         user_dummy = get_user_model().objects.get(pk=user_dummy.pk)
         assert user_dummy.unread_notice is False
+
+    @pytest.mark.django_db
+    def test_partial_update_user_setting(self, client, user_dummy, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        assert user_dummy.name is None
+
+        data = {
+            "setting": {
+                "agree_marketing_personal_info": False,
+            }
+        }
+        response = client.patch(f'/user/v1/users/me', data=data, **headers)
+        assert response.status_code == 200
+        assert um.UserSetting.objects.get(user=user_dummy).agree_general_push is True
+        assert um.UserSetting.objects.get(user=user_dummy).agree_marketing_personal_info is False
 
 
 class TestKaKaoAuth:
@@ -197,7 +250,6 @@ class TestGoogleAuth:
 
         assert response.status_code == 201
         assert content['is_new'] is True
-        user = get_user_model().objects.first()
         assert get_user_model().objects.all().count() == 1
 
     @pytest.mark.django_db
@@ -421,3 +473,39 @@ class TestUserAddress:
         response = client.delete(f'/user/v1/users/me/addresses/{user_dummy_address_home.uuid}', data=data, **headers)
         assert response.status_code == 204
         assert um.UserAddress.objects.all().count() == 0
+
+
+class TestUserPersonalInformationAgreement:
+    @pytest.mark.django_db
+    def test_get_agreement_when_not_exist(self, client, tokens_user_dummy):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get('/user/v1/users/me/personal-info-agreement', **headers)
+        assert response.status_code == 404
+
+    @pytest.mark.django_db
+    def test_get_agreement_when_exists(self, client, tokens_user_dummy, user_setting):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get('/user/v1/users/me/personal-info-agreement', **headers)
+        content = json.loads(response.content)
+        assert response.status_code == 200
+        assert content['agree_marketing_personal_info']
+
+    @pytest.mark.django_db
+    def test_update_agreement_when_exists(self, client, user_dummy, tokens_user_dummy, user_setting):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        data = {
+            'agree_marketing_personal_info': False,
+        }
+        response = client.patch('/user/v1/users/me/personal-info-agreement', data=data, **headers)
+        assert response.status_code == 200
+        agreement = um.UserSetting.objects.get(user=user_dummy)
+        assert not agreement.agree_marketing_personal_info

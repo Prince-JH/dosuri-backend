@@ -1,3 +1,6 @@
+from datetime import timedelta
+
+from django.utils import timezone
 from rest_framework import serializers as s
 
 from dosuri.hospital import (
@@ -8,7 +11,9 @@ from dosuri.hospital import (
 )
 from dosuri.common import (
     models as cm,
-    utils as cu
+    utils as cu,
+    geocoding as cg,
+    tasks as ct,
 )
 from dosuri.community import (
     models as cmm,
@@ -106,7 +111,7 @@ class Hospital(s.ModelSerializer):
     article_count: s.Field = s.IntegerField(read_only=True)
     latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
     latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
-    is_partner: s.Field = s.BooleanField(write_only=True)
+    is_partner: s.Field = s.BooleanField()
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
     calendar: s.Field = HospitalCalendar(write_only=True, source='hospital_calendar')
@@ -161,7 +166,7 @@ class HospitalDetail(s.ModelSerializer):
     introduction: s.Field = s.CharField(allow_null=True)
     area: s.Field = s.CharField(allow_null=True)
     phone_no: s.Field = s.CharField(allow_null=True)
-    is_partner: s.Field = s.BooleanField(write_only=True)
+    is_partner: s.Field = s.BooleanField()
     opened_at: s.Field = s.DateTimeField(write_only=True, allow_null=True)
     calendar: s.Field = HospitalCalendar(source='hospital_calendar')
     keywords: s.Field = HospitalKeywordAssoc(many=True, source='hospital_keyword_assoc')
@@ -310,6 +315,7 @@ class Doctor(s.ModelSerializer):
             hm.DoctorKeywordAssoc.objects.create(doctor=doctor, keyword=keyword)
 
 
+# @extend_schema_serializer(examples=sch.HOSPITAL_TREATMENT_EXAMPLE)
 class HospitalTreatment(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     name: s.Field = s.CharField()
@@ -354,6 +360,45 @@ class HospitalSearch(s.ModelSerializer):
         exclude = ('id', 'user', 'created_at')
 
 
+class HospitalReservation(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    hospital: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=hm.Hospital.objects.all()
+    )
+    user: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        read_only=True
+    )
+
+    class Meta:
+        model = hm.HospitalReservation
+        exclude = ('id', 'created_at')
+
+    def create(self, validated_data):
+        hospital = validated_data['hospital']
+        user = validated_data['user']
+        qs = self.Meta.model.objects.filter(hospital=hospital, user=user,
+                                            created_at__gte=timezone.now() - timedelta(days=1))
+        if qs.exists():
+            return qs.first()
+        message = self.make_message(hospital, user)
+        ct.announce_hospital_reservation(message)
+        return super().create(validated_data)
+
+    def make_message(self, hospital, user):
+        message = f'\n' \
+                  f'병원 예약 신청\n' \
+                  f'{hospital.name}\n ' \
+                  f'{hospital.phone_no}\n' \
+                  f'\n' \
+                  f'{user.name} {user.sex}\n' \
+                  f'{user.phone_no}\n' \
+                  f'{user.birthday.strftime("%Y/%m/%d")}\n' \
+                  f'\n'
+        return message
+
+
 class AroundHospital(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     address: s.Field = s.CharField()
@@ -366,7 +411,7 @@ class AroundHospital(s.ModelSerializer):
     article_count: s.Field = s.IntegerField(read_only=True)
     latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
     latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
-    is_partner: s.Field = s.BooleanField(write_only=True)
+    is_partner: s.Field = s.BooleanField(read_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
     attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
@@ -390,7 +435,7 @@ class NewHospital(s.ModelSerializer):
     article_count: s.Field = s.IntegerField(read_only=True)
     latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
     latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
-    is_partner: s.Field = s.BooleanField(write_only=True)
+    is_partner: s.Field = s.BooleanField(read_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
     attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
@@ -408,13 +453,14 @@ class GoodPriceHospital(s.ModelSerializer):
     area: s.Field = s.CharField(allow_null=True)
     up_count: s.Field = s.IntegerField(read_only=True)
     view_count: s.Field = s.IntegerField(read_only=True)
+    is_partner: s.Field = s.BooleanField(read_only=True)
     article_count: s.Field = s.IntegerField(read_only=True)
     avg_price_per_hour: s.Field = s.FloatField(read_only=True, allow_null=True)
     attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
 
     class Meta:
         model = hm.Hospital
-        fields = ['uuid', 'name', 'area', 'up_count', 'view_count', 'article_count', 'avg_price_per_hour',
+        fields = ['uuid', 'name', 'area', 'up_count', 'view_count', 'article_count', 'avg_price_per_hour', 'is_partner',
                   'attachments']
 
 
@@ -430,7 +476,7 @@ class GoodReviewHospital(s.ModelSerializer):
     article_count: s.Field = s.IntegerField(read_only=True)
     latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
     latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
-    is_partner: s.Field = s.BooleanField(write_only=True)
+    is_partner: s.Field = s.BooleanField(read_only=True)
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
     attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')

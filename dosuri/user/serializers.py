@@ -70,6 +70,7 @@ class Auth(s.Serializer):
         if is_new:
             user_info['nickname'] = uu.get_random_nickname()
             um.User.objects.update_user_info(user, user_info)
+            um.UserSetting.objects.create_default_setting(user=user)
 
         tokens = a.get_tokens_for_user(user)
 
@@ -77,23 +78,6 @@ class Auth(s.Serializer):
         validated_data['refresh_token'] = tokens['refresh']
         validated_data['is_new'] = is_new
         validated_data['user_uuid'] = user.uuid
-        return validated_data
-
-
-class AuthV2(s.Serializer):
-    code: s.Field = s.CharField(write_only=True, required=False)
-    token: s.Field = s.CharField(read_only=True, required=False)
-    type: s.Field = s.CharField(write_only=True)
-
-    def create(self, validated_data):
-        auth_type = validated_data['type']
-
-        origin = self.context['request'].build_absolute_uri()
-
-        if auth_type == uc.AUTH_APPLE:
-            pass
-
-        validated_data['token'] = ''
         return validated_data
 
 
@@ -149,12 +133,13 @@ class User(s.ModelSerializer):
     sex: s.Field = s.CharField()
     pain_areas: s.Field = PainAreaUserAssoc(many=True, source='pain_area_user_assoc')
     is_real: s.Field = s.BooleanField(read_only=True)
+    setting: s.Field = cs.ReadWriteSerializerMethodField(required=False)
     created_at: s.Field = s.DateTimeField(read_only=True)
 
     class Meta:
         model = get_user_model()
         fields = ('uuid', 'username', 'nickname', 'birthday', 'phone_no', 'name',
-                  'address', 'sex', 'is_real', 'pain_areas', 'created_at', 'unread_notice')
+                  'address', 'sex', 'is_real', 'pain_areas', 'unread_notice', 'setting', 'created_at')
 
     def create(self, validated_data):
         user = get_user_model().objects.create()
@@ -172,6 +157,19 @@ class User(s.ModelSerializer):
                     'latitude': address.latitude, 'longitude': address.longitude}
         return None
 
+    def get_setting(self, obj):
+        qs = um.UserSetting.objects.filter(user=obj).order_by('id')
+        if qs.exists():
+            setting = qs.first()
+            return {
+                "agree_marketing_personal_info": setting.agree_marketing_personal_info,
+                "agree_general_push": setting.agree_general_push,
+                "agree_marketing_push": setting.agree_marketing_push,
+                "agree_marketing_email": setting.agree_marketing_email,
+                "agree_marketing_sms": setting.agree_marketing_sms
+            }
+        return None
+
     def save_user_info(self, user, info_data):
         info_data = self.save_extra(user, **info_data)
         for key, value in info_data.items():
@@ -187,9 +185,14 @@ class User(s.ModelSerializer):
 
         if 'pain_area_user_assoc' in kwargs:
             self.save_pain_areas(user, kwargs.pop('pain_area_user_assoc'))
+
+        if 'setting' in kwargs:
+            self.save_setting(user, kwargs.pop('setting'))
         return kwargs
 
     def save_address(self, user, address_data):
+        if not address_data.get('name'):
+            raise uexc.EmptyAddressInfo()
         qs = um.UserAddress.objects.filter(user=user, name=address_data['name'])
         if qs.exists():
             return
@@ -207,6 +210,14 @@ class User(s.ModelSerializer):
                                                     pain_area=pain_area)
             except um.PainArea.DoesNotExist:
                 pass
+
+    def save_setting(self, user, setting_data):
+        qs = um.UserSetting.objects.filter(user=user)
+        if qs.exists():
+            qs.update(**setting_data)
+        else:
+            um.UserSetting.objects.create_default_setting(user)
+            um.UserSetting.objects.filter(user=user).update(**setting_data)
 
 
 class UserToken(s.Serializer):
@@ -251,7 +262,7 @@ class InsuranceUserAssoc(s.ModelSerializer):
                 raise uexc.UserHasNoAddress()
         address = address_qs.first().address.split(' ')
         message = f'새로운 보험 신청\n' \
-                  f'{user.name} ({user.sex})\n' \
+                  f'{user.name} {user.sex}\n' \
                   f'{user.phone_no}\n' \
                   f'{user.birthday.strftime("%Y/%m/%d")}\n' \
                   f'{address[0]} {address[1]}'
@@ -334,3 +345,15 @@ class UserAddressDetail(s.ModelSerializer):
         if validated_data.get('is_main'):
             self.Meta.model.objects.set_main_address(instance)
         return super().update(instance, validated_data)
+
+
+class UserSetting(s.ModelSerializer):
+    agree_marketing_personal_info: s.Field = s.BooleanField()
+    agree_general_push: s.Field = s.BooleanField()
+    agree_marketing_push: s.Field = s.BooleanField()
+    agree_marketing_email: s.Field = s.BooleanField()
+    agree_marketing_sms: s.Field = s.BooleanField()
+
+    class Meta:
+        model = um.UserSetting
+        exclude = ('id', 'user', 'created_at')

@@ -25,6 +25,7 @@ from datetime import datetime
 from dosuri.common import (
     utils as cu,
     models as cm,
+    geocoding as cg,
 )
 from dosuri.hospital import (
     models as hm,
@@ -53,8 +54,8 @@ def get_hospital_rank_by_treatment_price():
             latitude = coordinates[0]
             longitude = coordinates[1]
             distance = 2
-            latitude_range = get_latitude_range(latitude, distance)
-            longitude_range = get_longitude_range(longitude, distance)
+            latitude_range = cg.get_latitude_range(latitude, distance)
+            longitude_range = cg.get_longitude_range(longitude, distance)
             hospitals = Hospital.objects.filter(latitude__range=latitude_range,
                                                 longitude__range=longitude_range)
             f.write(f'총 병원 개수: {hospitals.count()}')
@@ -75,13 +76,3 @@ def get_hospital_rank_by_treatment_price():
             f.write(f'30분당 가격의 평균값: {price / hospitals_with_price.count()}')
             f.write('\n')
             f.write('\n')
-
-
-def get_latitude_range(latitude, km_distance):
-    delta = round(km_distance / 111.19, 13)
-    return round(latitude - delta, 13), round(latitude + delta, 13)
-
-
-def get_longitude_range(longitude, km_distance):
-    delta = round(km_distance / 88.80, 13)
-    return round(longitude - delta, 13), round(longitude + delta, 13)

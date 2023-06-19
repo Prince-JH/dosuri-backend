@@ -32,21 +32,13 @@ class HospitalDistanceFilter(fsc.HospitalDistanceFilterSchema,
         if not distance:
             return queryset
 
-        latitude_range = self.get_latitude_range(latitude, distance)
-        longitude_range = self.get_longitude_range(longitude, distance)
+        latitude_range = cg.get_latitude_range(latitude, distance)
+        longitude_range = cg.get_longitude_range(longitude, distance)
         return queryset.filter(latitude__range=latitude_range, longitude__range=longitude_range)
 
     def get_distance_param(self, view):
         return view.hospital_distance_range  # 현재는 서버에 정적으로 선언
         # return request.GET.get(self.distance_param, None) # 클라이언트에서 주입 받을수도 있음=
-
-    def get_latitude_range(self, latitude, km_distance):
-        delta = round(km_distance / 111.19, 13)
-        return round(latitude - delta, 13), round(latitude + delta, 13)
-
-    def get_longitude_range(self, longitude, km_distance):
-        delta = round(km_distance / 88.80, 13)
-        return round(longitude - delta, 13), round(longitude + delta, 13)
 
     def get_distance_annotation(self, latitude, longitude):
         d_lat = (F('latitude') - latitude) * 111.19
