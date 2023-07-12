@@ -54,4 +54,4 @@ def set_partner_hospitals():
         hospitals = Hospital.objects.filter(latitude__range=latitude_range,
                                             longitude__range=longitude_range).annotate_avg_price_per_hour()
         hospitals.update(near_site=station, is_partner=True)
-
+    Hospital.objects.filter(name='강남밸런스의원').update(near_site='범계역', is_partner=True)
