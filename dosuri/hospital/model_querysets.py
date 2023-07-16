@@ -23,7 +23,7 @@ def get_rand_ids(ids):
 
 
 class HospitalQuerySet(QuerySet):
-    def annotate_extra_fields(self):
+    def annotate_article_related_fields(self):
         HospitalUserAssoc = apps.get_model('dosuri', 'HospitalUserAssoc')
         Article = apps.get_model('dosuri', 'Article')
         return self.annotate(

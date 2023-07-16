@@ -42,7 +42,7 @@ class TempHospital(g.CreateAPIView):
 class HospitalList(hmx.HospitalDistance, g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
-                                                                                      'hospital_attachment_assoc__attachment').annotate_extra_fields()
+                                                                                      'hospital_attachment_assoc__attachment').annotate_article_related_fields()
     serializer_class = s.Hospital
     filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalSearchFilter, hf.HospitalDistanceFilter]
     ordering_field = '__all__'
@@ -65,7 +65,7 @@ class HospitalNameList(hmx.HospitalDistance, g.ListCreateAPIView):
 class HospitalAddressFilteredList(hmx.HospitalDistance, g.ListAPIView):
     permission_classes = [p.AllowAny]
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
-                                                                                      'hospital_attachment_assoc__attachment').annotate_extra_fields()
+                                                                                      'hospital_attachment_assoc__attachment').annotate_article_related_fields()
     serializer_class = s.Hospital
     filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter]
     ordering_field = '__all__'
@@ -299,7 +299,7 @@ class HospitalTreatmentList(g.ListCreateAPIView):
             longitude_range = cg.get_longitude_range(longitude, distance_range)
             hospital_with_avg_price_per_hour = hm.Hospital.objects.filter(latitude__range=latitude_range,
                                                                           longitude__range=longitude_range) \
-                .annotate_avg_price_per_hour().order_by('avg_price_per_hour')
+                .filter_with_avg_price_per_hour().order_by('avg_price_per_hour')
             count = 1
             for hospital in hospital_with_avg_price_per_hour:
                 if hospital.uuid == uuid:
