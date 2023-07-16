@@ -63,11 +63,11 @@ class HospitalDistanceFilterSchema:
         return [
             coreapi.Field(
                 name=param, location='query', required=False,
-                schema=coreschema.String(title=f'{param} of user',
-                                         description=f'{param} of user')
+                schema=coreschema.String(title=f'{param}',
+                                         description=f'{param}')
             )
             for param
-            in view.hospital_distance_filter_params if param != 'distance'
+            in view.hospital_distance_filter_params
         ]
 
     def get_schema_operation_parameters(self, view):
@@ -76,11 +76,11 @@ class HospitalDistanceFilterSchema:
                 'name': param,
                 'in': 'query',
                 'required': False,
-                'description': f'{param} of user',
+                'description': f'{param}',
                 'schema': {'type': 'float'}
             }
             for param
-            in view.hospital_distance_filter_params if param != 'distance'
+            in view.hospital_distance_filter_params
         ]
 
 

@@ -11,13 +11,13 @@ from dosuri.community import (
     constants as cmc,
 )
 from dosuri.common import geocoding as cg
-from django.db.models.functions import Radians, Power, Sin, Cos, ATan2, Sqrt, Radians
+from django.db.models.functions import Sqrt
 from django.db.models import F
 
 
 class HospitalDistanceFilter(fsc.HospitalDistanceFilterSchema,
                              filters.BaseFilterBackend):
-    distance_param = 'distance'
+    distance_range_param = 'distance_range'
     latitude_param = 'latitude'
     longitude_param = 'longitude'
 
@@ -27,18 +27,17 @@ class HospitalDistanceFilter(fsc.HospitalDistanceFilterSchema,
         if not latitude or not longitude:
             return queryset
 
-        distance = kwargs.get('distance') or self.get_distance_param(view)
-
-        if not distance:
+        distance_range = kwargs.get(self.distance_range_param) or self.get_distance_range_param(view, request)
+        if not distance_range:
             return queryset
 
-        latitude_range = cg.get_latitude_range(latitude, distance)
-        longitude_range = cg.get_longitude_range(longitude, distance)
+        distance_range = float(distance_range)
+        latitude_range = cg.get_latitude_range(latitude, distance_range)
+        longitude_range = cg.get_longitude_range(longitude, distance_range)
         return queryset.filter(latitude__range=latitude_range, longitude__range=longitude_range)
 
-    def get_distance_param(self, view):
-        return view.hospital_distance_range  # 현재는 서버에 정적으로 선언
-        # return request.GET.get(self.distance_param, None) # 클라이언트에서 주입 받을수도 있음=
+    def get_distance_range_param(self, view, request):
+        return request.GET.get(self.distance_range_param, None) or view.hospital_distance_range
 
     def get_distance_annotation(self, latitude, longitude):
         d_lat = (F('latitude') - latitude) * 111.19
