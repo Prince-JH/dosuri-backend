@@ -48,7 +48,7 @@ class HospitalList(hmx.HospitalDistance, g.ListCreateAPIView):
     ordering_field = '__all__'
     ordering = ['view_count']
     search_fields = ['name', 'area']
-    hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
+    hospital_distance_filter_params = ['distance_range', 'latitude', 'longitude']
     hospital_distance_range = None
 
 
@@ -69,7 +69,7 @@ class HospitalAddressFilteredList(hmx.HospitalDistance, g.ListAPIView):
     serializer_class = s.Hospital
     filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter]
     ordering_field = '__all__'
-    hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
+    hospital_distance_filter_params = ['distance_range', 'latitude', 'longitude']
     hospital_distance_range = 2
 
 
@@ -81,7 +81,7 @@ class HospitalAddressFilteredAvgPriceList(hmx.HospitalDistance, g.ListAPIView):
     filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter, hf.AvgPricePerHourRangeFilter,
                        hf.OpenedAtRangeFilter]
     ordering_field = '__all__'
-    hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
+    hospital_distance_filter_params = ['distance_range', 'latitude', 'longitude']
     hospital_distance_range = 2
 
 
@@ -294,9 +294,9 @@ class HospitalTreatmentList(g.ListCreateAPIView):
             coordinates = client.get_coordinates('station', station)
             latitude = coordinates[0]
             longitude = coordinates[1]
-            distance = 2
-            latitude_range = cg.get_latitude_range(latitude, distance)
-            longitude_range = cg.get_longitude_range(longitude, distance)
+            distance_range = 2
+            latitude_range = cg.get_latitude_range(latitude, distance_range)
+            longitude_range = cg.get_longitude_range(longitude, distance_range)
             hospital_with_avg_price_per_hour = hm.Hospital.objects.filter(latitude__range=latitude_range,
                                                                           longitude__range=longitude_range) \
                 .annotate_avg_price_per_hour().order_by('avg_price_per_hour')

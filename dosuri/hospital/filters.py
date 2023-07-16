@@ -17,7 +17,7 @@ from django.db.models import F
 
 class HospitalDistanceFilter(fsc.HospitalDistanceFilterSchema,
                              filters.BaseFilterBackend):
-    distance_param = 'distance'
+    distance_range_param = 'distance_range'
     latitude_param = 'latitude'
     longitude_param = 'longitude'
 
@@ -27,13 +27,12 @@ class HospitalDistanceFilter(fsc.HospitalDistanceFilterSchema,
         if not latitude or not longitude:
             return queryset
 
-        distance = kwargs.get('distance') or self.get_distance_param(view)
-
-        if not distance:
+        distance_range = kwargs.get(self.distance_range_param) or self.get_distance_range_param(view, request)
+        if not distance_range:
             return queryset
 
-        latitude_range = cg.get_latitude_range(latitude, distance)
-        longitude_range = cg.get_longitude_range(longitude, distance)
+        latitude_range = cg.get_latitude_range(latitude, distance_range)
+        longitude_range = cg.get_longitude_range(longitude, distance_range)
         return queryset.filter(latitude__range=latitude_range, longitude__range=longitude_range)
 
     def get_distance_param(self, view):
