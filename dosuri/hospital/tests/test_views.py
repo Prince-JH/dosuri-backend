@@ -391,3 +391,18 @@ class TestHospitalName:
         content = json.loads(response.content)
         assert content['count'] == 1
         assert content['results'][0]['uuid'] == hospital_test_강남.uuid
+
+
+class TestHospitalMap:
+    @pytest.mark.django_db
+    def test_list_hospital_map(self, client, hospital_test_강남, hospital_test_수원):
+        headers = {
+            'content_type': 'application/json'
+        }
+        latitude = 37.2762816
+        longitude = 127.0433978
+
+        response = client.get(f'/hospital/v1/hospitals/map?distance_range=3&latitude={latitude}&longitude={longitude}',
+                              **headers)
+
+        assert response.status_code == 200

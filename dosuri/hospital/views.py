@@ -1,11 +1,7 @@
-from datetime import timedelta
-from random import randint
-
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.expressions import ArraySubquery
 from django.db.models import OuterRef, Count, Subquery, Q, F, Avg, Func, Window
 from django.db.models.functions import Coalesce, RowNumber, DenseRank
-from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework import (
     generics as g,
@@ -14,19 +10,13 @@ from rest_framework import (
     status,
 )
 
-from dosuri.common import models as cm
 from dosuri.common import (
     geocoding as cg
-)
-from dosuri.community import (
-    models as cmm,
-    constants as cmc,
 )
 from dosuri.hospital import (
     models as hm,
     serializers as s,
     filters as hf,
-    pagings as hp,
     constants as hc,
     view_mixins as hmx,
 )
@@ -78,6 +68,19 @@ class HospitalAddressFilteredAvgPriceList(hmx.HospitalDistance, g.ListAPIView):
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
                                                                                       'hospital_attachment_assoc__attachment').annotate_article_related_fields().filter_with_avg_price_per_hour()
     serializer_class = s.HospitalWithPrice
+    filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter, hf.AvgPricePerHourRangeFilter,
+                       hf.OpenedAtRangeFilter]
+    ordering_field = '__all__'
+    hospital_distance_filter_params = ['distance_range', 'latitude', 'longitude']
+    hospital_distance_range = 2
+
+
+class HospitalMapList(hmx.HospitalDistance, g.ListAPIView):
+    permission_classes = [p.AllowAny]
+    pagination_class = None
+    queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
+                                                                                      'hospital_attachment_assoc__attachment').annotate_article_related_fields().filter_with_avg_price_per_hour()
+    serializer_class = s.HospitalWithPriceCoordinates
     filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter, hf.AvgPricePerHourRangeFilter,
                        hf.OpenedAtRangeFilter]
     ordering_field = '__all__'
@@ -368,7 +371,7 @@ class HomeHospitalList(hmx.HospitalDistance, g.ListAPIView):
         new_hospital_serializer = s.AroundHospital(new_hospital_queryset, many=True)
 
         good_price_hospital_queryset = queryset.get_good_price_hospital_queryset()
-        good_price_hospital_serializer = s.GoodPriceHospital(good_price_hospital_queryset, many=True)
+        good_price_hospital_serializer = s.HospitalWithPrice(good_price_hospital_queryset, many=True)
 
         many_review_hospital_queryset = queryset.get_many_review_hospital_queryset()
         many_review_hospital_serializer = s.AroundHospital(many_review_hospital_queryset, many=True)
