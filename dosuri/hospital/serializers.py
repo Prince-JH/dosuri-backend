@@ -447,7 +447,7 @@ class NewHospital(s.ModelSerializer):
         exclude = ('id', 'status', 'code', 'last_updated_at', 'created_at')
 
 
-class GoodPriceHospital(s.ModelSerializer):
+class HospitalWithPrice(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     name: s.Field = s.CharField()
     area: s.Field = s.CharField(allow_null=True)

@@ -76,8 +76,8 @@ class HospitalAddressFilteredList(hmx.HospitalDistance, g.ListAPIView):
 class HospitalAddressFilteredAvgPriceList(hmx.HospitalDistance, g.ListAPIView):
     permission_classes = [p.AllowAny]
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
-                                                                                      'hospital_attachment_assoc__attachment').annotate_extra_fields().annotate_avg_price_per_hour()
-    serializer_class = s.GoodPriceHospital
+                                                                                      'hospital_attachment_assoc__attachment').annotate_article_related_fields().filter_with_avg_price_per_hour()
+    serializer_class = s.HospitalWithPrice
     filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter, hf.AvgPricePerHourRangeFilter,
                        hf.OpenedAtRangeFilter]
     ordering_field = '__all__'
