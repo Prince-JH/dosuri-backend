@@ -5,22 +5,13 @@ from rest_framework import serializers as s
 
 from dosuri.hospital import (
     models as hm,
-    model_managers as hmm,
     serializer_schemas as sch,
     constants as hc
 )
 from dosuri.common import (
     models as cm,
     utils as cu,
-    geocoding as cg,
     tasks as ct,
-)
-from dosuri.community import (
-    models as cmm,
-
-)
-from dosuri.user import (
-    models as um
 )
 from drf_spectacular.utils import extend_schema_serializer, OpenApiExample, extend_schema_field
 from drf_spectacular.types import OpenApiTypes
