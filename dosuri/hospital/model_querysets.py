@@ -84,12 +84,14 @@ class HospitalQuerySet(QuerySet):
         return self.filter(hospital_address_assoc__address__large_area='서울특별시',
                            hospital_address_assoc__address__small_area__in=['송파구', '서초구', '강남구']).distinct()
 
-    def filter_with_avg_price_per_hour(self):
+    def annotate_avg_price_per_hour(self):
         sub_qs = hm.HospitalTreatment.objects.filter(hospital=OuterRef('pk')).annotate(
             avg_price_per_hour=Func(F('price_per_hour'), function='AVG')).values('avg_price_per_hour').order_by(
             'avg_price_per_hour')
-        return self.filter(hospital_treatment__isnull=False).distinct().annotate(
-            avg_price_per_hour=Subquery(sub_qs)).filter(avg_price_per_hour__isnull=False)
+        return self.annotate(avg_price_per_hour=Subquery(sub_qs))
+
+    def filter_has_avg_price_per_hour(self):
+        return self.filter(avg_price_per_hour__isnull=False)
 
     def annotate_distance(self, latitude, longitude):
         d_lat = (F('latitude') - latitude) * 111.19

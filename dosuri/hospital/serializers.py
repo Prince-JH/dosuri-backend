@@ -489,7 +489,7 @@ class HomeHospital(s.Serializer):
     new_review_hospitals: s.Field = s.ListField()
 
 
-class HospitalWithPriceCoordinates(s.ModelSerializer):
+class HospitalWithPriceCoordinatesArticle(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     name: s.Field = s.CharField()
     area: s.Field = s.CharField(allow_null=True)
@@ -497,6 +497,7 @@ class HospitalWithPriceCoordinates(s.ModelSerializer):
     view_count: s.Field = s.IntegerField(read_only=True)
     is_partner: s.Field = s.BooleanField(read_only=True)
     article_count: s.Field = s.IntegerField(read_only=True)
+    latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
     avg_price_per_hour: s.Field = s.FloatField(read_only=True, allow_null=True)
     latitude: s.Field = s.CharField()
     longitude: s.Field = s.CharField()
@@ -504,5 +505,5 @@ class HospitalWithPriceCoordinates(s.ModelSerializer):
 
     class Meta:
         model = hm.Hospital
-        fields = ['uuid', 'name', 'area', 'up_count', 'view_count', 'article_count', 'avg_price_per_hour', 'is_partner',
+        fields = ['uuid', 'name', 'area', 'up_count', 'view_count', 'article_count', 'latest_article', 'avg_price_per_hour', 'is_partner',
                   'attachments', 'latitude', 'longitude']

@@ -54,8 +54,9 @@ class HospitalNameList(hmx.HospitalDistance, g.ListCreateAPIView):
 
 class HospitalAddressFilteredList(hmx.HospitalDistance, g.ListAPIView):
     permission_classes = [p.AllowAny]
-    queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
-                                                                                      'hospital_attachment_assoc__attachment').annotate_article_related_fields()
+    queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE) \
+        .prefetch_related('hospital_attachment_assoc', 'hospital_attachment_assoc__attachment') \
+        .annotate_article_related_fields()
     serializer_class = s.Hospital
     filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter]
     ordering_field = '__all__'
@@ -65,8 +66,11 @@ class HospitalAddressFilteredList(hmx.HospitalDistance, g.ListAPIView):
 
 class HospitalAddressFilteredAvgPriceList(hmx.HospitalDistance, g.ListAPIView):
     permission_classes = [p.AllowAny]
-    queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
-                                                                                      'hospital_attachment_assoc__attachment').annotate_article_related_fields().filter_with_avg_price_per_hour()
+    queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE) \
+        .prefetch_related('hospital_attachment_assoc', 'hospital_attachment_assoc__attachment') \
+        .annotate_article_related_fields() \
+        .annotate_avg_price_per_hour() \
+        .filter_has_avg_price_per_hour()
     serializer_class = s.HospitalWithPrice
     filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter, hf.AvgPricePerHourRangeFilter,
                        hf.OpenedAtRangeFilter]
@@ -78,9 +82,11 @@ class HospitalAddressFilteredAvgPriceList(hmx.HospitalDistance, g.ListAPIView):
 class HospitalMapList(hmx.HospitalDistance, g.ListAPIView):
     permission_classes = [p.AllowAny]
     pagination_class = None
-    queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
-                                                                                      'hospital_attachment_assoc__attachment').annotate_article_related_fields().filter_with_avg_price_per_hour()
-    serializer_class = s.HospitalWithPriceCoordinates
+    queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE) \
+        .prefetch_related('hospital_attachment_assoc', 'hospital_attachment_assoc__attachment') \
+        .annotate_article_related_fields() \
+        .annotate_avg_price_per_hour()
+    serializer_class = s.HospitalWithPriceCoordinatesArticle
     filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter, hf.AvgPricePerHourRangeFilter,
                        hf.OpenedAtRangeFilter]
     ordering_field = '__all__'
@@ -302,7 +308,7 @@ class HospitalTreatmentList(g.ListCreateAPIView):
             longitude_range = cg.get_longitude_range(longitude, distance_range)
             hospital_with_avg_price_per_hour = hm.Hospital.objects.filter(latitude__range=latitude_range,
                                                                           longitude__range=longitude_range) \
-                .filter_with_avg_price_per_hour().order_by('avg_price_per_hour')
+                .annotate_avg_price_per_hour().filter_has_avg_price_per_hour().order_by('avg_price_per_hour')
             count = 1
             for hospital in hospital_with_avg_price_per_hour:
                 if hospital.uuid == uuid:
