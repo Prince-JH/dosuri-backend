@@ -4,7 +4,7 @@ from rest_framework.settings import api_settings
 
 from dosuri.hospital import (
     filter_schema as fsc,
-    models as hm
+    constants as hc
 )
 from dosuri.community import (
     models as cmm,
@@ -146,3 +146,11 @@ class OpenedAtRangeFilter(fsc.OpenedAtRangeFilterSchema, filters.BaseFilterBacke
             return queryset
 
         return queryset.filter(opened_at__range=(opened_at_range_from, opened_at_range_to))
+
+
+class MapTypeFilter(fsc.MapTypeFilterSchema, filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        map_type = request.GET.get('map_type')
+        if map_type == hc.MAP_TYPE_PRICE:
+            return queryset.filter_has_avg_price_per_hour()
+        return queryset

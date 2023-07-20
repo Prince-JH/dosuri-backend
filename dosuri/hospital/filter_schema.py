@@ -162,3 +162,29 @@ class OpenedAtRangeFilterSchema:
                 'example': 'opened_at_range_to=2022-06-01T00:00:00+09:00'
             },
         ]
+
+
+class MapTypeFilterSchema:
+    def get_schema_fields(self, view):
+        return [
+            coreapi.Field(
+                name='map_type', location='query', required=False,
+                schema=coreschema.String(title='type of map',
+                                         description='price or review'),
+                example='price'
+            )
+        ]
+
+    def get_schema_operation_parameters(self, view):
+        return [
+            {
+                'name': 'map_type',
+                'required': False,
+                'in': 'query',
+                'description': 'price or review',
+                'schema': {
+                    'type': 'string',
+                },
+                'example': 'price'
+            }
+        ]
