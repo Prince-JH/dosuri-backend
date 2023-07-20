@@ -88,7 +88,7 @@ class HospitalMapList(hmx.HospitalDistance, g.ListAPIView):
         .annotate_avg_price_per_hour()
     serializer_class = s.HospitalWithPriceCoordinatesArticle
     filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter, hf.AvgPricePerHourRangeFilter,
-                       hf.OpenedAtRangeFilter]
+                       hf.OpenedAtRangeFilter, hf.MapTypeFilter]
     ordering_field = '__all__'
     hospital_distance_filter_params = ['distance_range', 'latitude', 'longitude']
     hospital_distance_range = 2
