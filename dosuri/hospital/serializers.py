@@ -489,7 +489,7 @@ class HomeHospital(s.Serializer):
     new_review_hospitals: s.Field = s.ListField()
 
 
-class HospitalWithPriceCoordinatesArticle(s.ModelSerializer):
+class HospitalWithPriceCoordinates(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     name: s.Field = s.CharField()
     area: s.Field = s.CharField(allow_null=True)

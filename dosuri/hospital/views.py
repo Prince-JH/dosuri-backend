@@ -86,7 +86,7 @@ class HospitalMapList(hmx.HospitalDistance, g.ListAPIView):
         .prefetch_related('hospital_attachment_assoc', 'hospital_attachment_assoc__attachment') \
         .annotate_article_related_fields() \
         .annotate_avg_price_per_hour()
-    serializer_class = s.HospitalWithPriceCoordinatesArticle
+    serializer_class = s.HospitalWithPriceCoordinates
     filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter, hf.AvgPricePerHourRangeFilter,
                        hf.OpenedAtRangeFilter, hf.MapTypeFilter]
     ordering_field = '__all__'
