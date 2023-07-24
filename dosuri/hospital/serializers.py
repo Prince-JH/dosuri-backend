@@ -455,8 +455,8 @@ class HospitalWithPrice(s.ModelSerializer):
 
     class Meta:
         model = hm.Hospital
-        fields = ['uuid', 'name', 'area', 'up_count', 'view_count', 'article_count', 'avg_price_per_hour', 'is_partner',
-                  'attachments']
+        exclude = ('id', 'status', 'code', 'last_updated_at', 'created_at')
+
 
 
 class GoodReviewHospital(s.ModelSerializer):
