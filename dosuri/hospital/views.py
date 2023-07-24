@@ -346,7 +346,7 @@ class ManyReviewHospitalList(hmx.HospitalDistance, g.ListAPIView):
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).all()
     serializer_class = s.AroundHospital
     filter_backends = [hf.HospitalDistanceFilter]
-    hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
+    hospital_distance_filter_params = ['distance_range', 'latitude', 'longitude']
     hospital_distance_range = 2
 
     def list(self, request, *args, **kwargs):
@@ -364,7 +364,7 @@ class HomeHospitalList(hmx.HospitalDistance, g.ListAPIView):
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).all()
     serializer_class = s.HomeHospital
     filter_backends = [hf.HospitalDistanceFilter]
-    hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
+    hospital_distance_filter_params = ['distance_range', 'latitude', 'longitude']
     hospital_distance_range = 2
 
     def list(self, request, *args, **kwargs):

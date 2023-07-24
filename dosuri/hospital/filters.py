@@ -114,7 +114,7 @@ class HospitalSearchFilter(filters.SearchFilter):
             if not coordinates:
                 return queryset.none()
             return HospitalDistanceFilter().filter_queryset(request, queryset, view, latitude=coordinates[0],
-                                                            longitude=coordinates[1], distance=1)
+                                                            longitude=coordinates[1], distance_range=1)
         else:
             return super().filter_queryset(request, queryset, view)
 
