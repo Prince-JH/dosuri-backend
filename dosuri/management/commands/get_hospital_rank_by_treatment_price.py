@@ -41,7 +41,7 @@ class Command(BaseCommand):
 
 
 def get_hospital_rank_by_treatment_price():
-    file = '/Users/jihoon/Study/Django/dosuri-backend/hospital_ranks_in_points.txt'
+    file = 'hospital_ranks_in_points.txt'
 
     with open(file, 'w') as f:
         client = KaKaoGeoClient()

@@ -97,6 +97,21 @@ class TestHospitalDistanceFilter:
         filtered_qs = _filter.filter_queryset(request, queryset, view)
         assert filtered_qs.count() == 1
 
+    @pytest.mark.django_db
+    def test_filter_with_distance_query_param_3km(
+            self, rf, hospital_test_강남, hospital_test_수원):
+        latitude = 37.2762816
+        longitude = 127.0433978
+        url = f'/?distance_range=3&latitude={latitude}&longitude={longitude}'
+        request = rf.get(url)
+        queryset = hm.Hospital.objects.all()
+        assert queryset.count() == 2
+
+        _filter = hf.HospitalDistanceFilter()
+        view = DummyNoneDistanceView()
+        filtered_qs = _filter.filter_queryset(request, queryset, view)
+        assert filtered_qs.count() == 1
+
 
 class TestAvgPricePerHourRangeFilter:
     @pytest.mark.django_db
