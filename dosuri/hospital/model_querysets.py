@@ -141,7 +141,7 @@ class HospitalQuerySet(QuerySet):
             'avg_price_per_hour')
 
         qs = self.filter(hospital_treatment__isnull=False).distinct().annotate(
-            avg_price_per_hour=Subquery(sub_qs)).filter(avg_price_per_hour__isnull=False).order_by('avg_price_per_hour')
+            avg_price_per_hour=Subquery(sub_qs)).filter(avg_price_per_hour__isnull=False)
         return qs
 
     def get_good_price_hospital_queryset(self, showing_number=3):
