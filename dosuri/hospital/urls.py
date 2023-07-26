@@ -34,4 +34,6 @@ urlpatterns = [
 
     path('v1/hospital-searches', v.HospitalSearch.as_view(), name='hospital-search'),
     path('v1/hospital-searches/<uuid>', v.HospitalSearchDetail.as_view(), name='hospital-search-detail'),
+
+    path('v1/hospitals/<uuid>/contact-points', v.HospitalContactPointList.as_view(), name='hospital-contact-point'),
 ]

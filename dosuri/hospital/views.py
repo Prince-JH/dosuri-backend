@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.postgres.expressions import ArraySubquery
 from django.db.models import OuterRef, Count, Subquery, Q, F, Avg, Func, Window
 from django.db.models.functions import Coalesce, RowNumber, DenseRank
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import (
     generics as g,
@@ -441,3 +442,14 @@ class HospitalReservation(g.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class HospitalContactPointList(g.ListAPIView):
+    permission_classes = [p.IsAuthenticated]
+    queryset = hm.HospitalContactPoint.objects.all()
+    serializer_class = s.HospitalContactPoint
+
+    def get_queryset(self):
+        hospital_uuid = self.kwargs['uuid']
+        hospital = get_object_or_404(hm.Hospital, uuid=hospital_uuid)
+        return self.queryset.filter(hospital=hospital)

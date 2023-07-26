@@ -458,7 +458,6 @@ class HospitalWithPrice(s.ModelSerializer):
         exclude = ('id', 'status', 'code', 'last_updated_at', 'created_at')
 
 
-
 class GoodReviewHospital(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     address: s.Field = s.CharField()
@@ -512,3 +511,17 @@ class HospitalWithPriceCoordinates(s.ModelSerializer):
         fields = ['uuid', 'name', 'area', 'up_count', 'view_count', 'article_count', 'latest_article',
                   'avg_price_per_hour', 'is_partner',
                   'attachments', 'latitude', 'longitude']
+
+
+class HospitalContactPoint(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    hospital: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=hm.Hospital.objects.all()
+    )
+    contact_type: s.Field = s.CharField()
+    contact_point: s.Field = s.CharField()
+
+    class Meta:
+        model = hm.HospitalContactPoint
+        exclude = ('id', 'created_at')

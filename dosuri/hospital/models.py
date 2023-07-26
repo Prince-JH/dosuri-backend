@@ -224,3 +224,20 @@ class HospitalReservation(models.Model):
     class Meta:
         db_table = 'hospital_reservation'
         ordering = ['-id']
+
+
+class HospitalContactPoint(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_contact_point')
+    contact_type = models.CharField(max_length=50, choices=(
+        ('representative', '대표 전화번호'),
+        ('counseling', '상담 관리자 번호'),
+        ('event', '이벤트 관리자 번호'),
+        ('advertisement', '마케팅 담당자 이메일'),
+    ))
+    contact_point = models.CharField(max_length=64)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'hospital_contact_point'
+        ordering = ['-id']
