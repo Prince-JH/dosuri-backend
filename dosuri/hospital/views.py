@@ -3,6 +3,7 @@ from django.contrib.postgres.expressions import ArraySubquery
 from django.db.models import OuterRef, Count, Subquery, Q, F, Avg, Func, Window
 from django.db.models.functions import Coalesce, RowNumber, DenseRank
 from django.shortcuts import get_object_or_404
+from urllib.parse import quote
 from rest_framework.response import Response
 from rest_framework import (
     generics as g,
@@ -78,6 +79,12 @@ class HospitalAddressFilteredAvgPriceList(hmx.HospitalCoordinates, g.ListAPIView
     ordering_field = '__all__'
     hospital_distance_filter_params = ['distance_range', 'latitude', 'longitude']
     hospital_distance_range = 2
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, args, kwargs)
+        if not getattr(self, 'address'):
+            response.set_cookie('location_cookie', quote(self.address), httponly=True)
+        return response
 
 
 class HospitalMapList(hmx.HospitalCoordinates, g.ListAPIView):
@@ -359,7 +366,7 @@ class ManyReviewHospitalList(hmx.HospitalCoordinates, g.ListAPIView):
         return Response(serializer.data)
 
 
-class HomeHospitalList(hmx.HospitalRandomCoordinates, g.ListAPIView):
+class HomeHospitalList(hmx.HospitalCoordinates, g.ListAPIView):
     pagination_class = None
     permission_classes = [p.AllowAny]
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).all()
