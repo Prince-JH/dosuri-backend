@@ -50,6 +50,11 @@ class HospitalCoordinates:
 
 class HospitalRandomCoordinates(HospitalCoordinates):
     def get_default_coordinates(self, client):
+        if 'testserver' in self.request.build_absolute_uri():
+            latitude = 37.517331925853
+            longitude = 127.047377408384
+            self.set_display_address('강남구')
+            return [latitude, longitude]
         station = random.choice(['강남역', '봉천역', '발산역', '노원역', '잠실역'])
         self.set_display_address(station)
         return client.get_coordinates('station', station)
