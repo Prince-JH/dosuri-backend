@@ -30,7 +30,7 @@ class TempHospital(g.CreateAPIView):
     serializer_class = s.PostHospital
 
 
-class HospitalList(hmx.HospitalDistance, g.ListCreateAPIView):
+class HospitalList(hmx.HospitalCoordinates, g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
                                                                                       'hospital_attachment_assoc__attachment').annotate_article_related_fields()
@@ -43,7 +43,7 @@ class HospitalList(hmx.HospitalDistance, g.ListCreateAPIView):
     hospital_distance_range = None
 
 
-class HospitalNameList(hmx.HospitalDistance, g.ListCreateAPIView):
+class HospitalNameList(hmx.HospitalCoordinates, g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = hm.Hospital.objects.all()
     serializer_class = s.HospitalName
@@ -53,7 +53,7 @@ class HospitalNameList(hmx.HospitalDistance, g.ListCreateAPIView):
     search_fields = ['name']
 
 
-class HospitalAddressFilteredList(hmx.HospitalDistance, g.ListAPIView):
+class HospitalAddressFilteredList(hmx.HospitalCoordinates, g.ListAPIView):
     permission_classes = [p.AllowAny]
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE) \
         .prefetch_related('hospital_attachment_assoc', 'hospital_attachment_assoc__attachment') \
@@ -65,7 +65,7 @@ class HospitalAddressFilteredList(hmx.HospitalDistance, g.ListAPIView):
     hospital_distance_range = 2
 
 
-class HospitalAddressFilteredAvgPriceList(hmx.HospitalDistance, g.ListAPIView):
+class HospitalAddressFilteredAvgPriceList(hmx.HospitalCoordinates, g.ListAPIView):
     permission_classes = [p.AllowAny]
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE) \
         .prefetch_related('hospital_attachment_assoc', 'hospital_attachment_assoc__attachment') \
@@ -80,7 +80,7 @@ class HospitalAddressFilteredAvgPriceList(hmx.HospitalDistance, g.ListAPIView):
     hospital_distance_range = 2
 
 
-class HospitalMapList(hmx.HospitalDistance, g.ListAPIView):
+class HospitalMapList(hmx.HospitalCoordinates, g.ListAPIView):
     permission_classes = [p.AllowAny]
     pagination_class = None
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE) \
@@ -341,7 +341,7 @@ class HospitalUserAssoc(g.CreateAPIView):
         serializer.save(user=self.request.user)
 
 
-class ManyReviewHospitalList(hmx.HospitalDistance, g.ListAPIView):
+class ManyReviewHospitalList(hmx.HospitalCoordinates, g.ListAPIView):
     pagination_class = None
     permission_classes = [p.AllowAny]
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).all()
@@ -359,7 +359,7 @@ class ManyReviewHospitalList(hmx.HospitalDistance, g.ListAPIView):
         return Response(serializer.data)
 
 
-class HomeHospitalList(hmx.HospitalDistance, g.ListAPIView):
+class HomeHospitalList(hmx.HospitalRandomCoordinates, g.ListAPIView):
     pagination_class = None
     permission_classes = [p.AllowAny]
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).all()
