@@ -84,7 +84,7 @@ class HospitalAddressFilteredAvgPriceList(hmx.HospitalCoordinates, g.ListAPIView
         response = super().get(request, args, kwargs)
         if not request.COOKIES.get('location'):
             print(request.COOKIES.get('location'))
-            response.set_cookie('location', quote(self.address), samesite='None', secure=True, httponly=True)
+            response.set_cookie('location', quote(self.address), samesite='None', secure=True)
         return response
 
 
