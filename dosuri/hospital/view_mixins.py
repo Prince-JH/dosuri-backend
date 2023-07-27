@@ -6,7 +6,7 @@ from dosuri.common import geocoding as cg
 from dosuri.user import models as um
 
 
-class HospitalDistance:
+class HospitalCoordinates:
     def get_queryset(self):
         set_coordinates = self.set_coordinates()
         if not set_coordinates:
@@ -39,10 +39,18 @@ class HospitalDistance:
         setattr(self, 'address', display_address)
 
     def get_default_coordinates(self, client):
+        '''
+        서울시 강남구의 좌표
+        '''
+        latitude = 37.517331925853
+        longitude = 127.047377408384
+        self.set_display_address('강남구')
+        return [latitude, longitude]
+
+
+class HospitalRandomCoordinates(HospitalCoordinates):
+    def get_default_coordinates(self, client):
         if 'testserver' in self.request.build_absolute_uri():
-            '''
-            서울시 강남구의 좌표
-            '''
             latitude = 37.517331925853
             longitude = 127.047377408384
             self.set_display_address('강남구')
