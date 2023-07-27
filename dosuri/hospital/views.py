@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.expressions import ArraySubquery
 from django.db.models import OuterRef, Count, Subquery, Q, F, Avg, Func, Window
@@ -84,8 +83,7 @@ class HospitalAddressFilteredAvgPriceList(hmx.HospitalCoordinates, g.ListAPIView
     def get(self, request, *args, **kwargs):
         response = super().get(request, args, kwargs)
         if not request.COOKIES.get('location'):
-            print(request.COOKIES.get('location'))
-            response.set_cookie('location', quote(self.address), domain=settings.SITE_URL, samesite='None', secure=True)
+            response.set_cookie('location', quote(self.address), samesite='None', secure=True)
         return response
 
 
