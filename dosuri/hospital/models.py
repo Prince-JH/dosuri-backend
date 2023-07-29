@@ -25,6 +25,7 @@ class Hospital(models.Model):
     phone_no = models.CharField(max_length=32, null=True)
     view_count = models.IntegerField(default=0)
     is_partner = models.BooleanField(default=False)
+    is_ad = models.BooleanField(default=False)
     opened_at = models.DateTimeField(null=True)
     latitude = models.FloatField(default=0, db_index=True)
     longitude = models.FloatField(default=0, db_index=True)
