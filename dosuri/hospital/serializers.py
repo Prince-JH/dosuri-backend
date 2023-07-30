@@ -90,6 +90,14 @@ class HospitalName(s.ModelSerializer):
         fields = ('uuid', 'name')
 
 
+class HospitalParkingInfo(s.ModelSerializer):
+    description: s.Field = s.CharField(read_only=True)
+
+    class Meta:
+        model = hm.HospitalParkingInfo
+        fields = ('description',)
+
+
 class Hospital(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     address: s.Field = s.CharField()
@@ -161,6 +169,7 @@ class HospitalDetail(s.ModelSerializer):
     opened_at: s.Field = s.DateTimeField(write_only=True, allow_null=True)
     calendar: s.Field = HospitalCalendar(source='hospital_calendar')
     keywords: s.Field = HospitalKeywordAssoc(many=True, source='hospital_keyword_assoc')
+    parking_info: s.Field = HospitalParkingInfo(many=True, source='hospital_parking_info')
     attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
     latitude: s.Field = s.FloatField()
     longitude: s.Field = s.FloatField()

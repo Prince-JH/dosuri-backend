@@ -421,3 +421,11 @@ def hospital_test_강남_contact_counseling(hospital_test_강남):
         contact_type=hc.CONTACT_TYPE_COUNSEL,
         contact_point='01012345678'
     )
+
+
+@pytest.fixture
+def hospital_test_parking_info_강남(hospital_test_강남):
+    return hm.HospitalParkingInfo.objects.create(
+        hospital=hospital_test_강남,
+        description='가능'
+    )
