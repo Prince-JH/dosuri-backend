@@ -112,6 +112,16 @@ class HospitalKeywordAssoc(models.Model):
         ordering = ['-id']
 
 
+class HospitalParkingInfo(models.Model):
+    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_parking_info')
+    description = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = 'hospital_parking_info'
+        ordering = ['-id']
+
+
 class Doctor(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='doctor')
