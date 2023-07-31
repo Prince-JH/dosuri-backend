@@ -48,10 +48,10 @@ class HospitalCoordinates:
         location_cookie = self.request.COOKIES.get('location')
         if location_cookie:
             location = self.get_location_cookie(location_cookie)
-            return client.get_coordinates('station', location)
-        station = random.choice(['강남역', '봉천역', '발산역', '노원역', '잠실역'])
-        self.set_display_address(station)
-        return client.get_coordinates('station', station)
+        else:
+            location = random.choice(['강남역', '봉천역', '발산역', '노원역', '잠실역'])
+        self.set_display_address(location)
+        return client.get_coordinates('station', location)
 
     def get_location_cookie(self, location_cookie):
         return unquote(location_cookie)
