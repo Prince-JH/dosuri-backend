@@ -9,6 +9,7 @@ urlpatterns = [
     path('v1/hospitals/names', v.HospitalNameList.as_view(), name='hospital-name'),
     path('v1/temp-hospitals', v.TempHospital.as_view(), name='temp-hospital'),
     path('v1/hospitals/home', v.HomeHospitalList.as_view(), name='hospital-home'),
+    path('v1/hospitals/map', v.HospitalMapList.as_view(), name='hospital-map'),
     path('v1/hospitals-address-filtered', v.HospitalAddressFilteredList.as_view(), name='hospital-address-filtered'),
     path('v1/hospitals-address-filtered-avg-price', v.HospitalAddressFilteredAvgPriceList.as_view(),
          name='hospital-address-filtered-avg-price'),
@@ -33,4 +34,6 @@ urlpatterns = [
 
     path('v1/hospital-searches', v.HospitalSearch.as_view(), name='hospital-search'),
     path('v1/hospital-searches/<uuid>', v.HospitalSearchDetail.as_view(), name='hospital-search-detail'),
+
+    path('v1/hospitals/<uuid>/contact-points', v.HospitalContactPointList.as_view(), name='hospital-contact-point'),
 ]

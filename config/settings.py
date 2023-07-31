@@ -35,7 +35,15 @@ APPEND_SLASH = False
 ALLOWED_HOSTS = ['*']
 # ALLOWED_HOSTS = ['dosuri-env.eba-igc5wtjb.ap-northeast-2.elasticbeanstalk.com', '127.0.0.1']
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:8000',
+    'http://localhost:3000',
+    'https://dosuri-front-dev.vercel.app',
+    'https://dosuri.site',
+    'https://server.dosuri.site',
+    'https://dev-server.dosuri.site'
+]
 
 # Application definition
 

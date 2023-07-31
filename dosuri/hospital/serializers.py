@@ -5,22 +5,13 @@ from rest_framework import serializers as s
 
 from dosuri.hospital import (
     models as hm,
-    model_managers as hmm,
     serializer_schemas as sch,
     constants as hc
 )
 from dosuri.common import (
     models as cm,
     utils as cu,
-    geocoding as cg,
     tasks as ct,
-)
-from dosuri.community import (
-    models as cmm,
-
-)
-from dosuri.user import (
-    models as um
 )
 from drf_spectacular.utils import extend_schema_serializer, OpenApiExample, extend_schema_field
 from drf_spectacular.types import OpenApiTypes
@@ -99,6 +90,14 @@ class HospitalName(s.ModelSerializer):
         fields = ('uuid', 'name')
 
 
+class HospitalParkingInfo(s.ModelSerializer):
+    description: s.Field = s.CharField(read_only=True)
+
+    class Meta:
+        model = hm.HospitalParkingInfo
+        fields = ('description',)
+
+
 class Hospital(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     address: s.Field = s.CharField()
@@ -170,6 +169,7 @@ class HospitalDetail(s.ModelSerializer):
     opened_at: s.Field = s.DateTimeField(write_only=True, allow_null=True)
     calendar: s.Field = HospitalCalendar(source='hospital_calendar')
     keywords: s.Field = HospitalKeywordAssoc(many=True, source='hospital_keyword_assoc')
+    parking_info: s.Field = HospitalParkingInfo(many=True, source='hospital_parking_info')
     attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
     latitude: s.Field = s.FloatField()
     longitude: s.Field = s.FloatField()
@@ -447,21 +447,24 @@ class NewHospital(s.ModelSerializer):
         exclude = ('id', 'status', 'code', 'last_updated_at', 'created_at')
 
 
-class GoodPriceHospital(s.ModelSerializer):
+class HospitalWithPrice(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     name: s.Field = s.CharField()
+    address: s.Field = s.CharField(read_only=True)
     area: s.Field = s.CharField(allow_null=True)
     up_count: s.Field = s.IntegerField(read_only=True)
     view_count: s.Field = s.IntegerField(read_only=True)
     is_partner: s.Field = s.BooleanField(read_only=True)
+    latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
     article_count: s.Field = s.IntegerField(read_only=True)
     avg_price_per_hour: s.Field = s.FloatField(read_only=True, allow_null=True)
+    distance: s.Field = s.FloatField(read_only=True, allow_null=True)
+    opened_at: s.Field = s.DateTimeField(allow_null=True, read_only=True)
     attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
 
     class Meta:
         model = hm.Hospital
-        fields = ['uuid', 'name', 'area', 'up_count', 'view_count', 'article_count', 'avg_price_per_hour', 'is_partner',
-                  'attachments']
+        exclude = ('id', 'status', 'code', 'last_updated_at', 'created_at')
 
 
 class GoodReviewHospital(s.ModelSerializer):
@@ -496,3 +499,38 @@ class HomeHospital(s.Serializer):
     good_price_hospitals: s.Field = s.ListField()
     many_review_hospitals: s.Field = s.ListField()
     new_review_hospitals: s.Field = s.ListField()
+
+
+class HospitalWithPriceCoordinates(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    name: s.Field = s.CharField()
+    area: s.Field = s.CharField(allow_null=True)
+    up_count: s.Field = s.IntegerField(read_only=True)
+    view_count: s.Field = s.IntegerField(read_only=True)
+    is_partner: s.Field = s.BooleanField(read_only=True)
+    article_count: s.Field = s.IntegerField(read_only=True)
+    latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
+    avg_price_per_hour: s.Field = s.FloatField(read_only=True, allow_null=True)
+    latitude: s.Field = s.CharField()
+    longitude: s.Field = s.CharField()
+    attachments: s.Field = HospitalAttachmentAssoc(many=True, source='hospital_attachment_assoc')
+
+    class Meta:
+        model = hm.Hospital
+        fields = ['uuid', 'name', 'area', 'up_count', 'view_count', 'article_count', 'latest_article',
+                  'avg_price_per_hour', 'is_partner',
+                  'attachments', 'latitude', 'longitude']
+
+
+class HospitalContactPoint(s.ModelSerializer):
+    uuid: s.Field = s.CharField(read_only=True)
+    hospital: s.Field = s.SlugRelatedField(
+        slug_field='uuid',
+        queryset=hm.Hospital.objects.all()
+    )
+    contact_type: s.Field = s.CharField()
+    contact_point: s.Field = s.CharField()
+
+    class Meta:
+        model = hm.HospitalContactPoint
+        exclude = ('id', 'created_at')

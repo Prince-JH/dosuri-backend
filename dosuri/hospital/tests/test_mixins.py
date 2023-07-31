@@ -5,15 +5,15 @@ from dosuri.hospital import (
 )
 
 
-class RealTimeCoordinatesView(hmx.HospitalDistance):
+class RealTimeCoordinatesView(hmx.HospitalCoordinates):
     is_realtime_coordinates = True
 
 
-class NoRealTimeCoordinatesView(hmx.HospitalDistance):
+class NoRealTimeCoordinatesView(hmx.HospitalCoordinates):
     is_realtime_coordinates = False
 
 
 class TestHotelDistance:
     def get_instance(self):
-        return hmx.HospitalDistance()
+        return hmx.HospitalCoordinates()
 

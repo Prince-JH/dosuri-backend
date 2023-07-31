@@ -84,7 +84,8 @@ def es_middleware(get_response):
             }
 
             try:
-                es.index(index="api_call_index", body=data)
+                return response
+                # es.index(index="api_call_index", body=data)
             except:
                 import traceback
                 traceback.print_exc()

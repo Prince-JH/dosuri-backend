@@ -1,12 +1,12 @@
 import random
 
 from django.contrib.auth.models import AnonymousUser
-
+from urllib.parse import unquote
 from dosuri.common import geocoding as cg
 from dosuri.user import models as um
 
 
-class HospitalDistance:
+class HospitalCoordinates:
     def get_queryset(self):
         set_coordinates = self.set_coordinates()
         if not set_coordinates:
@@ -40,13 +40,18 @@ class HospitalDistance:
 
     def get_default_coordinates(self, client):
         if 'testserver' in self.request.build_absolute_uri():
-            '''
-            서울시 강남구의 좌표
-            '''
             latitude = 37.517331925853
             longitude = 127.047377408384
             self.set_display_address('강남구')
             return [latitude, longitude]
+
+        location_cookie = self.request.COOKIES.get('location')
+        if location_cookie:
+            location = self.get_location_cookie(location_cookie)
+            return client.get_coordinates('station', location)
         station = random.choice(['강남역', '봉천역', '발산역', '노원역', '잠실역'])
         self.set_display_address(station)
         return client.get_coordinates('station', station)
+
+    def get_location_cookie(self, location_cookie):
+        return unquote(location_cookie)

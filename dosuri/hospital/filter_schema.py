@@ -63,11 +63,11 @@ class HospitalDistanceFilterSchema:
         return [
             coreapi.Field(
                 name=param, location='query', required=False,
-                schema=coreschema.String(title=f'{param} of user',
-                                         description=f'{param} of user')
+                schema=coreschema.String(title=f'{param}',
+                                         description=f'{param}')
             )
             for param
-            in view.hospital_distance_filter_params if param != 'distance'
+            in view.hospital_distance_filter_params
         ]
 
     def get_schema_operation_parameters(self, view):
@@ -76,11 +76,11 @@ class HospitalDistanceFilterSchema:
                 'name': param,
                 'in': 'query',
                 'required': False,
-                'description': f'{param} of user',
+                'description': f'{param}',
                 'schema': {'type': 'float'}
             }
             for param
-            in view.hospital_distance_filter_params if param != 'distance'
+            in view.hospital_distance_filter_params
         ]
 
 
@@ -161,4 +161,30 @@ class OpenedAtRangeFilterSchema:
                 },
                 'example': 'opened_at_range_to=2022-06-01T00:00:00+09:00'
             },
+        ]
+
+
+class MapTypeFilterSchema:
+    def get_schema_fields(self, view):
+        return [
+            coreapi.Field(
+                name='map_type', location='query', required=False,
+                schema=coreschema.String(title='type of map',
+                                         description='price or review'),
+                example='price'
+            )
+        ]
+
+    def get_schema_operation_parameters(self, view):
+        return [
+            {
+                'name': 'map_type',
+                'required': False,
+                'in': 'query',
+                'description': 'price or review',
+                'schema': {
+                    'type': 'string',
+                },
+                'example': 'price'
+            }
         ]

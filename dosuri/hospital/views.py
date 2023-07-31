@@ -1,11 +1,9 @@
-from datetime import timedelta
-from random import randint
-
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.expressions import ArraySubquery
 from django.db.models import OuterRef, Count, Subquery, Q, F, Avg, Func, Window
 from django.db.models.functions import Coalesce, RowNumber, DenseRank
-from django.utils import timezone
+from django.shortcuts import get_object_or_404
+from urllib.parse import quote
 from rest_framework.response import Response
 from rest_framework import (
     generics as g,
@@ -14,19 +12,13 @@ from rest_framework import (
     status,
 )
 
-from dosuri.common import models as cm
 from dosuri.common import (
     geocoding as cg
-)
-from dosuri.community import (
-    models as cmm,
-    constants as cmc,
 )
 from dosuri.hospital import (
     models as hm,
     serializers as s,
     filters as hf,
-    pagings as hp,
     constants as hc,
     view_mixins as hmx,
 )
@@ -39,20 +31,20 @@ class TempHospital(g.CreateAPIView):
     serializer_class = s.PostHospital
 
 
-class HospitalList(hmx.HospitalDistance, g.ListCreateAPIView):
+class HospitalList(hmx.HospitalCoordinates, g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
-                                                                                      'hospital_attachment_assoc__attachment').annotate_extra_fields()
+                                                                                      'hospital_attachment_assoc__attachment').annotate_article_related_fields()
     serializer_class = s.Hospital
     filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalSearchFilter, hf.HospitalDistanceFilter]
     ordering_field = '__all__'
     ordering = ['view_count']
     search_fields = ['name', 'area']
-    hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
+    hospital_distance_filter_params = ['distance_range', 'latitude', 'longitude']
     hospital_distance_range = None
 
 
-class HospitalNameList(hmx.HospitalDistance, g.ListCreateAPIView):
+class HospitalNameList(hmx.HospitalCoordinates, g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = hm.Hospital.objects.all()
     serializer_class = s.HospitalName
@@ -62,26 +54,51 @@ class HospitalNameList(hmx.HospitalDistance, g.ListCreateAPIView):
     search_fields = ['name']
 
 
-class HospitalAddressFilteredList(hmx.HospitalDistance, g.ListAPIView):
+class HospitalAddressFilteredList(hmx.HospitalCoordinates, g.ListAPIView):
     permission_classes = [p.AllowAny]
-    queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
-                                                                                      'hospital_attachment_assoc__attachment').annotate_extra_fields()
+    queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE) \
+        .prefetch_related('hospital_attachment_assoc', 'hospital_attachment_assoc__attachment') \
+        .annotate_article_related_fields()
     serializer_class = s.Hospital
     filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter]
     ordering_field = '__all__'
-    hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
+    hospital_distance_filter_params = ['distance_range', 'latitude', 'longitude']
     hospital_distance_range = 2
 
 
-class HospitalAddressFilteredAvgPriceList(hmx.HospitalDistance, g.ListAPIView):
+class HospitalAddressFilteredAvgPriceList(hmx.HospitalCoordinates, g.ListAPIView):
     permission_classes = [p.AllowAny]
-    queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).prefetch_related('hospital_attachment_assoc',
-                                                                                      'hospital_attachment_assoc__attachment').annotate_extra_fields().annotate_avg_price_per_hour()
-    serializer_class = s.GoodPriceHospital
+    queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE) \
+        .prefetch_related('hospital_attachment_assoc', 'hospital_attachment_assoc__attachment') \
+        .annotate_article_related_fields() \
+        .annotate_avg_price_per_hour() \
+        .filter_has_avg_price_per_hour()
+    serializer_class = s.HospitalWithPrice
     filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter, hf.AvgPricePerHourRangeFilter,
                        hf.OpenedAtRangeFilter]
     ordering_field = '__all__'
-    hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
+    hospital_distance_filter_params = ['distance_range', 'latitude', 'longitude']
+    hospital_distance_range = 2
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, args, kwargs)
+        if not request.COOKIES.get('location'):
+            response.set_cookie('location', quote(self.address), samesite='None', secure=True)
+        return response
+
+
+class HospitalMapList(hmx.HospitalCoordinates, g.ListAPIView):
+    permission_classes = [p.AllowAny]
+    pagination_class = None
+    queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE) \
+        .prefetch_related('hospital_attachment_assoc', 'hospital_attachment_assoc__attachment') \
+        .annotate_article_related_fields() \
+        .annotate_avg_price_per_hour()
+    serializer_class = s.HospitalWithPriceCoordinates
+    filter_backends = [hf.ExtraOrderingByIdFilter, hf.HospitalDistanceFilter, hf.AvgPricePerHourRangeFilter,
+                       hf.OpenedAtRangeFilter, hf.MapTypeFilter]
+    ordering_field = '__all__'
+    hospital_distance_filter_params = ['distance_range', 'latitude', 'longitude']
     hospital_distance_range = 2
 
 
@@ -294,12 +311,12 @@ class HospitalTreatmentList(g.ListCreateAPIView):
             coordinates = client.get_coordinates('station', station)
             latitude = coordinates[0]
             longitude = coordinates[1]
-            distance = 2
-            latitude_range = cg.get_latitude_range(latitude, distance)
-            longitude_range = cg.get_longitude_range(longitude, distance)
+            distance_range = 2
+            latitude_range = cg.get_latitude_range(latitude, distance_range)
+            longitude_range = cg.get_longitude_range(longitude, distance_range)
             hospital_with_avg_price_per_hour = hm.Hospital.objects.filter(latitude__range=latitude_range,
                                                                           longitude__range=longitude_range) \
-                .annotate_avg_price_per_hour().order_by('avg_price_per_hour')
+                .annotate_avg_price_per_hour().filter_has_avg_price_per_hour().order_by('avg_price_per_hour')
             count = 1
             for hospital in hospital_with_avg_price_per_hour:
                 if hospital.uuid == uuid:
@@ -331,13 +348,13 @@ class HospitalUserAssoc(g.CreateAPIView):
         serializer.save(user=self.request.user)
 
 
-class ManyReviewHospitalList(hmx.HospitalDistance, g.ListAPIView):
+class ManyReviewHospitalList(hmx.HospitalCoordinates, g.ListAPIView):
     pagination_class = None
     permission_classes = [p.AllowAny]
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).all()
     serializer_class = s.AroundHospital
     filter_backends = [hf.HospitalDistanceFilter]
-    hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
+    hospital_distance_filter_params = ['distance_range', 'latitude', 'longitude']
     hospital_distance_range = 2
 
     def list(self, request, *args, **kwargs):
@@ -349,13 +366,13 @@ class ManyReviewHospitalList(hmx.HospitalDistance, g.ListAPIView):
         return Response(serializer.data)
 
 
-class HomeHospitalList(hmx.HospitalDistance, g.ListAPIView):
+class HomeHospitalList(hmx.HospitalCoordinates, g.ListAPIView):
     pagination_class = None
     permission_classes = [p.AllowAny]
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE).all()
     serializer_class = s.HomeHospital
     filter_backends = [hf.HospitalDistanceFilter]
-    hospital_distance_filter_params = ['distance', 'latitude', 'longitude']
+    hospital_distance_filter_params = ['distance_range', 'latitude', 'longitude']
     hospital_distance_range = 2
 
     def list(self, request, *args, **kwargs):
@@ -368,7 +385,7 @@ class HomeHospitalList(hmx.HospitalDistance, g.ListAPIView):
         new_hospital_serializer = s.AroundHospital(new_hospital_queryset, many=True)
 
         good_price_hospital_queryset = queryset.get_good_price_hospital_queryset()
-        good_price_hospital_serializer = s.GoodPriceHospital(good_price_hospital_queryset, many=True)
+        good_price_hospital_serializer = s.HospitalWithPrice(good_price_hospital_queryset, many=True)
 
         many_review_hospital_queryset = queryset.get_many_review_hospital_queryset()
         many_review_hospital_serializer = s.AroundHospital(many_review_hospital_queryset, many=True)
@@ -432,3 +449,14 @@ class HospitalReservation(g.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class HospitalContactPointList(g.ListAPIView):
+    permission_classes = [p.IsAuthenticated]
+    queryset = hm.HospitalContactPoint.objects.all()
+    serializer_class = s.HospitalContactPoint
+
+    def get_queryset(self):
+        hospital_uuid = self.kwargs['uuid']
+        hospital = get_object_or_404(hm.Hospital, uuid=hospital_uuid)
+        return self.queryset.filter(hospital=hospital)

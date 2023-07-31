@@ -158,13 +158,14 @@ class TestAddressFilteredHospitalList:
 
 class TestHospitalDetail:
     @pytest.mark.django_db
-    def test_get_hospital_by_uuid(self, client, hospital_test_강남):
+    def test_get_hospital_by_uuid(self, client, hospital_test_강남, hospital_test_parking_info_강남):
         response = client.get(f'/hospital/v1/hospitals/{hospital_test_강남.uuid}')
         content = json.loads(response.content)
         assert response.status_code == 200
         assert content['name'] == hospital_test_강남.name
         assert content['latitude'] == hospital_test_강남.latitude
         assert content['longitude'] == hospital_test_강남.longitude
+        assert content['parking_info'][0]['description'] == hospital_test_parking_info_강남.description
 
 
 class TestDoctor:
@@ -391,3 +392,33 @@ class TestHospitalName:
         content = json.loads(response.content)
         assert content['count'] == 1
         assert content['results'][0]['uuid'] == hospital_test_강남.uuid
+
+
+class TestHospitalMap:
+    @pytest.mark.django_db
+    def test_list_hospital_map(self, client, hospital_test_강남, hospital_test_수원):
+        headers = {
+            'content_type': 'application/json'
+        }
+        latitude = 37.2762816
+        longitude = 127.0433978
+
+        response = client.get(f'/hospital/v1/hospitals/map?distance_range=3&latitude={latitude}&longitude={longitude}',
+                              **headers)
+
+        assert response.status_code == 200
+
+
+class TestHospitalContactPoint:
+    @pytest.mark.django_db
+    def test_list_hospital_contact_point(self, client, tokens_user_dummy, hospital_test_강남,
+                                         hospital_test_강남_contact_counseling):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        response = client.get(f'/hospital/v1/hospitals/{hospital_test_강남.uuid}/contact-points', **headers)
+        assert response.status_code == 200
+        content = json.loads(response.content)
+        print(content)
+        assert content['results'][0]['uuid'] == hospital_test_강남_contact_counseling.uuid
