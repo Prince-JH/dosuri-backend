@@ -40,7 +40,7 @@ CORS_ORIGIN_WHITELIST = [
     'http://localhost:8000',
     'http://localhost:3000',
     'https://dosuri-front-dev.vercel.app',
-    'https://dosuri.site',
+    'https://www.dosuri.site',
     'https://server.dosuri.site',
     'https://dev-server.dosuri.site'
 ]
