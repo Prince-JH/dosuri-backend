@@ -39,7 +39,8 @@ def es_middleware(get_response):
                 request_headers = {}
 
             response = get_response(request)
-
+            return response
+            
             keys = response.__dict__.keys()
             if request.user.is_authenticated:
                 username = request.user.username
