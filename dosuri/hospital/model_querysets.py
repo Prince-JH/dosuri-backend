@@ -98,9 +98,11 @@ class HospitalQuerySet(QuerySet):
         d_long = (F('longitude') - longitude) * 88.80
         return self.annotate(distance=Sqrt((d_lat * d_lat) + (d_long * d_long)))
 
-    def get_top_hospital_queryset(self):
-        return self.annotate_article_related_fields().annotate(top_count=F('up_count') + F('article_count')).order_by(
-            '-top_count')[:3]
+    def get_ad_hospital_queryset(self, latitude, longitude, distance_range):
+        latitude_range = cg.get_latitude_range(latitude, distance_range)
+        longitude_range = cg.get_longitude_range(longitude, distance_range)
+        return self.filter(latitude__range=latitude_range, longitude__range=longitude_range,
+                           is_ad=True).annotate_article_related_fields()
 
     def get_new_hospital_queryset(self, showing_number=3):
         now = timezone.now()
