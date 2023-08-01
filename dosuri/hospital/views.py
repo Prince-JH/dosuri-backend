@@ -378,8 +378,11 @@ class HomeHospitalList(hmx.HospitalCoordinates, g.ListAPIView):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset()).prefetch_related('hospital_attachment_assoc',
                                                                               'hospital_attachment_assoc__attachment')
-        top_hospital_queryset = queryset.get_good_review_hospital_queryset()
-        top_hospital_serializer = s.AroundHospital(top_hospital_queryset, many=True)
+        ad_hospital_queryset = queryset.get_ad_hospital_queryset(self.latitude, self.longitude,
+                                                                 self.hospital_distance_range)
+        top_hospital_queryset = queryset.get_good_review_hospital_queryset(3 - ad_hospital_queryset.count())
+        top_hospital_serializer = s.AroundHospital((ad_hospital_queryset | top_hospital_queryset).order_by('-is_ad'),
+                                                   many=True)
 
         new_hospital_queryset = queryset.get_new_hospital_queryset()
         new_hospital_serializer = s.AroundHospital(new_hospital_queryset, many=True)
