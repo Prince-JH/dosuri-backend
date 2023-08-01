@@ -5,17 +5,20 @@ from django.db.models import QuerySet, Count, Subquery, OuterRef, Func, F
 from django.db.models.functions import Coalesce, Sqrt
 from django.utils import timezone
 
-from dosuri.common import models as cm
+from dosuri.common import (
+    models as cm,
+    geocoding as cg
+)
 from dosuri.community import constants as cmc
 from dosuri.hospital import models as hm
 from django.apps import apps
 
 
-def get_rand_ids(ids):
-    if len(ids) < 3:
+def get_rand_ids(ids, showing_count=3):
+    if len(ids) < showing_count:
         return list(ids)
     indexes = []
-    while len(indexes) < 3:
+    while len(indexes) < showing_count:
         index = randint(0, len(ids) - 1)
         if index not in indexes:
             indexes.append(index)
@@ -113,16 +116,16 @@ class HospitalQuerySet(QuerySet):
             ids = get_rand_ids(ids)
         return self.filter(id__in=ids).annotate_article_related_fields()
 
-    def get_good_review_hospital_queryset(self, showing_number=3):
+    def get_good_review_hospital_queryset(self, showing_count=3):
         count = self.count()
         if count == 0:
             return self.none()
-        elif count // 2 >= showing_number:
+        elif count // 2 >= showing_count:
             count //= 2
         qs = self.annotate_article_count().order_by('article_count')
         article_count = qs[count - 1].article_count
         ids = qs.filter(article_count__gte=article_count).values_list('id', flat=True)
-        rand_ids = get_rand_ids(ids)
+        rand_ids = get_rand_ids(ids, showing_count)
         return qs.annotate_article_related_fields().filter(id__in=rand_ids)
 
     def get_many_review_hospital_queryset(self, showing_number=3):
