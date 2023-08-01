@@ -133,7 +133,7 @@ class Doctor(models.Model):
 
     class Meta:
         db_table = 'doctor'
-        ordering = ['-id']
+        ordering = ['id']
 
 
 class DoctorAttachmentAssoc(models.Model):
