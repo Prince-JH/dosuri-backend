@@ -84,6 +84,8 @@ def hospital_test_강남():
         latitude=37.517331925853,
         longitude=127.047377408384,
         opened_at=pendulum.datetime(2023, 1, 1),
+        parking_info='가능',
+        is_ad=True,
         status=hc.HOSPITAL_ACTIVE
     )
 
@@ -95,6 +97,7 @@ def hospital_test_수원():
         latitude=37.2826740965805,
         longitude=127.020135072307,
         opened_at=pendulum.datetime(2020, 1, 1),
+        is_ad=True,
         status=hc.HOSPITAL_ACTIVE
     )
 
@@ -420,12 +423,4 @@ def hospital_test_강남_contact_counseling(hospital_test_강남):
         hospital=hospital_test_강남,
         contact_type=hc.CONTACT_TYPE_COUNSEL,
         contact_point='01012345678'
-    )
-
-
-@pytest.fixture
-def hospital_test_parking_info_강남(hospital_test_강남):
-    return hm.HospitalParkingInfo.objects.create(
-        hospital=hospital_test_강남,
-        description='가능'
     )
