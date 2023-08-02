@@ -19,12 +19,37 @@ class Command(BaseCommand):
 
 
 def set_ad_hospitals():
+    '''
+    uuid list
+    '5ac876e6854046138e5046e791f7c0a4',
+    '707efe51835e4f00a7303bf93fbdcb68',
+    '7c50b604795241c2bba20092fea30985',
+    'eea505963f6b42b196a9ab8323aaeb30',
+    '2d428b50aa154acb974c77d644f0d1c2',
+    'e937fd1a8edc47a59abd75e9460b4a4d',
+    '2239672a5871420789c6706348e4bb00',
+    'f692fb42f16f40faba5ddd4797c43307',
+    'fa16dda351414611aaf8ee95e3932313',
+    '3943fc3a625441309ba96f167fee7f89',
+    '3712179b179c467e80f11432a6d92f5c',
+    '9ef408f73a4c43c7b3cca4b34594ca91',
+    '932567da4f1a4219b57657c33f9d3ba0',
+    '63df2fb536584b8f8b9d177e8d5e4a27',
+    '62b067fe722c4f39a7c450bb9de2b0ee',
+    'c1a284f75fcb493bb93dc0169d164faa',
+    'f328b8570a444a76bc96f1f39d6e2c9f',
+    '41e61e57eca14d37a9acef5630e13ac4',
+    'cd306517c9ae487ebeadb150671b6276',
+    '810860b9887240e7a603e5ca0c34f933',
+    '4e691ba154b44f74bdbc630e3d5c9641',
+    'c285aa9b47444fb2a852a8598e7b7173'
+    '''
     # 판교정형외과의원
     hospital = hm.Hospital.objects.get(uuid='5ac876e6854046138e5046e791f7c0a4')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
-    create_parking_info(hospital, '가능')
     create_calendar(
         hospital=hospital,
         monday='09:00 ~ 19:30',
@@ -66,8 +91,8 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='707efe51835e4f00a7303bf93fbdcb68')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
-    create_parking_info(hospital, '가능')
     create_calendar(
         hospital=hospital,
         monday='09:00 ~ 17:40',
@@ -316,8 +341,8 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='7c50b604795241c2bba20092fea30985')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
-    create_parking_info(hospital, '가능')
     create_calendar(
         hospital=hospital,
         monday='09:30 ~ 20:00',
@@ -359,8 +384,8 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='eea505963f6b42b196a9ab8323aaeb30')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
-    create_parking_info(hospital, '가능')
     create_calendar(
         hospital=hospital,
         monday='09:30 ~ 20:00',
@@ -403,8 +428,8 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='2d428b50aa154acb974c77d644f0d1c2')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
-    create_parking_info(hospital, '가능')
     create_calendar(
         hospital=hospital,
         monday='09:00 ~ 20:00',
@@ -443,8 +468,8 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='e937fd1a8edc47a59abd75e9460b4a4d')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
-    create_parking_info(hospital, '가능')
     create_calendar(
         hospital=hospital,
         monday='09:00 ~ 18:30',
@@ -577,8 +602,8 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='2239672a5871420789c6706348e4bb00')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
-    create_parking_info(hospital, '가능')
     create_calendar(
         hospital=hospital,
         monday='09:00 ~ 19:00',
@@ -644,8 +669,8 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='f692fb42f16f40faba5ddd4797c43307')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
-    create_parking_info(hospital, '가능')
     create_calendar(
         hospital=hospital,
         monday='09:30 ~ 19:30',
@@ -692,8 +717,8 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='fa16dda351414611aaf8ee95e3932313')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
-    create_parking_info(hospital, '가능')
     create_calendar(
         hospital=hospital,
         monday='09:30 ~ 19:00',
@@ -730,8 +755,8 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='3943fc3a625441309ba96f167fee7f89')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
-    create_parking_info(hospital, '가능')
     create_calendar(
         hospital=hospital,
         monday='09:00 ~ 19:00',
@@ -773,8 +798,8 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='3712179b179c467e80f11432a6d92f5c')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
-    create_parking_info(hospital, '가능')
     create_calendar(
         hospital=hospital,
         monday='09:00 ~ 20:00',
@@ -863,8 +888,8 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='9ef408f73a4c43c7b3cca4b34594ca91')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
-    create_parking_info(hospital, '가능')
     create_calendar(
         hospital=hospital,
         monday='09:00 ~ 18:30',
@@ -907,8 +932,8 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='932567da4f1a4219b57657c33f9d3ba0')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
-    create_parking_info(hospital, '가능')
     create_calendar(
         hospital=hospital,
         monday='09:00 ~ 20:00',
@@ -975,8 +1000,8 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='63df2fb536584b8f8b9d177e8d5e4a27')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
-    create_parking_info(hospital, '가능')
     create_calendar(
         hospital=hospital,
         monday='09:00 ~ 20:00',
@@ -1011,8 +1036,8 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='62b067fe722c4f39a7c450bb9de2b0ee')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
-    create_parking_info(hospital, '가능')
     create_calendar(
         hospital=hospital,
         monday='09:30 ~ 20:00',
@@ -1092,8 +1117,8 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='c1a284f75fcb493bb93dc0169d164faa')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
-    create_parking_info(hospital, '가능')
     create_calendar(
         hospital=hospital,
         monday='09:00 ~ 19:00',
@@ -1126,8 +1151,8 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='f328b8570a444a76bc96f1f39d6e2c9f')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
-    create_parking_info(hospital, '가능')
     create_calendar(
         hospital=hospital,
         monday='09:30 ~ 20:00',
@@ -1158,8 +1183,8 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='41e61e57eca14d37a9acef5630e13ac4')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
-    create_parking_info(hospital, '가능')
     create_calendar(
         hospital=hospital,
         monday='09:00 ~ 19:00',
@@ -1221,6 +1246,7 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='cd306517c9ae487ebeadb150671b6276')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
     create_calendar(
         hospital=hospital,
@@ -1311,6 +1337,7 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='810860b9887240e7a603e5ca0c34f933')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
     create_calendar(
         hospital=hospital,
@@ -1362,6 +1389,7 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='4e691ba154b44f74bdbc630e3d5c9641')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
     create_calendar(
         hospital=hospital,
@@ -1397,6 +1425,7 @@ def set_ad_hospitals():
     hospital = hm.Hospital.objects.get(uuid='c285aa9b47444fb2a852a8598e7b7173')
     print(hospital.name)
     hospital.is_ad = True
+    hospital.parking_info = '가능'
     hospital.save()
     create_calendar(
         hospital=hospital,
