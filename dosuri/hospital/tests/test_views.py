@@ -158,14 +158,14 @@ class TestAddressFilteredHospitalList:
 
 class TestHospitalDetail:
     @pytest.mark.django_db
-    def test_get_hospital_by_uuid(self, client, hospital_test_강남, hospital_test_parking_info_강남):
+    def test_get_hospital_by_uuid(self, client, hospital_test_강남):
         response = client.get(f'/hospital/v1/hospitals/{hospital_test_강남.uuid}')
         content = json.loads(response.content)
         assert response.status_code == 200
         assert content['name'] == hospital_test_강남.name
         assert content['latitude'] == hospital_test_강남.latitude
         assert content['longitude'] == hospital_test_강남.longitude
-        assert content['parking_info'][0]['description'] == hospital_test_parking_info_강남.description
+        assert content['parking_info'] == hospital_test_강남.parking_info
 
 
 class TestDoctor:
