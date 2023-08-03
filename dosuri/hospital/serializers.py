@@ -255,10 +255,7 @@ class DoctorAttachmentAssoc(s.ModelSerializer):
 
 class Doctor(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
-    hospital: s.Field = s.SlugRelatedField(
-        slug_field='uuid',
-        queryset=hm.Hospital.objects.all()
-    )
+    hospital_name: s.Field = s.CharField(source='hospital.name')
     attachments: s.Field = DoctorAttachmentAssoc(many=True, source='doctor_attachment_assoc')
     name: s.Field = s.CharField()
     title: s.Field = s.CharField(allow_null=True)
