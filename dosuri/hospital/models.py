@@ -23,6 +23,7 @@ class Hospital(models.Model):
     introduction = models.CharField(max_length=512, null=True)
     area = models.CharField(max_length=32, null=True)
     phone_no = models.CharField(max_length=32, null=True)
+    parking_info = models.CharField(max_length=32, null=True)
     view_count = models.IntegerField(default=0)
     is_partner = models.BooleanField(default=False)
     is_ad = models.BooleanField(default=False)
@@ -112,16 +113,6 @@ class HospitalKeywordAssoc(models.Model):
         ordering = ['-id']
 
 
-class HospitalParkingInfo(models.Model):
-    uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
-    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_parking_info')
-    description = models.CharField(max_length=100)
-
-    class Meta:
-        db_table = 'hospital_parking_info'
-        ordering = ['-id']
-
-
 class Doctor(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='doctor')
@@ -133,7 +124,7 @@ class Doctor(models.Model):
 
     class Meta:
         db_table = 'doctor'
-        ordering = ['-id']
+        ordering = ['id']
 
 
 class DoctorAttachmentAssoc(models.Model):
