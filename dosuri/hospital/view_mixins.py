@@ -1,7 +1,8 @@
 import random
+from datetime import timedelta
 
 from django.contrib.auth.models import AnonymousUser
-from urllib.parse import unquote
+from urllib.parse import unquote, quote
 from dosuri.common import geocoding as cg
 from dosuri.user import models as um
 
@@ -45,6 +46,27 @@ class HospitalCoordinates:
             self.set_display_address('강남구')
             return [latitude, longitude]
 
+        location = random.choice(['강남역', '봉천역', '발산역', '노원역', '잠실역'])
+        self.set_display_address(location)
+        return client.get_coordinates('station', location)
+
+    def get_location_cookie(self, location_cookie):
+        return unquote(location_cookie)
+
+    def set_location_cookie(self):
+        if isinstance(self.request.user, AnonymousUser) and not self.request.COOKIES.get('location'):
+            self.response.set_cookie('location', quote(self.address), samesite='None', secure=True,
+                                     max_age=timedelta(days=1).total_seconds())
+
+
+class HospitalSyncCoordinates(HospitalCoordinates):
+    def get_default_coordinates(self, client):
+        if 'testserver' in self.request.build_absolute_uri():
+            latitude = 37.517331925853
+            longitude = 127.047377408384
+            self.set_display_address('강남구')
+            return [latitude, longitude]
+
         location_cookie = self.request.COOKIES.get('location')
         if location_cookie:
             location = self.get_location_cookie(location_cookie)
@@ -52,6 +74,3 @@ class HospitalCoordinates:
             location = random.choice(['강남역', '봉천역', '발산역', '노원역', '잠실역'])
         self.set_display_address(location)
         return client.get_coordinates('station', location)
-
-    def get_location_cookie(self, location_cookie):
-        return unquote(location_cookie)

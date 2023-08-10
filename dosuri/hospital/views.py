@@ -1,12 +1,9 @@
-from datetime import timedelta
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AnonymousUser
 from django.contrib.postgres.expressions import ArraySubquery
 from django.db.models import OuterRef, Count, Subquery, Q, F, Avg, Func, Window
 from django.db.models.functions import Coalesce, RowNumber, DenseRank
 from django.shortcuts import get_object_or_404
-from urllib.parse import quote
 from rest_framework.response import Response
 from rest_framework import (
     generics as g,
@@ -69,7 +66,7 @@ class HospitalAddressFilteredList(hmx.HospitalCoordinates, g.ListAPIView):
     hospital_distance_range = 2
 
 
-class HospitalAddressFilteredAvgPriceList(hmx.HospitalCoordinates, g.ListAPIView):
+class HospitalAddressFilteredAvgPriceList(hmx.HospitalSyncCoordinates, g.ListAPIView):
     permission_classes = [p.AllowAny]
     queryset = hm.Hospital.objects.filter(status=hc.HOSPITAL_ACTIVE) \
         .prefetch_related('hospital_attachment_assoc', 'hospital_attachment_assoc__attachment') \
@@ -85,9 +82,7 @@ class HospitalAddressFilteredAvgPriceList(hmx.HospitalCoordinates, g.ListAPIView
 
     def get(self, request, *args, **kwargs):
         response = super().get(request, args, kwargs)
-        if isinstance(self.request.user, AnonymousUser) and not request.COOKIES.get('location'):
-            response.set_cookie('location', quote(self.address), samesite='None', secure=True,
-                                max_age=timedelta(days=1).total_seconds())
+        self.set_location_cookie()
         return response
 
 
@@ -405,6 +400,7 @@ class HomeHospitalList(hmx.HospitalCoordinates, g.ListAPIView):
                                           'good_price_hospitals': good_price_hospital_serializer.data,
                                           'many_review_hospitals': many_review_hospital_serializer.data,
                                           'new_review_hospitals': new_review_hospital_serializer.data})
+        self.set_location_cookie()
         return Response(serializer.data)
 
 
