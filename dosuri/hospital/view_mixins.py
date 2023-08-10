@@ -55,8 +55,7 @@ class HospitalCoordinates:
 
     def set_location_cookie(self, response):
         if isinstance(self.request.user, AnonymousUser) and not self.request.COOKIES.get('location'):
-            response.set_cookie('location', quote(self.address), samesite='None', secure=True,
-                                max_age=timedelta(days=1).total_seconds())
+            response.set_cookie('location', quote(self.address), samesite='None', secure=True)
 
 
 class HospitalSyncCoordinates(HospitalCoordinates):
