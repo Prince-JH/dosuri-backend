@@ -82,7 +82,7 @@ class HospitalAddressFilteredAvgPriceList(hmx.HospitalSyncCoordinates, g.ListAPI
 
     def get(self, request, *args, **kwargs):
         response = super().get(request, args, kwargs)
-        self.set_location_cookie()
+        self.set_location_cookie(response)
         return response
 
 
@@ -400,8 +400,9 @@ class HomeHospitalList(hmx.HospitalCoordinates, g.ListAPIView):
                                           'good_price_hospitals': good_price_hospital_serializer.data,
                                           'many_review_hospitals': many_review_hospital_serializer.data,
                                           'new_review_hospitals': new_review_hospital_serializer.data})
-        self.set_location_cookie()
-        return Response(serializer.data)
+        response = Response(serializer.data)
+        self.set_location_cookie(response)
+        return response
 
 
 class HospitalSearch(g.ListCreateAPIView):
