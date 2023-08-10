@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.postgres.expressions import ArraySubquery
@@ -83,8 +85,9 @@ class HospitalAddressFilteredAvgPriceList(hmx.HospitalCoordinates, g.ListAPIView
 
     def get(self, request, *args, **kwargs):
         response = super().get(request, args, kwargs)
-        if not request.COOKIES.get('location') and isinstance(self.request.user, AnonymousUser):
-            response.set_cookie('location', quote(self.address), samesite='None', secure=True)
+        if isinstance(self.request.user, AnonymousUser) and not request.COOKIES.get('location'):
+            response.set_cookie('location', quote(self.address), samesite='None', secure=True,
+                                max_age=timedelta(days=1).total_seconds())
         return response
 
 
