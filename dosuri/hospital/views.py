@@ -1,8 +1,7 @@
-
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.expressions import ArraySubquery
-from django.db.models import OuterRef, Count, Subquery, Q, F, Avg, Func, Window
-from django.db.models.functions import Coalesce, RowNumber, DenseRank
+from django.db.models import OuterRef, Subquery
+from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import (
@@ -274,7 +273,7 @@ class DoctorKeywordAssocDetail(g.RetrieveUpdateDestroyAPIView):
     lookup_field = 'uuid'
 
 
-class HospitalTreatmentList(g.ListCreateAPIView):
+class HospitalTreatmentList(hmx.HospitalPrice, hmx.HospitalRank, g.ListCreateAPIView):
     permission_classes = [p.AllowAny]
     queryset = hm.HospitalTreatment.objects.select_related('hospital').all()
     serializer_class = s.HospitalTreatment
@@ -286,49 +285,8 @@ class HospitalTreatmentList(g.ListCreateAPIView):
     def list(self, request, *args, **kwargs):
         res = super().list(request, *args, **kwargs)
         res.data['price_per_hour'] = self.get_avg_price_per_hour(res.data['results'])
-        res.data['hospital_rank'] = self.get_hospital_rank(request)
+        res.data['hospital_rank'] = self.get_hospital_rank(request, cg.KaKaoGeoClient())
         return res
-
-    def get_avg_price_per_hour(self, results):
-        prices = []
-        for result in results:
-            price = result['price_per_hour']
-            if price:
-                prices.append(price)
-        return sum(prices) / len(prices) if len(prices) > 0 else None
-
-    def get_hospital_rank(self, request):
-        uuid = request.GET.get('hospital')
-        if not uuid:
-            return None
-        try:
-            hospital = hm.Hospital.objects.get(uuid=uuid)
-            if not hospital.is_partner:
-                return None
-            client = cg.KaKaoGeoClient()
-            station = hospital.near_site
-            coordinates = client.get_coordinates('station', station)
-            latitude = coordinates[0]
-            longitude = coordinates[1]
-            distance_range = 2
-            latitude_range = cg.get_latitude_range(latitude, distance_range)
-            longitude_range = cg.get_longitude_range(longitude, distance_range)
-            hospital_with_avg_price_per_hour = hm.Hospital.objects.filter(latitude__range=latitude_range,
-                                                                          longitude__range=longitude_range) \
-                .annotate_avg_price_per_hour().filter_has_avg_price_per_hour().order_by('avg_price_per_hour')
-            count = 1
-            for hospital in hospital_with_avg_price_per_hour:
-                if hospital.uuid == uuid:
-                    rank = count
-                count += 1
-
-            return {'near_site': station, 'near_site_latitude': latitude, 'near_site_longitude': longitude,
-                    'rank': rank, 'total_count': hospital_with_avg_price_per_hour.count(),
-                    'avg_price_per_hour':
-                        hospital_with_avg_price_per_hour.aggregate(total_avg_price_per_hour=Avg('avg_price_per_hour'))[
-                            'total_avg_price_per_hour']}
-        except hm.Hospital.objects.model.DoesNotExist:
-            return None
 
 
 class HospitalTreatmentDetail(g.RetrieveUpdateDestroyAPIView):
