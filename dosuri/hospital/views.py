@@ -285,7 +285,7 @@ class HospitalTreatmentList(hmx.HospitalPrice, hmx.HospitalRank, g.ListCreateAPI
     def list(self, request, *args, **kwargs):
         res = super().list(request, *args, **kwargs)
         res.data['price_per_hour'] = self.get_avg_price_per_hour(res.data['results'])
-        res.data['hospital_rank'] = self.get_hospital_rank(request, cg.KaKaoGeoClient())
+        res.data['hospital_rank'] = self.get_data_with_rank(request, cg.KaKaoGeoClient())
         return res
 
 
