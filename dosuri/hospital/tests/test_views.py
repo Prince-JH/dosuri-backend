@@ -420,5 +420,4 @@ class TestHospitalContactPoint:
         response = client.get(f'/hospital/v1/hospitals/{hospital_test_강남.uuid}/contact-points', **headers)
         assert response.status_code == 200
         content = json.loads(response.content)
-        print(content)
         assert content['results'][0]['uuid'] == hospital_test_강남_contact_counseling.uuid
