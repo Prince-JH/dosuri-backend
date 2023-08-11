@@ -122,7 +122,7 @@ class HospitalRank:
             hospital_with_avg_price_per_hour = hm.Hospital.objects.filter(latitude__range=latitude_range,
                                                                           longitude__range=longitude_range) \
                 .annotate_avg_price_per_hour().filter_has_avg_price_per_hour().order_by('avg_price_per_hour')
-            rank = self.get_hospital_rank(hospital_with_avg_price_per_hour)
+            rank = self.get_hospital_rank(hospital_with_avg_price_per_hour, target_uuid)
 
             return {'near_site': station, 'near_site_latitude': latitude, 'near_site_longitude': longitude,
                     'rank': rank, 'total_count': hospital_with_avg_price_per_hour.count(),
