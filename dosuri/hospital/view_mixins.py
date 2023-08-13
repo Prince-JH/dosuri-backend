@@ -89,20 +89,14 @@ class HospitalPrice:
 
 class HospitalRank:
     def get_hospital_rank(self, hospital_with_avg_price_per_hour, target_uuid):
-        count = 0
+        rank = 0
         last_avg_price_per_hour = None
-        for hospital in hospital_with_avg_price_per_hour:
+        for count, hospital in enumerate(hospital_with_avg_price_per_hour):
+            if last_avg_price_per_hour != hospital.avg_price_per_hour:
+                rank = count + 1
             if hospital.uuid == target_uuid:
-                if last_avg_price_per_hour == hospital.avg_price_per_hour:
-                    rank = count
-                    break
-                else:
-                    count += 1
-                    rank = count
-                    break
+                return rank
             last_avg_price_per_hour = hospital.avg_price_per_hour
-            count += 1
-        return rank
 
     def get_data_with_rank(self, request, client):
         target_uuid = request.GET.get('hospital')
