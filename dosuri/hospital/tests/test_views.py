@@ -233,7 +233,7 @@ class TestHospitalTreatment:
         assert len(content['results']) == 0
 
     @pytest.mark.django_db
-    def test_list_hospital_treatment_should_return_one(self, client, hospital_treatments_test_A):
+    def test_list_hospital_treatment_should_return_one(self, client, hospital_treatments_test_hospital_강남):
         response = client.get(f'/hospital/v1/hospital-treatments')
         content = json.loads(response.content)
 
