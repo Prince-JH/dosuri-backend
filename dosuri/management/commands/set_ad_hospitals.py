@@ -734,7 +734,7 @@ def set_ad_hospitals():
         hospital=hospital,
         name='박성만',
         title='원장',
-        subtitle='척추 수술 전의',
+        subtitle='척추 수술 전문의',
         position='의사'
     )
     descriptions = [
@@ -1495,13 +1495,6 @@ def set_ad_hospitals():
     create_descriptions(doctor, descriptions)
 
 
-def create_parking_info(hospital, description):
-    return hm.HospitalParkingInfo.objects.create(
-        hospital=hospital,
-        description=description
-    )
-
-
 def create_calendar(hospital, monday, tuesday, wednesday, thursday, friday, saturday, sunday):
     return hm.HospitalCalendar.objects.create(
         hospital=hospital,
@@ -1535,12 +1528,18 @@ def create_descriptions(doctor, descriptions):
 
 def create_keywords(doctor, keywords):
     for keyword in keywords:
-        keyword = hm.DoctorKeyword.objects.filter(
+        keyword_qs = hm.DoctorKeyword.objects.filter(
             name=keyword
         )
-        if keyword.exists():
-            keyword = keyword[0]
-            hm.DoctorKeywordAssoc.objects.create(
+        if keyword_qs.exists():
+            keyword_obj = keyword_qs.first()
+        else:
+            keyword_obj = hm.DoctorKeyword.objects.create(
+                name=keyword,
+                is_custom=False
+            )
+        if not hm.DoctorKeywordAssoc.objects.filter(doctor=doctor, keyword=keyword_obj).exists():
+            assoc = hm.DoctorKeywordAssoc.objects.create(
                 doctor=doctor,
-                keyword=keyword
+                keyword=keyword_obj
             )

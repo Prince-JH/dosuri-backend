@@ -116,7 +116,7 @@ class TestHospitalDistanceFilter:
 class TestAvgPricePerHourRangeFilter:
     @pytest.mark.django_db
     def test_filter_within_0_to_100000(
-            self, rf, hospital_treatments_test_A):
+            self, rf, hospital_treatments_test_hospital_강남):
         url = f'/?price_range_from=0&price_range_to=100000'
         request = rf.get(url)
         queryset = hm.Hospital.objects.all()
@@ -129,7 +129,7 @@ class TestAvgPricePerHourRangeFilter:
 
     @pytest.mark.django_db
     def test_filter_within_100000_to_200000(
-            self, rf, hospital_treatments_test_A):
+            self, rf, hospital_treatments_test_hospital_강남):
         url = f'/?price_range_from=100000&price_range_to=200000'
         request = rf.get(url)
         queryset = hm.Hospital.objects.all()

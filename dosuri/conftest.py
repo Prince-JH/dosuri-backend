@@ -101,6 +101,40 @@ def hospital_test_수원():
         status=hc.HOSPITAL_ACTIVE
     )
 
+@pytest.fixture
+def hospital_test_수원_C():
+    return hm.Hospital.objects.create(
+        name='test_C',
+        latitude=37.2826740965805,
+        longitude=127.020135072307,
+        opened_at=pendulum.datetime(2020, 1, 1),
+        is_ad=True,
+        status=hc.HOSPITAL_ACTIVE
+    )
+
+@pytest.fixture
+def hospital_test_수원_D():
+    return hm.Hospital.objects.create(
+        name='test_D',
+        latitude=37.2826740965805,
+        longitude=127.020135072307,
+        opened_at=pendulum.datetime(2020, 1, 1),
+        is_ad=True,
+        status=hc.HOSPITAL_ACTIVE
+    )
+
+
+
+@pytest.fixture
+def hospital_test_수원_E():
+    return hm.Hospital.objects.create(
+        name='test_E',
+        latitude=37.2826740965805,
+        longitude=127.020135072307,
+        opened_at=pendulum.datetime(2020, 1, 1),
+        is_ad=True,
+        status=hc.HOSPITAL_ACTIVE
+    )
 
 @pytest.fixture
 def hospital_test_C():
@@ -238,7 +272,7 @@ def doctor_A_keyword_A_assoc(doctor_A_hospital_A, doctor_keyword_A):
 
 
 @pytest.fixture
-def hospital_treatments_test_A(hospital_test_강남):
+def hospital_treatments_test_hospital_강남(hospital_test_강남):
     return hm.HospitalTreatment.objects.create(
         name='treatment_A',
         hospital=hospital_test_강남,
@@ -249,12 +283,42 @@ def hospital_treatments_test_A(hospital_test_강남):
 
 
 @pytest.fixture
-def hospital_treatments_A_hospital_B(hospital_test_수원):
+def hospital_treatments_A_hospital_수원(hospital_test_수원):
     return hm.HospitalTreatment.objects.create(
         name='treatment_A',
         hospital=hospital_test_수원,
         price=80000,
         price_per_hour=160000,
+        description=None
+    )
+
+@pytest.fixture
+def hospital_treatments_A_hospital_수원_C(hospital_test_수원_C):
+    return hm.HospitalTreatment.objects.create(
+        name='treatment_A',
+        hospital=hospital_test_수원_C,
+        price=80000,
+        price_per_hour=150000,
+        description=None
+    )
+
+@pytest.fixture
+def hospital_treatments_A_hospital_수원_D(hospital_test_수원_D):
+    return hm.HospitalTreatment.objects.create(
+        name='treatment_A',
+        hospital=hospital_test_수원_D,
+        price=80000,
+        price_per_hour=140000,
+        description=None
+    )
+
+@pytest.fixture
+def hospital_treatments_A_hospital_수원_E(hospital_test_수원_E):
+    return hm.HospitalTreatment.objects.create(
+        name='treatment_A',
+        hospital=hospital_test_수원_E,
+        price=80000,
+        price_per_hour=200000,
         description=None
     )
 
