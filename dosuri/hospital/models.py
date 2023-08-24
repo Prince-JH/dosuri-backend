@@ -20,7 +20,7 @@ class Hospital(models.Model):
     code = models.CharField(max_length=128, null=True)
     address = models.CharField(max_length=128, null=True)
     name = models.CharField(max_length=128)
-    introduction = models.CharField(max_length=512, null=True)
+    introduction = models.CharField(max_length=1024, null=True)
     area = models.CharField(max_length=32, null=True)
     phone_no = models.CharField(max_length=32, null=True)
     parking_info = models.CharField(max_length=32, null=True)
