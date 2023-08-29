@@ -421,3 +421,48 @@ class TestHospitalContactPoint:
         assert response.status_code == 200
         content = json.loads(response.content)
         assert content['results'][0]['uuid'] == hospital_test_강남_contact_counseling.uuid
+
+    @pytest.mark.django_db
+    def test_create_hospital_contact_point(self, client, tokens_user_dummy, hospital_test_강남):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        data = [
+            {
+                'hospital': hospital_test_강남.uuid,
+                "contact_type": hc.CONTACT_TYPE_REPRESENT,
+                "contact_point": "string"
+            },
+            {
+                'hospital': hospital_test_강남.uuid,
+                "contact_type": hc.CONTACT_TYPE_AD,
+                "contact_point": "string"
+            }
+        ]
+        response = client.post(f'/hospital/v1/hospitals/{hospital_test_강남.uuid}/contact-points', data=data, **headers)
+        assert response.status_code == 201
+        content = json.loads(response.content)
+        assert len(content) == 2
+        assert hm.HospitalContactPoint.objects.all().count() == 2
+
+    @pytest.mark.django_db
+    def test_create_fail_should_rollback(self, client, tokens_user_dummy, hospital_test_강남):
+        headers = {
+            'HTTP_AUTHORIZATION': f'Bearer {tokens_user_dummy["access"]}',
+            'content_type': 'application/json'
+        }
+        data = [
+            {
+                'hospital': hospital_test_강남.uuid,
+                "contact_type": hc.CONTACT_TYPE_REPRESENT,
+                "contact_point": "string"
+            },
+            {
+                'hospital': hospital_test_강남.uuid,
+                "contact_type": 'wrong type',
+                "contact_point": "string"
+            }
+        ]
+        response = client.post(f'/hospital/v1/hospitals/{hospital_test_강남.uuid}/contact-points', data=data, **headers)
+        assert hm.HospitalContactPoint.objects.all().count() == 0

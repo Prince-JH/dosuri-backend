@@ -516,13 +516,16 @@ class HospitalWithPriceCoordinates(s.ModelSerializer):
                   'attachments', 'latitude', 'longitude']
 
 
+@extend_schema_serializer(examples=sch.HOSPITAL_CONTACT_POINT_EXAMPLE)
 class HospitalContactPoint(s.ModelSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     hospital: s.Field = s.SlugRelatedField(
         slug_field='uuid',
-        queryset=hm.Hospital.objects.all()
+        queryset=hm.Hospital.objects.all(),
+        write_only=True
     )
-    contact_type: s.Field = s.CharField()
+    contact_type: s.Field = s.ChoiceField([hc.CONTACT_TYPE_REPRESENT, hc.CONTACT_TYPE_COUNSEL, hc.CONTACT_TYPE_EVENT,
+                                           hc.CONTACT_TYPE_AD])
     contact_point: s.Field = s.CharField()
 
     class Meta:
