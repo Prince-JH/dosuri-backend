@@ -130,8 +130,8 @@ class GoogleAuth(SocialAuth):
 
     def get_user_info(self):
         access_token = self.get_access_token()
-        kakao_user_info = self.get_google_user_info(access_token)
-        user_info = self.pick_usable_info(kakao_user_info)
+        google_user_info = self.get_google_user_info(access_token)
+        user_info = self.pick_usable_info(google_user_info)
         return user_info
 
     def get_access_token(self):
