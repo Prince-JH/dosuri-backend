@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='hospitalattachmentassoc',
             name='attachment_type',
-            field=models.CharField(default=None, max_length=32),
+            field=models.CharField(null=True, max_length=32),
         ),
     ]
