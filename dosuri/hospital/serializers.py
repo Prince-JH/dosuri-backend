@@ -92,7 +92,34 @@ class HospitalName(s.ModelSerializer):
         fields = ('uuid', 'name')
 
 
-class Hospital(s.ModelSerializer):
+class BaseHospitalSerializer(s.ModelSerializer):
+    def save_extra(self, hospital, **kwargs):
+        if 'hospital_calendar' in kwargs:
+            self.save_calendar(hospital, kwargs.pop('hospital_calendar'))
+        if 'hospital_attachment_assoc' in kwargs:
+            self.save_attachments(hospital, kwargs.pop('hospital_attachment_assoc'))
+        if 'hospital_keyword_assoc' in kwargs:
+            self.save_keywords(hospital, kwargs.pop('hospital_keyword_assoc'))
+        return kwargs
+
+    def save_calendar(self, hospital, calendar):
+        hm.HospitalCalendar.objects.filter(hospital=hospital).delete()
+        hm.HospitalCalendar.objects.create(hospital=hospital, **calendar)
+
+    def save_attachments(self, hospital, assocs):
+        hm.HospitalAttachmentAssoc.objects.filter(hospital=hospital).delete()
+        for assoc in assocs:
+            hm.HospitalAttachmentAssoc.objects.create(hospital=hospital, attachment=assoc['attachment'],
+                                                      attachment_type=assoc['attachment_type'])
+
+    def save_keywords(self, hospital, assocs):
+        hm.HospitalKeywordAssoc.objects.filter(hospital=hospital).delete()
+        for assoc in assocs:
+            keyword = hm.HospitalKeyword.objects.get_or_create(name=assoc['keyword']['name'])
+            hm.HospitalKeywordAssoc.objects.create(hospital=hospital, keyword=keyword)
+
+
+class Hospital(BaseHospitalSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     address: s.Field = s.CharField()
     name: s.Field = s.CharField()
@@ -102,6 +129,7 @@ class Hospital(s.ModelSerializer):
     up_count: s.Field = s.IntegerField(read_only=True)
     view_count: s.Field = s.IntegerField(read_only=True)
     article_count: s.Field = s.IntegerField(read_only=True)
+    parking_info: s.Field = s.CharField(write_only=True)
     latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
     latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
     is_partner: s.Field = s.BooleanField()
@@ -127,29 +155,6 @@ class Hospital(s.ModelSerializer):
         self.save_extra(hospital, **extra)
         return hospital
 
-    def save_extra(self, hospital, **kwargs):
-        if 'hospital_calendar' in kwargs:
-            self.save_calendar(hospital, kwargs.pop('hospital_calendar'))
-        if 'hospital_attachment_assoc' in kwargs:
-            self.save_attachments(hospital, kwargs.pop('hospital_attachment_assoc'))
-        if 'hospital_keyword_assoc' in kwargs:
-            self.save_keywords(hospital, kwargs.pop('hospital_keyword_assoc'))
-        return kwargs
-
-    def save_calendar(self, hospital, calendar):
-        hm.HospitalCalendar.objects.filter(hospital=hospital).delete()
-        hm.HospitalCalendar.objects.create(hospital=hospital, **calendar)
-
-    def save_attachments(self, hospital, assocs):
-        hm.HospitalAttachmentAssoc.objects.filter(hospital=hospital).delete()
-        for assoc in assocs:
-            hm.HospitalAttachmentAssoc.objects.create(hospital=hospital, attachment=assoc['attachment'])
-
-    def save_keywords(self, hospital, assocs):
-        hm.HospitalKeywordAssoc.objects.filter(hospital=hospital).delete()
-        for assoc in assocs:
-            keyword = hm.HospitalKeyword.objects.get_or_create(name=assoc['keyword']['name'])
-            hm.HospitalKeywordAssoc.objects.create(hospital=hospital, keyword=keyword)
 
 
 class HospitalDetail(s.ModelSerializer):
