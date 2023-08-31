@@ -57,6 +57,7 @@ class TestHospitalList:
             'area': '강남구',
             'latitude': 1,
             'longitude': 2,
+            'parking_info': '가능',
             'keywords': [
                 {
                     'keyword': '척추'
@@ -67,7 +68,8 @@ class TestHospitalList:
             ],
             'attachments': [
                 {
-                    'attachment': attachment_A.uuid
+                    'attachment': attachment_A.uuid,
+                    'attachment_type': hc.ATTACHMENT_TYPE_BANNER
                 }
             ],
             'calendar': {
@@ -99,7 +101,7 @@ class TestHospitalList:
 
         content = json.loads(response.content)
         assert response.status_code == 201
-        hospital = hm.Hospital.objects.get(uuid=content['uuid'])
+        hm.Hospital.objects.get(uuid=content['uuid'])
         assert hm.Hospital.objects.all().count() == 1
 
     @pytest.mark.django_db
@@ -166,6 +168,54 @@ class TestHospitalDetail:
         assert content['latitude'] == hospital_test_강남.latitude
         assert content['longitude'] == hospital_test_강남.longitude
         assert content['parking_info'] == hospital_test_강남.parking_info
+
+    @pytest.mark.django_db
+    def test_update_hospital(self, client, hospital_test_강남, attachment_A):
+        data = {
+            'address': '서울시 강남구 삼성동 106',
+            'name': '풍림아파트',
+            'introduction': '안녕하세요',
+            'phone_no': '02-516-2674',
+            'is_partner': False,
+            'opened_at': timezone.now(),
+            'area': '강남구',
+            'latitude': 1,
+            'longitude': 2,
+            'parking_info': '가능',
+            'keywords': [
+                {
+                    'keyword': '척추'
+                },
+                {
+                    'keyword': '요추'
+                }
+            ],
+            'attachments': [
+                {
+                    'attachment': attachment_A.uuid,
+                    'attachment_type': hc.ATTACHMENT_TYPE_BANNER
+                }
+            ],
+            'calendar': {
+                'monday': '10:00 ~ 20:00',
+                'tuesday': '10:00 ~ 20:00',
+                'wednesday': '10:00 ~ 20:00',
+                'thursday': '10:00 ~ 20:00',
+                'friday': '10:00 ~ 20:00',
+                'saturday': '10:00 ~ 20:00',
+                'sunday': None
+            }
+        }
+        response = client.put(f'/hospital/v1/hospitals/{hospital_test_강남.uuid}', data=data,
+                              content_type='application/json')
+
+        content = json.loads(response.content)
+        assert response.status_code == 200
+        hospital = hm.Hospital.objects.get(uuid=content['uuid'])
+        assert hm.Hospital.objects.all().count() == 1
+        assert hm.HospitalKeyword.objects.filter(hospital_keyword_assoc__hospital=hospital).count() == 2
+        assert hm.HospitalAttachmentAssoc.objects.filter(hospital=hospital).count() == 1
+        assert hm.HospitalCalendar.objects.filter(hospital=hospital).count() == 1
 
 
 class TestDoctor:
@@ -464,5 +514,5 @@ class TestHospitalContactPoint:
                 "contact_point": "string"
             }
         ]
-        response = client.post(f'/hospital/v1/hospitals/{hospital_test_강남.uuid}/contact-points', data=data, **headers)
+        client.post(f'/hospital/v1/hospitals/{hospital_test_강남.uuid}/contact-points', data=data, **headers)
         assert hm.HospitalContactPoint.objects.all().count() == 0
