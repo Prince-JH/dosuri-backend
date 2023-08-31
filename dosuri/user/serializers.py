@@ -149,7 +149,7 @@ class User(s.ModelSerializer):
         user = instance
         return self.save_user_info(user, validated_data)
 
-    def get_address(self, obj):
+    def get_address(self, obj) -> dict:
         address = um.UserAddress.objects.get_main_address(user=obj)
         if address:
             return {'uuid': address.uuid, 'name': address.name, 'address': address.address,
@@ -157,7 +157,7 @@ class User(s.ModelSerializer):
                     'latitude': address.latitude, 'longitude': address.longitude}
         return None
 
-    def get_setting(self, obj):
+    def get_setting(self, obj) -> dict:
         qs = um.UserSetting.objects.filter(user=obj).order_by('id')
         if qs.exists():
             setting = qs.first()
