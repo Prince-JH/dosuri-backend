@@ -156,8 +156,7 @@ class Hospital(BaseHospitalSerializer):
         return hospital
 
 
-
-class HospitalDetail(s.ModelSerializer):
+class HospitalDetail(BaseHospitalSerializer):
     uuid: s.Field = s.CharField(read_only=True)
     address: s.Field = s.CharField()
     name: s.Field = s.CharField()
@@ -174,9 +173,19 @@ class HospitalDetail(s.ModelSerializer):
     longitude: s.Field = s.FloatField()
     is_up: s.Field = s.BooleanField(read_only=True)
 
+    extra_fields = ['hospital_calendar', 'hospital_keyword_assoc', 'hospital_attachment_assoc']
+
     class Meta:
         model = hm.Hospital
         exclude = ('id', 'status', 'code', 'last_updated_at', 'created_at')
+
+    def update(self, instance, validated_data):
+        extra = {}
+        for extra_field in self.extra_fields:
+            extra[extra_field] = validated_data.pop(extra_field)
+        hospital = instance
+        self.save_extra(hospital, **extra)
+        return hospital
 
 
 class HospitalAddressAssoc(s.ModelSerializer):
