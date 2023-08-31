@@ -58,6 +58,7 @@ class UserList(g.CreateAPIView):
 
 class UserNickname(g.RetrieveAPIView):
     permission_classes = [p.AllowAny]
+    serializer_class = None
 
     @extend_schema(parameters=[
         OpenApiParameter(
