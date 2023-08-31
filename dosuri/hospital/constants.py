@@ -12,3 +12,7 @@ CONTACT_TYPE_REPRESENT = 'representative'
 CONTACT_TYPE_COUNSEL = 'counseling'
 CONTACT_TYPE_EVENT = 'event'
 CONTACT_TYPE_AD = 'advertisement'
+
+ATTACHMENT_TYPE_BANNER = 'banner'
+ATTACHMENT_TYPE_PROFILE = 'profile'
+ATTACHMENT_TYPE_INTRO = 'introduction'

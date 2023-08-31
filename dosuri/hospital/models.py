@@ -54,6 +54,7 @@ class HospitalAttachmentAssoc(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_attachment_assoc')
     attachment = models.ForeignKey(cm.Attachment, on_delete=models.CASCADE, related_name='hospital_attachment_assoc')
+    attachment_type = models.CharField(max_length=32, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
