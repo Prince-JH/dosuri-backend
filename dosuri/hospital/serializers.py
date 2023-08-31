@@ -23,6 +23,8 @@ class HospitalAttachmentAssoc(s.ModelSerializer):
         queryset=cm.Attachment.objects.all(),
         write_only=True
     )
+    attachment_type: s.Field = s.ChoiceField(
+        [hc.ATTACHMENT_TYPE_BANNER, hc.ATTACHMENT_TYPE_PROFILE, hc.ATTACHMENT_TYPE_INTRO])
     signed_path: s.Field = s.SerializerMethodField()
 
     class Meta:
