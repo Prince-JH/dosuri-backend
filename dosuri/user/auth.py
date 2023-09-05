@@ -145,7 +145,7 @@ class GoogleAuth(SocialAuth):
                    f'client_secret={settings.GOOGLE_CLIENT_SECRET}&' \
                    f'redirect_uri={self.redirect_uri}&' \
                    f'code={self.code}'
-            res = self.post(url, self.set_api_header(**header))
+            res = self.post(url, self.set_api_header(**header), data=None)
             return res['access_token']
         except APIException:
             raise uexc.GoogleApiException(json.loads(res.content))
