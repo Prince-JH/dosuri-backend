@@ -146,9 +146,11 @@ class GoogleAuth(SocialAuth):
                    f'redirect_uri={self.redirect_uri}&' \
                    f'code={self.code}'
             response = requests.post(url, None, headers=header)
+            print(response.status_code)
+            print(response.content)
             if response.status_code in (200, 201):
                 return response.json()['access_token']
-            raise uexc.GoogleApiException(json.loads(response.content))
+            raise uexc.GoogleApiException(detail=response.content)
             # res = self.post(url, self.set_api_header(**header), data=None)
         except APIException:
             raise uexc.GoogleApiException()
