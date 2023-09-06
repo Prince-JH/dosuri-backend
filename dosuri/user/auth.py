@@ -145,10 +145,13 @@ class GoogleAuth(SocialAuth):
                    f'client_secret={settings.GOOGLE_CLIENT_SECRET}&' \
                    f'redirect_uri={self.redirect_uri}&' \
                    f'code={self.code}'
-            res = self.post(url, self.set_api_header(**header), data=None)
-            return res['access_token']
+            response = requests.post(url, None, headers=header)
+            if response.status_code in (200, 201):
+                return response.json()['access_token']
+            raise uexc.GoogleApiException(json.loads(response.content))
+            # res = self.post(url, self.set_api_header(**header), data=None)
         except APIException:
-            raise uexc.GoogleApiException(json.loads(res.content))
+            raise uexc.GoogleApiException()
 
     def get_google_user_info(self, access_token):
         url = 'https://openidconnect.googleapis.com/v1/userinfo'
