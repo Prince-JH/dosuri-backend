@@ -135,25 +135,20 @@ class GoogleAuth(SocialAuth):
         return user_info
 
     def get_access_token(self):
-        # try:
-        url = 'https://oauth2.googleapis.com/token?'
-        header = {
-            'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
-        }
-        url += f'grant_type=authorization_code&' \
-               f'client_id={settings.GOOGLE_CLIENT_ID}&' \
-               f'client_secret={settings.GOOGLE_CLIENT_SECRET}&' \
-               f'redirect_uri={self.redirect_uri}&' \
-               f'code={self.code}'
-        response = requests.post(url, None, headers=header)
-        print(response.status_code)
-        print(response.content)
-        if response.status_code in (200, 201):
-            return response.json()['access_token']
-        raise uexc.GoogleApiException(detail=response.content)
-        # res = self.post(url, self.set_api_header(**header), data=None)
-        # except APIException:
-        #     raise uexc.GoogleApiException()
+        try:
+            url = 'https://oauth2.googleapis.com/token?'
+            header = {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+            }
+            url += f'grant_type=authorization_code&' \
+                   f'client_id={settings.GOOGLE_CLIENT_ID}&' \
+                   f'client_secret={settings.GOOGLE_CLIENT_SECRET}&' \
+                   f'redirect_uri={self.redirect_uri}&' \
+                   f'code={self.code}'
+            res = self.post(url, self.set_api_header(**header), data=None)
+            return res['access_token']
+        except APIException:
+            raise uexc.GoogleApiException()
 
     def get_google_user_info(self, access_token):
         url = 'https://openidconnect.googleapis.com/v1/userinfo'
