@@ -167,7 +167,7 @@ class GoogleAuth(SocialAuth):
         if settings.SERVER_URL in self.origin:
             return settings.GOOGLE_REDIRECT_URI
         else:
-            return 'http://localhost:3000/oauth/callback/kakao'
+            return 'http://localhost:3000/oauth/callback/google'
 
     def pick_usable_info(self, google_user_info):
         username = google_user_info.get('email')
