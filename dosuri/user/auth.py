@@ -130,24 +130,22 @@ class GoogleAuth(SocialAuth):
 
     def get_user_info(self):
         access_token = self.get_access_token()
-        kakao_user_info = self.get_google_user_info(access_token)
-        user_info = self.pick_usable_info(kakao_user_info)
+        google_user_info = self.get_google_user_info(access_token)
+        user_info = self.pick_usable_info(google_user_info)
         return user_info
 
     def get_access_token(self):
         try:
-            url = 'https://oauth2.googleapis.com/token'
+            url = 'https://oauth2.googleapis.com/token?'
             header = {
                 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
             }
-            body = {
-                'grant_type': 'authorization_code',
-                'client_id': settings.GOOGLE_CLIENT_ID,
-                'client_secret': settings.GOOGLE_CLIENT_SECRET,
-                'redirect_uri': self.redirect_uri,
-                'code': self.code
-            }
-            res = self.post(url, self.set_api_header(**header), body)
+            url += f'grant_type=authorization_code&' \
+                   f'client_id={settings.GOOGLE_CLIENT_ID}&' \
+                   f'client_secret={settings.GOOGLE_CLIENT_SECRET}&' \
+                   f'redirect_uri={self.redirect_uri}&' \
+                   f'code={self.code}'
+            res = self.post(url, self.set_api_header(**header), data=None)
             return res['access_token']
         except APIException:
             raise uexc.GoogleApiException()
@@ -164,12 +162,13 @@ class GoogleAuth(SocialAuth):
         if settings.SERVER_URL in self.origin:
             return settings.GOOGLE_REDIRECT_URI
         else:
-            return 'http://localhost:3000/oauth/callback/kakao'
+            return 'http://localhost:3000/oauth/callback/google'
 
     def pick_usable_info(self, google_user_info):
         username = google_user_info.get('email')
         name = google_user_info.get('name')
         return {'username': username, 'name': name}
+
 
 class AppleAuth(SocialAuth):
     def __init__(self, code, origin):
@@ -197,12 +196,12 @@ class AppleAuth(SocialAuth):
         }
 
         client_secret = jwt.encode(
-            payload, 
-            settings.SOCIAL_AUTH_APPLE_PRIVATE_KEY, 
-            algorithm='ES256', 
+            payload,
+            settings.SOCIAL_AUTH_APPLE_PRIVATE_KEY,
+            algorithm='ES256',
             headers=headers
         )
-        
+
         return settings.SOCIAL_AUTH_APPLE_CLIENT_ID, client_secret
 
     def pick_usable_info(self, apple_token):
@@ -222,6 +221,6 @@ class AppleAuth(SocialAuth):
 
         if id_token:
             decoded = jwt.decode(id_token, options={"verify_signature": False})
-            username=decoded['email'] if 'email' in decoded else None
+            username = decoded['email'] if 'email' in decoded else None
 
         return {'username': username}

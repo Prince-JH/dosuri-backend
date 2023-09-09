@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.expressions import ArraySubquery
+from django.db import transaction
 from django.db.models import OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404
@@ -412,7 +413,7 @@ class HospitalReservation(g.CreateAPIView):
         serializer.save(user=self.request.user)
 
 
-class HospitalContactPointList(g.ListAPIView):
+class HospitalContactPointList(g.ListCreateAPIView):
     permission_classes = [p.IsAuthenticated]
     queryset = hm.HospitalContactPoint.objects.all()
     serializer_class = s.HospitalContactPoint
@@ -421,3 +422,15 @@ class HospitalContactPointList(g.ListAPIView):
         hospital_uuid = self.kwargs['uuid']
         hospital = get_object_or_404(hm.Hospital, uuid=hospital_uuid)
         return self.queryset.filter(hospital=hospital)
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        res = []
+        for data in request.data:
+            data['hospital'] = self.kwargs['uuid']
+            serializer = self.get_serializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            res.append(serializer.data)
+        headers = self.get_success_headers(serializer.data)
+        return Response(res, status=status.HTTP_201_CREATED, headers=headers)

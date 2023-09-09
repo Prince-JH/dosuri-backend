@@ -1,4 +1,5 @@
 from drf_spectacular.utils import OpenApiExample
+from dosuri.hospital import constants as hc
 
 HOME_HOSPITAL_EXAMPLE = [
     OpenApiExample(
@@ -108,7 +109,6 @@ HOME_HOSPITAL_EXAMPLE = [
     ),
 ]
 
-
 HOSPITAL_TREATMENT_EXAMPLE = [
     OpenApiExample(
         'Valid example 1',
@@ -136,4 +136,34 @@ HOSPITAL_TREATMENT_EXAMPLE = [
         },
         response_only=True,  # signal that example only applies to requests
     ),
+]
+
+HOSPITAL_CONTACT_POINT_EXAMPLE = [
+    OpenApiExample(
+        'Valid example 1',
+        summary='short summary',
+        description='',
+        value=
+        [
+            {
+                "contact_type": f"{hc.CONTACT_TYPE_REPRESENT}, {hc.CONTACT_TYPE_COUNSEL}, {hc.CONTACT_TYPE_EVENT}, {hc.CONTACT_TYPE_AD}",
+                "contact_point": "string",
+            }
+        ],
+        request_only=True
+    ),
+    OpenApiExample(
+        'Valid example 1',
+        summary='short summary',
+        description='',
+        value=
+        [
+            {
+                "uuid": "string",
+                "contact_type": f"{hc.CONTACT_TYPE_REPRESENT}, {hc.CONTACT_TYPE_COUNSEL}, {hc.CONTACT_TYPE_EVENT}, {hc.CONTACT_TYPE_AD}",
+                "contact_point": "string",
+            }
+        ],
+        response_only=True
+    )
 ]

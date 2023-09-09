@@ -15,8 +15,18 @@ class Command(BaseCommand):
     help = 'Set hospitals for advertisement'
 
     def handle(self, *args, **options):
+        # clean_doctors()
         set_ad_hospitals()
-
+#
+# def clean_doctors():
+#     to_delete = []
+#     doctors = hm.Doctor.objects.all().order_by('id')
+#
+#     for doctor in doctors:
+#         if not hm.DoctorAttachmentAssoc.objects.filter(doctor=doctor).exists():
+#             to_delete.append(doctor.id)
+#     qs = hm.Doctor.objects.filter(id__in=to_delete).delete()
+#     print(qs)
 
 def set_ad_hospitals():
     '''
@@ -1753,6 +1763,8 @@ def create_hospital_keywords(hospital, keywords):
 
 
 def create_doctor(hospital, name, title, subtitle, position):
+    if hm.Doctor.objects.filter(hospital=hospital, name=name, title=title).exists():
+        return
     return hm.Doctor.objects.create(
         hospital=hospital,
         name=name,
