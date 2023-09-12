@@ -240,6 +240,8 @@ class TestDoctor:
             'title': 'chief',
             'subtitle': 'chief',
             'position': hc.POSITION_THERAPIST,
+            'license_no': '13452',
+            'sex': 'M',
             'keywords': [
                 {
                     'keyword': '도수'
