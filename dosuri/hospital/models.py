@@ -117,6 +117,8 @@ class HospitalKeywordAssoc(models.Model):
 class Doctor(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='doctor')
+    license_no = models.CharField(max_length=64, null=True)
+    sex = models.CharField(max_length=16, null=True)
     name = models.CharField(max_length=64)
     title = models.CharField(max_length=64)
     subtitle = models.CharField(max_length=64)
@@ -233,10 +235,10 @@ class HospitalContactPoint(models.Model):
     uuid = models.CharField(max_length=32, default=generate_uuid, db_index=True)
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_contact_point')
     contact_type = models.CharField(max_length=50, choices=(
-        ('representative', '대표 전화번호'),
-        ('counseling', '상담 관리자 번호'),
-        ('event', '이벤트 관리자 번호'),
-        ('advertisement', '마케팅 담당자 이메일'),
+        (hc.CONTACT_TYPE_REPRESENT, '대표 전화번호'),
+        (hc.CONTACT_TYPE_COUNSEL, '상담 관리자 번호'),
+        (hc.CONTACT_TYPE_EVENT, '이벤트 관리자 번호'),
+        (hc.CONTACT_TYPE_AD, '마케팅 담당자 이메일'),
     ))
     contact_point = models.CharField(max_length=64)
     created_at = models.DateTimeField(auto_now_add=True)
