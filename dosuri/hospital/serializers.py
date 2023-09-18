@@ -388,8 +388,12 @@ class HospitalReservation(s.ModelSerializer):
         exclude = ('id', 'created_at')
 
     def create(self, validated_data):
+        return self.create_if_not_exists_in_last_day(validated_data)
+
+    def create_if_not_exists_in_last_day(self, validated_data):
         hospital = validated_data['hospital']
         user = validated_data['user']
+
         qs = self.Meta.model.objects.filter(hospital=hospital, user=user,
                                             created_at__gte=timezone.now() - timedelta(days=1))
         if qs.exists():
