@@ -14,62 +14,47 @@ class Command(BaseCommand):
 
 
 def insert_hopsital_info():
-    # 시너지 정형외과 의원
-    hospital = hm.Hospital.objects.get(uuid='4b7217156e9245f5a4b41e979ac9d05d')
+    # 나음 정형외과 의원
+    hospital = hm.Hospital.objects.get(uuid='3705c67af93843d1a174ef592ec252f5')
     print(hospital.name)
+    hospital.is_ad = True
     hospital.parking_info = '가능'
     hospital.introduction = \
-        '척추 내시경 수술은 최근 괄목하게 발전하여 척추 디스크 수술은 물론 척추관 협착, 이전 수술부위의 재수술 까지 거의 모든 병증에 적응할 수 있게 되었습니다. \n' \
-        '시너지정형외과는 고난도 척추수술과 재수술의 경험을 내시경수술과 접목하여 진정한 의미의 최소칩습적 척추수술로 통증, 출혈, 감염등 합병증의 위험을 최소화하여 연로하신분들도 안전하게 치료받으실수 있습니다.  \n' \
-        '시너지 정형외과에서는  경추, 요추 내시경 이외에도 척추 분야의 모든 수술을 시행하고 있으며  척추 변형에 대한 교정술도  자주 하고 있습니다. 척추 이외의 일반 정형외과 치료도 가능합니다.'
+        '통증이 왜 시작되었는지 궁금합니다. \n' \
+        '신체의 균형이 깨지면서 발생하는 경우가 많습니다. \n' \
+        '나음정형외과는 통증의 원인을 찾아 치료하고 잘못된 생활자세·습관까지 개선하는데 집중하고 있습니다.'
     hospital_keywords = [
-        '노인성척추', '제로페이', '디스크질환', '협착증'
+        '문정동정형외과', '문정역정형외과', '문정동도수치료', '송파정형외과', '송파도수치료'
     ]
     create_hospital_keywords(hospital, hospital_keywords)
     hospital.save()
     create_calendar(
         hospital=hospital,
-        monday='09:00 ~ 18:00',
-        tuesday='09:00 ~ 18:00',
-        wednesday='09:00 ~ 18:00',
-        thursday='09:00 ~ 18:00',
-        friday='09:00 ~ 18:00',
-        saturday='09:00 ~ 13:00',
+        monday='09:30 ~ 19:00',
+        tuesday='09:30 ~ 19:00',
+        wednesday='09:30 ~ 19:00',
+        thursday='09:30 ~ 19:00',
+        friday='09:30 ~ 19:00',
+        saturday='09:30 ~ 13:30',
         sunday=None,
     )
     ############################################################################################################
     doctor = create_doctor(
         hospital=hospital,
-        name='김원중',
-        title='원장',
+        name='염철현',
+        title='대표원장',
         subtitle='정형외과 전문의',
         position='의사'
     )
     descriptions = [
-        '서울대학교 의과대학 의학 박사',
-        '서울대학교 병원 정형외과 전문의',
-        '서울대학교 보라매병원 교수',
-        '인제대학교 상계백병원 척추센터 교수',
-        '인제대학교 일산백병원 척추센터 주임교수',
-        '우리들병원 부원장',
-        '대한 정형외과학회 정회원',
-        '대한 척추외과학회 정회원'
-    ]
-    create_descriptions(doctor, descriptions)
-
-    ############################################################################################################
-    doctor = create_doctor(
-        hospital=hospital,
-        name='정봉린',
-        title='원장',
-        subtitle='영상의학과 전문의',
-        position='의사'
-    )
-    descriptions = [
-        '중앙대학교 의과대학 졸업',
-        '아산중앙병원 건강검진센터',
-        '서울 백병원 건강검진센터',
-        '수원 빈센트병원 건강검진센터'
+        '정형외과 전문의, 스포츠의학 전문의',
+        '서울 을지병원 정형외과 전공의 수료',
+        '서울 백병원 스포츠의학 센터 임상교수',
+        '前) 구로예스병원 원장',
+        '대한정형외과학회 정회원',
+        '대한정형외과 초음파학회 평생회원',
+        '대한스포츠의학회 정회원',
+        '타이틀리스트 퍼포먼스 인스티튜트 인증(국내 최초 골프 비거리 증진 파워 레벨3)'
     ]
     create_descriptions(doctor, descriptions)
 
