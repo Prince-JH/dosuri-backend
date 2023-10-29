@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.contrib.auth.models import AnonymousUser
 from django.utils import timezone
 from rest_framework import serializers as s
 
@@ -382,6 +383,18 @@ class HospitalReservation(s.ModelSerializer):
         slug_field='uuid',
         read_only=True
     )
+    name = s.CharField(required=False, write_only=True)
+    phone_no = s.CharField(required=False, write_only=True)
+    reservation_date = s.DateTimeField(required=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        user = self.context['request'].user
+
+        if isinstance(user, AnonymousUser):
+            self.fields['name'].required = True
+            self.fields['phone_no'].required = True
 
     class Meta:
         model = hm.HospitalReservation
@@ -393,16 +406,29 @@ class HospitalReservation(s.ModelSerializer):
     def create_if_not_exists_in_last_day(self, validated_data):
         hospital = validated_data['hospital']
         user = validated_data['user']
+        reservation_date = validated_data['reservation_date']
+        name = validated_data.pop('name')
+        phone_no = validated_data.pop('phone_no')
+        if isinstance(user, AnonymousUser):
 
-        qs = self.Meta.model.objects.filter(hospital=hospital, user=user,
-                                            created_at__gte=timezone.now() - timedelta(days=1))
-        if qs.exists():
-            return qs.first()
-        message = self.make_message(hospital, user)
-        ct.announce_hospital_reservation(message)
-        return super().create(validated_data)
+            message = self.make_message_anonymous_user(hospital, name, phone_no, reservation_date)
+            print(message)
+            ct.announce_hospital_reservation(message)
+            validated_data['user'] = None
+            return super().create(validated_data)
+        else:
 
-    def make_message(self, hospital, user):
+            qs = self.Meta.model.objects.filter(hospital=hospital, user=user,
+                                                created_at__gte=timezone.now() - timedelta(days=1))
+            if qs.exists():
+                return qs.first()
+            message = self.make_message(hospital, user, reservation_date)
+            print(message)
+
+            ct.announce_hospital_reservation(message)
+            return super().create(validated_data)
+
+    def make_message(self, hospital, user, reservation_date):
         message = f'\n' \
                   f'병원 예약 신청\n' \
                   f'{hospital.name}\n ' \
@@ -411,6 +437,19 @@ class HospitalReservation(s.ModelSerializer):
                   f'{user.name} {user.sex}\n' \
                   f'{user.phone_no}\n' \
                   f'{user.birthday.strftime("%Y/%m/%d")}\n' \
+                  f'예약 신청일: {reservation_date.strftime("%Y/%m/%d")}\n' \
+                  f'\n'
+        return message
+
+    def make_message_anonymous_user(self, hospital, name, phone_no, reservation_date):
+        message = f'\n' \
+                  f'비회원 병원 예약 신청\n' \
+                  f'{hospital.name}\n ' \
+                  f'{hospital.phone_no}\n' \
+                  f'\n' \
+                  f'{name}\n' \
+                  f'{phone_no}\n' \
+                  f'예약 신청일: {reservation_date.strftime("%Y/%m/%d")}\n' \
                   f'\n'
         return message
 

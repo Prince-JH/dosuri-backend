@@ -405,7 +405,7 @@ class HospitalSearchDetail(g.RetrieveUpdateDestroyAPIView):
 
 
 class HospitalReservation(g.CreateAPIView):
-    permission_classes = [p.IsAuthenticated]
+    permission_classes = [p.AllowAny]
     queryset = hm.HospitalReservation.objects.all()
     serializer_class = s.HospitalReservation
 
