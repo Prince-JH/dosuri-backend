@@ -412,7 +412,6 @@ class HospitalReservation(s.ModelSerializer):
         if isinstance(user, AnonymousUser):
 
             message = self.make_message_anonymous_user(hospital, name, phone_no, reservation_date)
-            print(message)
             ct.announce_hospital_reservation(message)
             validated_data['user'] = None
             return super().create(validated_data)
@@ -423,7 +422,6 @@ class HospitalReservation(s.ModelSerializer):
             if qs.exists():
                 return qs.first()
             message = self.make_message(hospital, user, reservation_date)
-            print(message)
 
             ct.announce_hospital_reservation(message)
             return super().create(validated_data)
@@ -437,7 +435,7 @@ class HospitalReservation(s.ModelSerializer):
                   f'{user.name} {user.sex}\n' \
                   f'{user.phone_no}\n' \
                   f'{user.birthday.strftime("%Y/%m/%d")}\n' \
-                  f'예약 신청일: {reservation_date.strftime("%Y/%m/%d")}\n' \
+                  f'예약 신청일: {reservation_date.strftime("%Y/%m/%d %H:%M")}\n' \
                   f'\n'
         return message
 
@@ -449,7 +447,7 @@ class HospitalReservation(s.ModelSerializer):
                   f'\n' \
                   f'{name}\n' \
                   f'{phone_no}\n' \
-                  f'예약 신청일: {reservation_date.strftime("%Y/%m/%d")}\n' \
+                  f'예약 신청일: {reservation_date.strftime("%Y/%m/%d %H:%M")}\n' \
                   f'\n'
         return message
 
