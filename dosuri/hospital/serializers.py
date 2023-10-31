@@ -385,7 +385,7 @@ class HospitalReservation(s.ModelSerializer):
     )
     name = s.CharField(required=False, write_only=True)
     phone_no = s.CharField(required=False, write_only=True)
-    reservation_date = s.DateTimeField(required=True)
+    reservation_date = s.DateTimeField(required=False, allow_null=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -406,7 +406,7 @@ class HospitalReservation(s.ModelSerializer):
     def create_if_not_exists_in_last_day(self, validated_data):
         hospital = validated_data['hospital']
         user = validated_data['user']
-        reservation_date = validated_data['reservation_date']
+        reservation_date = validated_data.get('reservation_date', None)
         name = validated_data.pop('name')
         phone_no = validated_data.pop('phone_no')
         if isinstance(user, AnonymousUser):
@@ -435,7 +435,7 @@ class HospitalReservation(s.ModelSerializer):
                   f'{user.name} {user.sex}\n' \
                   f'{user.phone_no}\n' \
                   f'{user.birthday.strftime("%Y/%m/%d")}\n' \
-                  f'예약 신청일: {reservation_date.strftime("%Y/%m/%d %H:%M")}\n' \
+                  f'예약 신청일: {self.format_reservation_date(reservation_date)}\n' \
                   f'\n'
         return message
 
@@ -447,9 +447,12 @@ class HospitalReservation(s.ModelSerializer):
                   f'\n' \
                   f'{name}\n' \
                   f'{phone_no}\n' \
-                  f'예약 신청일: {reservation_date.strftime("%Y/%m/%d %H:%M")}\n' \
+                  f'예약 신청일: {self.format_reservation_date(reservation_date)}\n' \
                   f'\n'
         return message
+
+    def format_reservation_date(self, reservation_date):
+        return reservation_date.strftime("%Y/%m/%d %H:%M") if reservation_date else ''
 
 
 class AroundHospital(s.ModelSerializer):
