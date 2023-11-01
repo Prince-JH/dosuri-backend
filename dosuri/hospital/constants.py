@@ -16,3 +16,6 @@ CONTACT_TYPE_AD = 'advertisement'
 ATTACHMENT_TYPE_BANNER = 'banner'
 ATTACHMENT_TYPE_PROFILE = 'profile'
 ATTACHMENT_TYPE_INTRO = 'introduction'
+
+DOCTOR_MALE = 'M'
+DOCTOR_FEMALE = 'F'

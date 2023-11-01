@@ -166,8 +166,7 @@ class GoogleAuth(SocialAuth):
 
     def pick_usable_info(self, google_user_info):
         username = google_user_info.get('email')
-        name = google_user_info.get('name')
-        return {'username': username, 'name': name}
+        return {'username': username}
 
 
 class AppleAuth(SocialAuth):
