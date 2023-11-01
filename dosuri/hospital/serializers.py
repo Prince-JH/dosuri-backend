@@ -407,8 +407,10 @@ class HospitalReservation(s.ModelSerializer):
         hospital = validated_data['hospital']
         user = validated_data['user']
         reservation_date = validated_data.get('reservation_date', None)
-        name = validated_data.pop('name')
-        phone_no = validated_data.pop('phone_no')
+        if 'name' in validated_data:
+            name = validated_data.pop('name')
+        if 'phone_no' in validated_data:
+            phone_no = validated_data.pop('phone_no')
         if isinstance(user, AnonymousUser):
 
             message = self.make_message_anonymous_user(hospital, name, phone_no, reservation_date)
