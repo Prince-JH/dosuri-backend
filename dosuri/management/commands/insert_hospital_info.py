@@ -14,49 +14,114 @@ class Command(BaseCommand):
 
 
 def insert_hopsital_info():
-    # 나음 정형외과 의원
-    hospital = hm.Hospital.objects.get(uuid='3705c67af93843d1a174ef592ec252f5')
+    hospital = hm.Hospital.objects.get(uuid='dd53e8ffb1bd45a3a0ed7517af6069e0')
     print(hospital.name)
-    hospital.is_ad = True
     hospital.parking_info = '가능'
     hospital.introduction = \
-        '통증이 왜 시작되었는지 궁금합니다. \n' \
-        '신체의 균형이 깨지면서 발생하는 경우가 많습니다. \n' \
-        '나음정형외과는 통증의 원인을 찾아 치료하고 잘못된 생활자세·습관까지 개선하는데 집중하고 있습니다.'
+        '안녕하십니까. 저희 강남수재활의학과의원을 찾아주셔서 감사합니다. \n' \
+        '저희병원은 대한도수의학회 상임이사 및 학술위원, 대한의사협회 도수치료 강사역임, 대한재활의학과의사회 도수치료강사이신 대표원장님의 도수치료 처방과 오스테오패시 정골의학 도수치료와 재활의학의 노하우로 정확한 전문의의 진단과 최적화된 도수치료를 처방하고 있습니다. \n' \
+        '정기적인 원내 도수치료사 도수치료 교육 및 실습지도를 통해 도수치료의 질적향상 및 임상적용에 최선을 다하고 있습니다. \n' \
+        '저희병원 부설 대규모 도수치료 교정센터는 2008년 개원이래 특화된 척추교정, 척추측만증교정(독일 슈로스운동 인증병원), 비수술 휜다리교정, 골반교정, 일자목 및 거북목 자세척추교정치료와 비수술 디스크 치료 교정도수치료, 소아하지교정 클리닉을 운영하고 있습니다. \n' \
+        'No. 1이라는 수식어보다 오로지 결과로만 말하며, 제대로 된 근거있는 전문적인 치료로써 고객님들의 몸과 마음의 치유와 건강만을 최고의 가치로 생각하겠습니다.'
+
     hospital_keywords = [
-        '문정동정형외과', '문정역정형외과', '문정동도수치료', '송파정형외과', '송파도수치료'
+        '야간진료', '힐트레이저치료', '척추교정', '일자목교정', '디스크교정', '휜다리교정'
     ]
     create_hospital_keywords(hospital, hospital_keywords)
     hospital.save()
     create_calendar(
         hospital=hospital,
-        monday='09:30 ~ 19:00',
-        tuesday='09:30 ~ 19:00',
-        wednesday='09:30 ~ 19:00',
-        thursday='09:30 ~ 19:00',
-        friday='09:30 ~ 19:00',
-        saturday='09:30 ~ 13:30',
+        monday='09:30 ~ 13:00, 14:00 ~ 18:30',
+        tuesday='09:30 ~ 13:00, 14:00 ~ 18:30',
+        wednesday='09:30 ~ 13:00, 14:00 ~ 18:30',
+        thursday='09:30 ~ 13:00, 14:00 ~ 18:30',
+        friday='09:30 ~ 13:00, 14:00 ~ 18:30',
+        saturday='09:30 ~ 13:00',
         sunday=None,
     )
     ############################################################################################################
     doctor = create_doctor(
         hospital=hospital,
-        name='염철현',
+        name='박성익',
         title='대표원장',
-        subtitle='정형외과 전문의',
+        subtitle='재활의학과 전문의',
         position='의사'
     )
     descriptions = [
-        '정형외과 전문의, 스포츠의학 전문의',
-        '서울 을지병원 정형외과 전공의 수료',
-        '서울 백병원 스포츠의학 센터 임상교수',
-        '前) 구로예스병원 원장',
-        '대한정형외과학회 정회원',
-        '대한정형외과 초음파학회 평생회원',
-        '대한스포츠의학회 정회원',
-        '타이틀리스트 퍼포먼스 인스티튜트 인증(국내 최초 골프 비거리 증진 파워 레벨3)'
+        '경희대학교 의과대학·의학전문대학원 석사',
+        '대한재활의학회 재활의학과 전문의',
+        '대한스포츠의학회 스포츠의학 분과전문의',
+        '대한임상노인의학회 노인의학 분과전문의',
+        '대한성장의학회 성장의학 분과전문의',
+        '현) 대한재활의학회 교육위원회 위원',
+        '현) 대한도수의학회 정보통신위원장',
+        '현) 대한도수의학회 상임이사',
+        '현) 대한재활의학과의사회 도수치료 강사',
+        '현) 경희대학교 의과대학 의학전문대학원 외래교수',
+        '현) 경희대학교 의학전문대학원 SDE 실습지도교수',
+        '현) 바른자세협회 학술이사',
+        '전) 건국대학교 의과대학 의학전문대학원 외래교수',
+        '전) 대한재활의학회 정보위원회 위원',
+        '전) 대한재활의학과의사회 정보통산상임이사',
+        '전) 대한도수의학회 학술위원',
+        '전) 대한의사협회 도수치료 강사',
+        '독일 척추측만증 Scoliogic Best Practice of Scoliosis Certificate 수료',
+        '서울대학교병원 의료경영 고위과정(AHP)수료',
+        'Institute of Manual Rehabilitation 카이로프랙틱 수료',
+        '대한재활의학회 정회원',
+        '대한임상통증학회 정회원',
+        '대한 근전도 전기진단학회 정회원',
+        '대한소아재활발달의학회 정회원'
     ]
     create_descriptions(doctor, descriptions)
+
+    ############################################################################################################
+    doctor = create_doctor(
+        hospital=hospital,
+        name='오선정',
+        title='원장',
+        subtitle='재활의학과 전문의',
+        position='의사'
+    )
+    descriptions = [
+        '가톨릭대학교 서울성모병원 재활의학과 전공의',
+        '대한재활의학회 재활의학과 전문의',
+        '서울성모병원 재활의학과 임상강사 역임',
+        '서울성모병원 재활의학과 임상조교수 역임',
+        '국립교통재활병원 근골격계재활센터장 역임',
+        '현) 대한재활의학회 정회원',
+        '현) 대한임상통증학회 정회원',
+        '현) 대한신경근골격초음파학회 정회원',
+        '현) 대한근전도전기진단의학회 정회원',
+        '현) 대한발의학회 정회원',
+        '현) 대한뇌신경재활학회 정회원',
+        '현) 대한노인재활의학회 정회원',
+        '현) 대한심장호흡재활의학회 정회원'
+    ]
+    create_descriptions(doctor, descriptions)
+
+    # treatment
+    create_treatment(
+        hospital=hospital,
+        name='도수 30분',
+        description='물리치료사 척추 및 사지관절',
+        price=100000,
+        price_per_hour=200000
+    )
+    create_treatment(
+        hospital=hospital,
+        name='도수 45분',
+        description='물리치료사 척추 및 사지관절',
+        price=150000,
+        price_per_hour=200000
+    )
+    create_treatment(
+        hospital=hospital,
+        name='도수 60분',
+        description='물리치료사 척추 및 사지관절',
+        price=200000,
+        price_per_hour=200000
+    )
 
 
 def create_calendar(hospital, monday, tuesday, wednesday, thursday, friday, saturday, sunday):
@@ -130,3 +195,13 @@ def create_doctor_keywords(doctor, keywords):
                 doctor=doctor,
                 keyword=keyword_obj
             )
+
+
+def create_treatment(hospital, name, price, price_per_hour, description):
+    hm.HospitalTreatment.objects.create(
+        hospital=hospital,
+        name=name,
+        price=price,
+        price_per_hour=price_per_hour,
+        description=description
+    )
