@@ -45,6 +45,7 @@ class HospitalCalendar(s.ModelSerializer):
     friday: s.Field = s.CharField(allow_null=True)
     saturday: s.Field = s.CharField(allow_null=True)
     sunday: s.Field = s.CharField(allow_null=True)
+    lunch_time: s.Field = s.CharField(allow_null=True)
 
     class Meta:
         model = hm.HospitalCalendar
@@ -125,6 +126,7 @@ class Hospital(BaseHospitalSerializer):
     address: s.Field = s.CharField()
     name: s.Field = s.CharField()
     introduction: s.Field = s.CharField(write_only=True, allow_null=True)
+    website_address: s.Field = s.CharField(allow_null=True)
     area: s.Field = s.CharField(allow_null=True)
     phone_no: s.Field = s.CharField(write_only=True, allow_null=True)
     up_count: s.Field = s.IntegerField(read_only=True)
@@ -134,6 +136,7 @@ class Hospital(BaseHospitalSerializer):
     latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
     latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
     is_partner: s.Field = s.BooleanField()
+    is_contract: s.Field = s.BooleanField()
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
     calendar: s.Field = HospitalCalendar(write_only=True, source='hospital_calendar')
@@ -162,9 +165,11 @@ class HospitalDetail(BaseHospitalSerializer):
     address: s.Field = s.CharField()
     name: s.Field = s.CharField()
     introduction: s.Field = s.CharField(allow_null=True)
+    website_address: s.Field = s.CharField(allow_null=True)
     area: s.Field = s.CharField(allow_null=True)
     phone_no: s.Field = s.CharField(allow_null=True)
     is_partner: s.Field = s.BooleanField()
+    is_contract: s.Field = s.BooleanField()
     opened_at: s.Field = s.DateTimeField(write_only=True, allow_null=True)
     calendar: s.Field = HospitalCalendar(source='hospital_calendar')
     keywords: s.Field = HospitalKeywordAssoc(many=True, source='hospital_keyword_assoc')
