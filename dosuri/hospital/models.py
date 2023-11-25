@@ -20,13 +20,15 @@ class Hospital(models.Model):
     code = models.CharField(max_length=128, null=True)
     address = models.CharField(max_length=128, null=True)
     name = models.CharField(max_length=128)
+    website_address = models.CharField(max_length=128, null=True)
     introduction = models.CharField(max_length=1024, null=True)
     area = models.CharField(max_length=32, null=True)
     phone_no = models.CharField(max_length=32, null=True)
     parking_info = models.CharField(max_length=32, null=True)
     view_count = models.IntegerField(default=0)
-    is_partner = models.BooleanField(default=False)
-    is_ad = models.BooleanField(default=False)
+    is_partner = models.BooleanField(default=False)  # 현재는 강남역, 봉천역, 발산역, 노원역, 잠실역 주변 2키로의 병원을 파트너 병원으로 보고
+    is_ad = models.BooleanField(default=False)  # 광고중인 병원(메인에 병원에 AD로 노출)
+    is_contract = models.BooleanField(default=False)  # 입점 신청한 병원
     opened_at = models.DateTimeField(null=True)
     latitude = models.FloatField(default=0, db_index=True)
     longitude = models.FloatField(default=0, db_index=True)
@@ -72,6 +74,7 @@ class HospitalCalendar(models.Model):
     friday = models.CharField(max_length=128, null=True)
     saturday = models.CharField(max_length=128, null=True)
     sunday = models.CharField(max_length=128, null=True)
+    lunch_time = models.CharField(max_length=128, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

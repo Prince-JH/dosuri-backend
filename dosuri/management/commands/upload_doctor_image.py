@@ -39,7 +39,7 @@ def upload_image(file_loc):
             hospital = hm.Hospital.objects.get(uuid=hospital_uuid)
             print(hospital)
 
-            title = unicodedata.normalize('NFC', file.rstrip('.png'))
+            title = unicodedata.normalize('NFC', file.rstrip('.jpg'))
             qs = hm.Doctor.objects.filter(name=title, hospital=hospital)
             bucket = 'dosuri-image'
             if qs.exists():
