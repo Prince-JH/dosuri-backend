@@ -73,8 +73,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-if DEV_ENV == 'prod':
-    MIDDLEWARE.append('dosuri.common.es.es_middleware')
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'dosuri.common.pagings.PageSizeResultsSetPagination',
