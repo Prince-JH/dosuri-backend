@@ -8,7 +8,6 @@ import datetime
 import dosuri.community.models as cm
 
 
-@shared_task
 def announce_insurance_consult(message):
     naver_client = cs.NaverCloudClient()
     naver_client.send_sms(message, settings.INSURANCE_PHONE_NUMBERS)
@@ -16,13 +15,11 @@ def announce_insurance_consult(message):
     slack_client.send_message_to_bot_channel(message)
 
 
-@shared_task
 def announce_hospital_reservation(message):
     slack_client = csl.SlackClient()
     slack_client.send_message_to_bot_channel(message)
 
 
-@shared_task
 def announce_insurance_consult_to_user(phone_no):
     phone_no = phone_no.replace('-', '')
     message = '[도수리] \n' \
@@ -32,7 +29,6 @@ def announce_insurance_consult_to_user(phone_no):
     naver_client.send_sms(message, [phone_no])
 
 
-@shared_task
 def article_relocation_every_day():
     today = datetime.date.today()
     article_list = cm.Article.objects.all().order_by('created_at')[:10]
@@ -42,4 +38,3 @@ def article_relocation_every_day():
         target = target.replace(year=today.year, month=today.month, day=today.day)
         article.created_at = target
         article.save()
-    return
