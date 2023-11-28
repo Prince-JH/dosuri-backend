@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.contrib.auth.models import AnonymousUser
 from django.utils import timezone
 from rest_framework import serializers as s
 
@@ -44,6 +45,7 @@ class HospitalCalendar(s.ModelSerializer):
     friday: s.Field = s.CharField(allow_null=True)
     saturday: s.Field = s.CharField(allow_null=True)
     sunday: s.Field = s.CharField(allow_null=True)
+    lunch_time: s.Field = s.CharField(allow_null=True)
 
     class Meta:
         model = hm.HospitalCalendar
@@ -124,6 +126,7 @@ class Hospital(BaseHospitalSerializer):
     address: s.Field = s.CharField()
     name: s.Field = s.CharField()
     introduction: s.Field = s.CharField(write_only=True, allow_null=True)
+    website_address: s.Field = s.CharField(allow_null=True)
     area: s.Field = s.CharField(allow_null=True)
     phone_no: s.Field = s.CharField(write_only=True, allow_null=True)
     up_count: s.Field = s.IntegerField(read_only=True)
@@ -133,6 +136,7 @@ class Hospital(BaseHospitalSerializer):
     latest_article: s.Field = s.CharField(read_only=True, allow_null=True)
     latest_article_created_at: s.Field = s.CharField(read_only=True, allow_null=True)
     is_partner: s.Field = s.BooleanField()
+    is_contract: s.Field = s.BooleanField()
     opened_at: s.Field = s.DateTimeField(allow_null=True)
     distance: s.Field = s.FloatField(read_only=True, allow_null=True)
     calendar: s.Field = HospitalCalendar(write_only=True, source='hospital_calendar')
@@ -161,9 +165,11 @@ class HospitalDetail(BaseHospitalSerializer):
     address: s.Field = s.CharField()
     name: s.Field = s.CharField()
     introduction: s.Field = s.CharField(allow_null=True)
+    website_address: s.Field = s.CharField(allow_null=True)
     area: s.Field = s.CharField(allow_null=True)
     phone_no: s.Field = s.CharField(allow_null=True)
     is_partner: s.Field = s.BooleanField()
+    is_contract: s.Field = s.BooleanField()
     opened_at: s.Field = s.DateTimeField(write_only=True, allow_null=True)
     calendar: s.Field = HospitalCalendar(source='hospital_calendar')
     keywords: s.Field = HospitalKeywordAssoc(many=True, source='hospital_keyword_assoc')
@@ -278,7 +284,9 @@ class Doctor(s.ModelSerializer):
     )
     hospital_name: s.Field = s.CharField(source='hospital.name', read_only=True)
     attachments: s.Field = DoctorAttachmentAssoc(many=True, source='doctor_attachment_assoc')
+    license_no: s.Field = s.CharField()
     name: s.Field = s.CharField()
+    sex: s.Field = s.ChoiceField([hc.DOCTOR_MALE, hc.DOCTOR_FEMALE])
     title: s.Field = s.CharField(allow_null=True)
     subtitle: s.Field = s.CharField(allow_null=True)
     position: s.Field = s.CharField(allow_null=True)
@@ -380,23 +388,52 @@ class HospitalReservation(s.ModelSerializer):
         slug_field='uuid',
         read_only=True
     )
+    name = s.CharField(required=False, write_only=True)
+    phone_no = s.CharField(required=False, write_only=True)
+    reservation_date = s.DateTimeField(required=False, allow_null=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        user = self.context['request'].user
+
+        if isinstance(user, AnonymousUser):
+            self.fields['name'].required = True
+            self.fields['phone_no'].required = True
 
     class Meta:
         model = hm.HospitalReservation
         exclude = ('id', 'created_at')
 
     def create(self, validated_data):
+        return self.create_if_not_exists_in_last_day(validated_data)
+
+    def create_if_not_exists_in_last_day(self, validated_data):
         hospital = validated_data['hospital']
         user = validated_data['user']
-        qs = self.Meta.model.objects.filter(hospital=hospital, user=user,
-                                            created_at__gte=timezone.now() - timedelta(days=1))
-        if qs.exists():
-            return qs.first()
-        message = self.make_message(hospital, user)
-        ct.announce_hospital_reservation(message)
-        return super().create(validated_data)
+        reservation_date = validated_data.get('reservation_date', None)
+        if 'name' in validated_data:
+            name = validated_data.pop('name')
+        if 'phone_no' in validated_data:
+            phone_no = validated_data.pop('phone_no')
+        if isinstance(user, AnonymousUser):
 
-    def make_message(self, hospital, user):
+            message = self.make_message_anonymous_user(hospital, name, phone_no, reservation_date)
+            ct.announce_hospital_reservation(message)
+            validated_data['user'] = None
+            return super().create(validated_data)
+        else:
+
+            qs = self.Meta.model.objects.filter(hospital=hospital, user=user,
+                                                created_at__gte=timezone.now() - timedelta(days=1))
+            if qs.exists():
+                return qs.first()
+            message = self.make_message(hospital, user, reservation_date)
+
+            ct.announce_hospital_reservation(message)
+            return super().create(validated_data)
+
+    def make_message(self, hospital, user, reservation_date):
         message = f'\n' \
                   f'병원 예약 신청\n' \
                   f'{hospital.name}\n ' \
@@ -405,8 +442,24 @@ class HospitalReservation(s.ModelSerializer):
                   f'{user.name} {user.sex}\n' \
                   f'{user.phone_no}\n' \
                   f'{user.birthday.strftime("%Y/%m/%d")}\n' \
+                  f'예약 신청일: {self.format_reservation_date(reservation_date)}\n' \
                   f'\n'
         return message
+
+    def make_message_anonymous_user(self, hospital, name, phone_no, reservation_date):
+        message = f'\n' \
+                  f'비회원 병원 예약 신청\n' \
+                  f'{hospital.name}\n ' \
+                  f'{hospital.phone_no}\n' \
+                  f'\n' \
+                  f'{name}\n' \
+                  f'{phone_no}\n' \
+                  f'예약 신청일: {self.format_reservation_date(reservation_date)}\n' \
+                  f'\n'
+        return message
+
+    def format_reservation_date(self, reservation_date):
+        return reservation_date.strftime("%Y/%m/%d %H:%M") if reservation_date else ''
 
 
 class AroundHospital(s.ModelSerializer):

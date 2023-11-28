@@ -73,8 +73,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-if DEV_ENV == 'prod':
-    MIDDLEWARE.append('dosuri.common.es.es_middleware')
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'dosuri.common.pagings.PageSizeResultsSetPagination',
@@ -170,9 +168,6 @@ STATICFILES_STORAGE = 'storages.backends.s3boto3.S3StaticStorage'
 SITE_URL = os.environ.get('SITE_URL')
 SERVER_URL = os.environ.get('SERVER_URL', '')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'dosuri')
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 KAKAO_REST_API_KEY = os.environ.get('KAKAO_REST_API_KEY')

@@ -50,9 +50,11 @@ class TestHospitalList:
         data = {
             'address': '서울시 강남구 삼성동 106',
             'name': '풍림아파트',
+            'website_address': None,
             'introduction': '안녕하세요',
             'phone_no': '02-516-2674',
             'is_partner': False,
+            'is_contract': False,
             'opened_at': timezone.now(),
             'area': '강남구',
             'latitude': 1,
@@ -79,7 +81,8 @@ class TestHospitalList:
                 'thursday': '10:00 ~ 20:00',
                 'friday': '10:00 ~ 20:00',
                 'saturday': '10:00 ~ 20:00',
-                'sunday': None
+                'sunday': None,
+                'lunch_time': '12:30 ~ 13:30'
             }
         }
         response = client.post('/hospital/v1/hospitals', data=data, content_type='application/json')
@@ -174,9 +177,11 @@ class TestHospitalDetail:
         data = {
             'address': '서울시 강남구 삼성동 106',
             'name': '풍림아파트',
+            'website_address': None,
             'introduction': '안녕하세요',
             'phone_no': '02-516-2674',
             'is_partner': False,
+            'is_contract': False,
             'opened_at': timezone.now(),
             'area': '강남구',
             'latitude': 1,
@@ -203,7 +208,8 @@ class TestHospitalDetail:
                 'thursday': '10:00 ~ 20:00',
                 'friday': '10:00 ~ 20:00',
                 'saturday': '10:00 ~ 20:00',
-                'sunday': None
+                'sunday': None,
+                'lunch_time': '12:30 ~ 13:30'
             }
         }
         response = client.put(f'/hospital/v1/hospitals/{hospital_test_강남.uuid}', data=data,
@@ -240,6 +246,8 @@ class TestDoctor:
             'title': 'chief',
             'subtitle': 'chief',
             'position': hc.POSITION_THERAPIST,
+            'license_no': '13452',
+            'sex': 'M',
             'keywords': [
                 {
                     'keyword': '도수'
