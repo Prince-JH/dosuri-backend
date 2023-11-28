@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'dosuri.apps.DosuriConfig',
     'drf_spectacular',
     'corsheaders',
+    'django_crontab',
 ]
 # if DEBUG:
 #     INSTALLED_APPS.append('drf_spectacular')
@@ -228,3 +229,7 @@ def get_apple_keypair_from_ssm():
 
 if "AWS_ACCESS_KEY_ID" in os.environ:
     SOCIAL_AUTH_APPLE_PRIVATE_KEY = get_apple_keypair_from_ssm()
+
+CRONJOBS = [
+    ('57 14 * * *', 'dosuri.tasks.article_relocation_every_day', '>> '+os.path.join(BASE_DIR, 'cron.log'),
+]
