@@ -8,5 +8,5 @@ urlpatterns = [
     path('v1/addresses/<uuid>', cv.AddressDetail.as_view(), name='address-detail'),
     path('v1/attachment', cv.Attachment.as_view(), name='attachment'),
     path('v1/attachment/<uuid>', cv.AttachmentDetail.as_view(), name='attachment-detail'),
-
+    path('v1/relocation', cv.rotation_review_view, name='relocation-article'),
 ]
