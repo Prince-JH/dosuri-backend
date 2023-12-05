@@ -244,4 +244,3 @@ wcwidth==0.2.6
     # via prompt-toolkit
 wrapt==1.14.1
     # via deprecated
-django-crontab==0.7.1
