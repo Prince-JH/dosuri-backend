@@ -1,5 +1,7 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 
+from dateutil import parser
+from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.utils import timezone
 from rest_framework import serializers as s
@@ -14,7 +16,7 @@ from dosuri.common import (
     utils as cu,
     tasks as ct,
 )
-from drf_spectacular.utils import extend_schema_serializer, OpenApiExample, extend_schema_field
+from drf_spectacular.utils import extend_schema_serializer, extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 
 
@@ -390,6 +392,7 @@ class HospitalReservation(s.ModelSerializer):
     )
     name = s.CharField(required=False, write_only=True)
     phone_no = s.CharField(required=False, write_only=True)
+    birthday = s.CharField(required=False, write_only=True)
     reservation_date = s.DateTimeField(required=False, allow_null=True)
 
     def __init__(self, *args, **kwargs):
@@ -400,6 +403,7 @@ class HospitalReservation(s.ModelSerializer):
         if isinstance(user, AnonymousUser):
             self.fields['name'].required = True
             self.fields['phone_no'].required = True
+            self.fields['birthday'].required = True
 
     class Meta:
         model = hm.HospitalReservation
@@ -412,13 +416,15 @@ class HospitalReservation(s.ModelSerializer):
         hospital = validated_data['hospital']
         user = validated_data['user']
         reservation_date = validated_data.get('reservation_date', None)
-        if 'name' in validated_data:
-            name = validated_data.pop('name')
-        if 'phone_no' in validated_data:
-            phone_no = validated_data.pop('phone_no')
         if isinstance(user, AnonymousUser):
+            name = validated_data.pop('name')
+            phone_no = validated_data.pop('phone_no')
+            birthday = validated_data.pop('birthday')
+            if birthday:
+                birthday = parser.parse(birthday)
 
-            message = self.make_message_anonymous_user(hospital, name, phone_no, reservation_date)
+            message = self.make_message_anonymous_user(hospital, name, phone_no, birthday,
+                                                       reservation_date)
             ct.announce_hospital_reservation(message)
             validated_data['user'] = None
             return super().create(validated_data)
@@ -434,28 +440,37 @@ class HospitalReservation(s.ModelSerializer):
             return super().create(validated_data)
 
     def make_message(self, hospital, user, reservation_date):
-        message = f'\n' \
-                  f'병원 예약 신청\n' \
-                  f'{hospital.name}\n ' \
-                  f'{hospital.phone_no}\n' \
-                  f'\n' \
-                  f'{user.name} {user.sex}\n' \
-                  f'{user.phone_no}\n' \
-                  f'{user.birthday.strftime("%Y/%m/%d")}\n' \
-                  f'예약 신청일: {self.format_reservation_date(reservation_date)}\n' \
-                  f'\n'
+        if settings.DEV_ENV == 'prod':
+            message = ''
+        else:
+            message = f'[테스트]\n'
+        message += f'\n' \
+                   f'병원 예약 신청\n' \
+                   f'{hospital.name}\n ' \
+                   f'{hospital.phone_no}\n' \
+                   f'\n' \
+                   f'{user.name} {user.sex}\n' \
+                   f'{user.phone_no}\n' \
+                   f'{user.birthday.strftime("%Y/%m/%d")}\n' \
+                   f'예약 신청일: {self.format_reservation_date(reservation_date)}\n' \
+                   f'\n'
         return message
 
-    def make_message_anonymous_user(self, hospital, name, phone_no, reservation_date):
-        message = f'\n' \
-                  f'비회원 병원 예약 신청\n' \
-                  f'{hospital.name}\n ' \
-                  f'{hospital.phone_no}\n' \
-                  f'\n' \
-                  f'{name}\n' \
-                  f'{phone_no}\n' \
-                  f'예약 신청일: {self.format_reservation_date(reservation_date)}\n' \
-                  f'\n'
+    def make_message_anonymous_user(self, hospital, name, phone_no, birthday, reservation_date):
+        if settings.DEV_ENV == 'prod':
+            message = ''
+        else:
+            message = f'[테스트]\n'
+        message += f'\n' \
+                   f'비회원 병원 예약 신청\n' \
+                   f'{hospital.name}\n ' \
+                   f'{hospital.phone_no}\n' \
+                   f'\n' \
+                   f'{name}\n' \
+                   f'{phone_no}\n' \
+                   f'{birthday.strftime("%Y/%m/%d")}\n' \
+                   f'예약 신청일: {self.format_reservation_date(reservation_date)}\n' \
+                   f'\n'
         return message
 
     def format_reservation_date(self, reservation_date):
